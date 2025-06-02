@@ -266,7 +266,7 @@ conn: this,
 // Tesis estuvo aquí 🙀
                 let text = _args.join` `  
 command = (command || '').toLowerCase()  
-const groupLimitado = '120363419109737976@g.us'  
+const groupLimitado = '120363146549758457@g.us'  
 const comandosPermitidos = ['serbot', 'bots', 'kick', 'code', 's', 'delsession', 'on', 'off', 'tutosub'];  
 
 if (m.chat === groupLimitado && !comandosPermitidos.includes(command)) {
