@@ -27,25 +27,25 @@ let crm3 = "Sinfo-Donar.js";
 let crm4 = " _autoresponder.js info-bot.js";
 let drm1 = "";
 let drm2 = "";
-let rtx = "*Convertirse en sub bot / JadiBot*\n\n*🌼 Utilice otro celular para escanear este codigo QR o escanea el codigo mediante una PC para convertirte en Sub Bot*\n\n`1` » Haga clic en los tres puntos en la esquina superior derecha\n\n`2` » Toca dispositivos vinculados\n\n`3` » Escanee este codigo QR para iniciar sesión\n\n🌼 *Este código QR expira en 45 segundos*";
-let rtx2 = "*Convertirse en sub bot / JadiBot*\n\n*🌼 Usa este Código para convertirte en un Sub Bot*\n\n`1` » Haga clic en los tres puntos en la esquina superior derecha\n\n`2` » Toca dispositivos vinculados\n\n`3` » Selecciona Vincular con el número de teléfono\n\n`4` » Escriba el Código\n\n🌼 *Este código solo funciona en en el número que lo solicitó*";
+let rtx = "*Convertirse en sub bot / JadiBot*\n\n*ðŸŒ¼ Utilice otro celular para escanear este codigo QR o escanea el codigo mediante una PC para convertirte en Sub Bot*\n\n`1` Â» Haga clic en los tres puntos en la esquina superior derecha\n\n`2` Â» Toca dispositivos vinculados\n\n`3` Â» Escanee este codigo QR para iniciar sesiÃ³n\n\nðŸŒ¼ *Este cÃ³digo QR expira en 45 segundos*";
+let rtx2 = "*Convertirse en sub bot / JadiBot*\n\n*ðŸŒ¼ Usa este CÃ³digo para convertirte en un Sub Bot*\n\n`1` Â» Haga clic en los tres puntos en la esquina superior derecha\n\n`2` Â» Toca dispositivos vinculados\n\n`3` Â» Selecciona Vincular con el nÃºmero de telÃ©fono\n\n`4` Â» Escriba el CÃ³digo\n\nðŸŒ¼ *Este cÃ³digo solo funciona en en el nÃºmero que lo solicitÃ³*";
 
-// Inicialización de conexiones globales
+// InicializaciÃ³n de conexiones globales
 if (global.conns instanceof Array) {
   console.log();
 } else {
   global.conns = [];
 }
 
-// Límite de subbots
+// LÃ­mite de subbots
 const MAX_SUBBOTS = 99999999;
 
-// Función para cargar todos los subbots al iniciar el servidor
+// FunciÃ³n para cargar todos los subbots al iniciar el servidor
 async function loadSubbots() {
   const serbotFolders = fs.readdirSync('./' + jadi);
   for (const folder of serbotFolders) {
     if (global.conns.length >= MAX_SUBBOTS) {
-      console.log(`*Límite de ${MAX_SUBBOTS} subbots alcanzado.*`);
+      console.log(`*LÃ­mite de ${MAX_SUBBOTS} subbots alcanzado.*`);
       break;
     }
     const folderPath = `./${jadi}/${folder}`;
@@ -66,7 +66,7 @@ async function loadSubbots() {
       conn.isInit = false;
       let isInit = true;
 
-      let reconnectionAttempts = 0; // Contador de intentos de reconexión
+      let reconnectionAttempts = 0; // Contador de intentos de reconexiÃ³n
 
       async function connectionUpdate(update) {
         const { connection, lastDisconnect, isNewLogin } = update;
@@ -108,12 +108,12 @@ async function loadSubbots() {
               conn.ev.on('creds.update', conn.credsUpdate);
               await creloadHandler(false);
             } catch (error) {
-              console.error('Error durante la reconexión:', error);
+              console.error('Error durante la reconexiÃ³n:', error);
             }
           }, waitTime);
         }
 
-        // Eliminar carpeta si el usuario cierra la sesión manualmente
+        // Eliminar carpeta si el usuario cierra la sesiÃ³n manualmente
         if (code === DisconnectReason.loggedOut) {
           fs.rmdirSync(folderPath, { recursive: true });
           console.log(`Carpeta de credenciales eliminada para el subbot ${folder}.`);
@@ -162,12 +162,12 @@ loadSubbots().catch(console.error);
 // Handler principal
 let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
   if (!global.db.data.settings[conn.user.jid].jadibotmd) {
-    return conn.reply(msg.chat, "*🌼 Este Comando está deshabilitado por mi creador.*", msg, rcanal);
+    return conn.reply(msg.chat, "*ðŸŒ¼ Este Comando estÃ¡ deshabilitado por mi creador.*", msg, rcanal);
   }
 
-  // Verificar límite de subbots
+  // Verificar lÃ­mite de subbots
   if (global.conns.length >= MAX_SUBBOTS) {
-    return conn.reply(msg.chat, `*❀ Lo siento, se ha alcanzado el límite de ${MAX_SUBBOTS} subbots. Por favor, intenta más tarde.*`, msg, rcanal);
+    return conn.reply(msg.chat, `*â€ Lo siento, se ha alcanzado el lÃ­mite de ${MAX_SUBBOTS} subbots. Por favor, intenta mÃ¡s tarde.*`, msg, rcanal);
   }
 
   let user = conn;
@@ -237,7 +237,7 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
         },
         msgRetry: msgRetry,
         msgRetryCache: cache,
-        version: [2, 3000, 1015901307],
+        version: [2, 3000, 1023223821],
         syncFullHistory: true,
         browser: isCode ? ["Ubuntu", "Chrome", "110.0.5585.95"] : ["${botname} (Sub Bot)", "Chrome", "2.0.0"],
         defaultQueryTimeoutMs: undefined,
@@ -331,27 +331,27 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
           console.log(disconnectCode);
           if (disconnectCode == 405) {
             await fs.unlinkSync("./" + jadi + "/" + userName + "/creds.json");
-            return await msg.reply("❀ Reenvia nuevamente el comando.");
+            return await msg.reply("â€ Reenvia nuevamente el comando.");
           }
           if (disconnectCode === DisconnectReason.restartRequired) {
             initSubBot();
-            return console.log("\n🌼 Tiempo de conexión agotado, reconectando...");
+            return console.log("\nðŸŒ¼ Tiempo de conexiÃ³n agotado, reconectando...");
           } else if (disconnectCode === DisconnectReason.loggedOut) {
             fs.rmdirSync(`./${jadi}/${userName}`, { recursive: true });
-            return msg.reply("🌼 *Conexión perdida...*");
+            return msg.reply("ðŸŒ¼ *ConexiÃ³n perdida...*");
           } else if (disconnectCode == 428) {
             await closeConnection(false);
-            return msg.reply("🌼 La conexión se ha cerrado de manera inesperada, intentaremos reconectar...");
+            return msg.reply("ðŸŒ¼ La conexiÃ³n se ha cerrado de manera inesperada, intentaremos reconectar...");
           } else if (disconnectCode === DisconnectReason.connectionLost) {
             await initSubBot();
-            return console.log("\n🌼Conexión perdida con el servidor, reconectando....");
+            return console.log("\nðŸŒ¼ConexiÃ³n perdida con el servidor, reconectando....");
           } else if (disconnectCode === DisconnectReason.badSession) {
-            return await msg.reply("🌼 La conexión se ha cerrado, deberá de conectarse manualmente usando el comando *.serbot* y reescanear el nuevo *QR.* Que fué enviada la primera vez que se hizo *SubBot*");
+            return await msg.reply("ðŸŒ¼ La conexiÃ³n se ha cerrado, deberÃ¡ de conectarse manualmente usando el comando *.serbot* y reescanear el nuevo *QR.* Que fuÃ© enviada la primera vez que se hizo *SubBot*");
           } else if (disconnectCode === DisconnectReason.timedOut) {
             await closeConnection(false);
-            return console.log("\n🌼 Tiempo de conexión agotado, reconectando....");
+            return console.log("\nðŸŒ¼ Tiempo de conexiÃ³n agotado, reconectando....");
           } else {
-            console.log("\n🌼 Razón de la desconexión desconocida: " + (disconnectCode || "") + " >> " + (connection || ""));
+            console.log("\nðŸŒ¼ RazÃ³n de la desconexiÃ³n desconocida: " + (disconnectCode || "") + " >> " + (connection || ""));
           }
         }
 
@@ -363,7 +363,7 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
           subBot.isInit = true;
           global.conns.push(subBot);
           await user.sendMessage(msg.chat, {
-            text: args[0] ? "❀ *Está conectado(a)!! Por favor espere se está cargando los mensajes...*\n\n🌼 *Opciones Disponibles:*\n*» " + usedPrefix + "pausarai _(Detener la función Sub Bot)_*\n*» " + usedPrefix + "deletesession _(Borrar todo rastro de Sub Bot)_*\n*» " + usedPrefix + "serbot _(Nuevo código QR o Conectarse si ya es Sub Bot)_*" : "*❀ Conexión con éxito al WhatsApp*"
+            text: args[0] ? "â€ *EstÃ¡ conectado(a)!! Por favor espere se estÃ¡ cargando los mensajes...*\n\nðŸŒ¼ *Opciones Disponibles:*\n*Â» " + usedPrefix + "pausarai _(Detener la funciÃ³n Sub Bot)_*\n*Â» " + usedPrefix + "deletesession _(Borrar todo rastro de Sub Bot)_*\n*Â» " + usedPrefix + "serbot _(Nuevo cÃ³digo QR o Conectarse si ya es Sub Bot)_*" : "*â€ ConexiÃ³n con Ã©xito al WhatsApp*"
           }, { quoted: msg });
           if (!args[0]) {
             /* user.sendMessage(msg.chat, {
@@ -422,7 +422,7 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
             subBot.chats[chatId].isBanned = false;
           });
         } else {
-          console.log(subBot.chats, "🚩 Omitiendo mensajes en espera.", subBot.ev);
+          console.log(subBot.chats, "ðŸš© Omitiendo mensajes en espera.", subBot.ev);
           Object.keys(subBot.chats).forEach(chatId => {
             subBot.chats[chatId].isBanned = true;
           });
