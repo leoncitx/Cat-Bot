@@ -194,10 +194,11 @@ const user = m.isGroup
 const bot = m.isGroup 
   ? participants.find(u => botNums.includes(normalizeJid(u.id))) 
   : {}
+
 const isRAdmin = user?.admin === 'superadmin'
 const isAdmin = isRAdmin || user?.admin === 'admin'
-const isBotAdmin = !!bot?.admin 
-        
+const isBotAdmin = !!bot?.admin || bot?.admin === 'admin'
+
         const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), './plugins')
         for (let name in global.plugins) {
             let plugin = global.plugins[name]
