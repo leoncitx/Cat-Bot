@@ -139,12 +139,12 @@ export async function handler(chatUpdate) {
             console.error(e)
         }
         // Tesis estuvo aquí 🤤
-       const mainBot = global.conn.user.jid
+       const mainBot = global?.conn?.user?.jid
        const chat = global.db.data.chats[m.chat] || {}
        const isSubbs = chat.antiLag === true
        const allowedBots = chat.per || []
        if (!allowedBots.includes(mainBot)) allowedBots.push(mainBot)
-       const isAllowed = allowedBots.includes(this.user.jid)
+       const isAllowed = allowedBots.includes(this?.user?.jid)
        if (isSubbs && !isAllowed) 
             return
         // --
@@ -187,7 +187,7 @@ const participants = (m.isGroup ? groupMetadata.participants : []) || []
 const normalizeJid = jid => jid?.replace(/[^0-9]/g, '')
 const cleanJid = jid => jid?.split(':')[0] || ''
 const senderNum = normalizeJid(m.sender)
-const botNums = [this.user.jid, this.user.lid].map(j => normalizeJid(cleanJid(j)))
+const botNums = [this.user?.jid, this.user?.lid].map(j => normalizeJid(cleanJid(j)))
 const user = m.isGroup 
   ? participants.find(u => normalizeJid(u.id) === senderNum) 
   : {}
