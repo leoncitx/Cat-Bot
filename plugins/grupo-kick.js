@@ -1,30 +1,19 @@
+let handler = async (m, { conn, usedPrefix, command }) => {
+	
+if (!m.mentionedJid[0] && !m.quoted) return m.reply(`✳️ Ingresa el tag de un usuario. Ejemplo :\n\n*${usedPrefix + command}* @tag`) 
+let user = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted.sender
+if (conn.user.jid.includes(user)) return m.reply(`✳️ No puedo hacer un auto kick`)
 
-let handler = async (m, { conn, participants, usedPrefix, command, isROwner }) => {
-    let kickte = `🚩 Menciona al usuario que deseas eliminar.`;
+await conn.groupParticipantsUpdate(m.chat, [user], 'remove')
+m.reply(`✅ Usuario eliminado con éxito`) 
 
-    // Verifica que el usuario mencionado o citado exista
-    if (!m.mentionedJid[0] && !m.quoted) {
-        return m.reply(kickte, m.chat, { mentions: conn.parseMention(kickte) });
-    }
+}
 
-    let user = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted.sender;
-    let owr = m.chat.split`-`[0];
+handler.help = ['kick @user']
+handler.tags = ['group']
+handler.command = ['kick', 'expulsar'] 
+handler.admin = true
+handler.group = true
+handler.botAdmin = true
 
-    // Verifica si el miembro que invoca el comando es admin y si el bot también es admin
-    if (!participants.find(p => p.id === m.sender && p.isAdmin) || !participants.find(p => p.id === conn.user.jid && p.isAdmin)) {
-        return m.reply(`🚩 Solo los administradores pueden usar este comando.`);
-    }
-    
-    // Eliminar al usuario
-    await conn.groupParticipantsUpdate(m.chat, [user], 'remove');
-    m.reply(`🚩 Usuario eliminado.`);
-};
-
-handler.help = ['kick *@user*'];
-handler.tags = ['group'];
-handler.command = ['kick', 'expulsar']; 
-handler.admin = true;
-handler.group = true;
-handler.botAdmin = true;
-
-export default handler;
+export default handler
