@@ -1,30 +1,24 @@
-//import db from '../lib/database.js'
 
-export function before(m) {
-    let user = global.db.data.users[m.sender]
-    if (user.afk > -1) {
-        m.reply(`
-   Dejaste de estar afk ✅
-${user.afkReason ? ' \n💬 *Razon :* ' + user.afkReason : ''}
-⏱️ *Estuviste afk durante* ${(new Date - user.afk).toTimeString()} :3  `.trim())
-        user.afk = -1
-        user.afkReason = ''
-    }
-    let jids = [...new Set([...(m.mentionedJid || []), ...(m.quoted ? [m.quoted.sender] : [])])]
-    for (let jid of jids) {
-        let user = global.db.data.users[jid]
-        if (!user)
-            continue
-        let afkTime = user.afk
-        if (!afkTime || afkTime < 0)
-            continue
-        let reason = user.afkReason || ''
-        m.reply(`
-💤 La persona que mencionas está afk 💤
+const handler = async (m, {text}) => {
+const user = global.db.data.users[m.sender];
+user.afk = + new Date;
+user.afkReason = text;
+conn.fakeReply(m.chat, `『 ＡＦＫ 』
 
-${reason ? '💬 *Razon* : ' + reason : '💬 *Razon* : Sin razon'}
-⏱️ *Lleva afk :* ${(new Date - afkTime).toTimeString()} :3 
-  `.trim())
-    }
-    return true
-}
+> ᴇʟ ᴜsᴜᴀʀɪᴏ ${conn.getName(m.sender)} ᴇsᴛᴀ ɪɴᴀᴄᴛɪᴠᴏ. 
+
+\`💤 ＮＯ ＬＯＳ ＥＴＩＱＵＥＴＥ 💤\`
+*☣️ ᴍᴏᴛɪᴠᴏs :* ${text ? ': ' + text : 'paja'}`, '0@s.whatsapp.net', `💤 NO MOLESTAR 💤`, 'status@broadcast', null, fake)
+/*m.reply(`『 ＡＦＫ 』
+
+> ᴇsᴛᴇ ᴜsᴜᴀʀɪᴏ : ${conn.getName(m.sender)} ᴇsᴛᴀ ɪɴᴀᴄᴛɪᴠᴏ. 
+
+\`💤 ＮＯ ＬＯＳ ＥＴＩＱＵＥＴＥ 💤\`
+*☣️ ᴍᴏᴛɪᴠᴏs :* ${text ? ': ' + text : 'paja'}`);*/
+};
+handler.help = ['afk [alasan]'];
+handler.tags = ['econ'];
+handler.command = /^afk$/i;
+handler.money = 95
+handler.register = true
+export default handler;
