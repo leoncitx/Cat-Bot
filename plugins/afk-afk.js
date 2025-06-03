@@ -2,20 +2,24 @@
 const handler = async (m, { text}) => {
   const user = global.db.data.users[m.sender];
 
-  if (!user) return; // Verifica que el usuario existe en la base de datos
+  user.afk = Date.now();
+  user.afkReason = text || '😴 No especificado 💤';
 
-  if (text) {
-    user.afk = Date.now();
-    user.afkReason = text;
-    await m.reply(`🌙 *Modo AFK activado*\n📝 Motivo: ${text}`);
-} else {
-    user.afk = Date.now();
-    user.afkReason = "Sin motivo especificado";
-    await m.reply("🌙 *Modo AFK activado*\n📝 Motivo: Sin motivo especificado");
-}
+  // Notificar que el usuario ha activado el modo AFK
+  await m.reply(`✨ *MODO AFK ACTIVADO* ✨\n\n👤 Usuario: ${conn.getName(m.sender)}\n📝 Motivo: ${user.afkReason}\n⏳ No los etiquetes, está descansando... 😴`);
+
+  conn.fakeReply(
+    m.chat,
+    `🚀 *ESTADO AFK* 🚀\n\n👤 *${conn.getName(m.sender)} está AFK!*\n📌 Motivo: ${user.afkReason}\n⏳ Está descansando, ¡no lo molestes! 🤫\n\n🔔 Etiquétalo cuando regrese para que sepa que lo mencionaste.`,
+    '0@s.whatsapp.net',
+    `🌙 MODO AFK ACTIVADO 🌙`,
+    'status@broadcast',
+    null,
+    fake
+);
 };
 
-// Verifica si un usuario mencionado está en modo AFK y responde
+// Manejo de usuarios en AFK cuando son mencionados
 handler.before = async function (m) {
   const mentionedUsers = m.mentionedJid || [];
 
@@ -24,17 +28,17 @@ handler.before = async function (m) {
 
     if (user?.afk) {
       const timeAway = ((Date.now() - user.afk) / 1000).toFixed(0);
-      await m.reply(`🚨 *El usuario está en modo AFK*\n🕒 Ausente por: ${timeAway} segundos\n📌 Motivo: ${user.afkReason}`);
+      await m.reply(`🚨 *ATENCIÓN* 🚨\n\n👤 *${conn.getName(mentioned)} está en modo AFK!*\n⏳ Tiempo ausente: ${timeAway} segundos\n📌 Motivo: ${user.afkReason}\n\n⚠️ ¡Espera a que regrese antes de hablarle! 😉`);
 }
 }
 
-  // Si el usuario envía un mensaje, se elimina su estado AFK
+  // Si el usuario envía un mensaje, se desactiva el modo AFK
   const senderUser = global.db.data.users[m.sender];
   if (senderUser?.afk) {
     const timeAway = ((Date.now() - senderUser.afk) / 1000).toFixed(0);
     delete senderUser.afk;
     delete senderUser.afkReason;
-    await m.reply(`✅ *Has salido del modo AFK*\n🕒 Estuviste ausente por: ${timeAway} segundos`);
+    await m.reply(`✅ *HAS SALIDO DEL MODO AFK* ✅\n\n👤 Usuario: ${conn.getName(m.sender)}\n⏳ Estuviste ausente por: ${timeAway} segundos\n🔔 ¡Bienvenido de nuevo! 🎉`);
 }
 };
 
