@@ -22,26 +22,6 @@ let handler = async (m, { conn, text, usedPrefix, command}) => {
 
       const app = data.data;
 
-      let description = `📌 *Información de la Aplicación*\n`;
-      description += `📱 *Nombre:* ${app.name}\n`;
-      description += `🛠️ *Desarrollador:* ${app.developer}\n`;
-      description += `🆔 *ID:* ${app.id}\n`;
-      description += `📅 *Publicado:* ${app.publish}\n`;
-      description += `📦 *Tamaño:* ${app.size}\n`;
-      description += `📥 *Descargas:* ${app.stats.downloads.toLocaleString()}\n`;
-      description += `⭐ *Rating:* ${app.stats.rating.average} (${app.stats.rating.total} valoraciones)\n\n`;
-      description += `✅ Descargando la APK automáticamente...`;
-
-      await conn.sendMessage(
-        m.chat,
-        {
-          image: { url: app.image},
-          caption: description,
-          viewOnce: true
-},
-        { quoted: m}
-);
-
       const downloadUrl = app.download;
       await conn.sendMessage(
         m.chat,
