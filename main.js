@@ -476,9 +476,3 @@ function clockString(ms) {
 }
 _quickTest().catch(console.error);
 
-setInterval(() => {
-  if (process.send) {
-    console.log('â° Reinicio automÃ¡tico ejecutado cada 45 minutos');
-    process.send('reset');
-  }
-}, 1000 * 60 * 45);
