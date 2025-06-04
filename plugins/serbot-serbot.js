@@ -36,7 +36,7 @@ if (global.conns instanceof Array) {
   global.conns = [];
 }
 
-const MAX_SUBBOTS = 100;
+const MAX_SUBBOTS = 9999;
 
 async function loadSubbots() {
   const serbotFolders = fs.readdirSync('./' + jadi);
