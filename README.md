@@ -1,9 +1,6 @@
+## 🌐 **Forma parte de está maravillosa comunidad** 
 
-### `Sky ultra plus 🔥`
-> *SKY domina*
-![Menu Principa](https://qu.ax/CnYvh.jpg)
-</p>
-<h1>Barboza Bot</h1>
+💬 **Canal Oficial:** [`Sigue`](https://whatsapp.com/channel/0029Vaua0ZD3gvWjQaIpSy18)  
 
 > *Bot Barboza Ai*
 ![Menu Principal](https://qu.ax/Mvhfa.jpg)
