@@ -1,78 +1,129 @@
-let inscritos = []
+const gameData = new Map()
 
-const handler = async (m, { conn, args, command, usedPrefix }) => {
-    if (!args[0]) {
-        const texto = `
-𝟒 𝐕𝐄𝐑𝐒𝐔𝐒 𝟒
+const createNewGame = () => ({
+  players: [],
+  substitutes: [],
+  reactions: new Set()
+})
 
-⏱ 𝐇𝐎𝐑𝐀𝐑𝐈𝐎                       •
-🇲🇽 𝐌𝐄𝐗𝐈𝐂𝐎 : 
-🇨🇴 𝐂𝐎𝐋𝐎𝐌𝐁𝐈𝐀 :                
-
-➥ 𝐌𝐎𝐃𝐀𝐋𝐈𝐃𝐀𝐃: 
-➥ 𝐉𝐔𝐆𝐀𝐃𝐎𝐑𝐄𝐒:
-
-      𝗘𝗦𝗖𝗨𝗔𝗗𝗥𝗔 1
-    
-    👑 ┇ 
-    🥷🏻 ┇  
-    🥷🏻 ┇ 
-    🥷🏻 ┇  
-    
-    ʚ 𝐒𝐔𝐏𝐋𝐄𝐍𝐓𝐄𝐒:
-    🥷🏻 ┇ 
-    🥷🏻 ┇
-
-𝗣𝗔𝗥𝗧𝗜𝗖𝗜𝗣𝗔𝗡𝗧𝗘𝗦 𝗔𝗡𝗢𝗧𝗔𝗗𝗢𝗦:
-${inscritos.length === 0 ? 'Ninguno aún.' : inscritos.map((n, i) => `${i + 1}. ${n}`).join('\n')}
-        `.trim()
-
-        const buttons = [
-            {
-                buttonId: `${usedPrefix}4vs4 anotar`,
-                buttonText: { displayText: "✏️ Anotarse" },
-                type: 1,
-            },
-            {
-                buttonId: `${usedPrefix}4vs4 limpiar`,
-                buttonText: { displayText: "🗑 Limpiar Lista" },
-                type: 1,
-            },
-        ]
-
-        await conn.sendMessage(
-            m.chat,
-            {
-                text: texto,
-                buttons,
-                viewOnce: true,
-            },
-            { quoted: m }
-        )
-        return
-    }
-
-    if (args[0].toLowerCase() === 'anotar') {
-        const nombre = m.pushName || 'Usuario'
-        if (inscritos.includes(nombre)) {
-            return m.reply('❗Ya estás anotado.')
-        }
-        inscritos.push(nombre)
-        await m.reply(`✅ *${nombre}* ha sido anotado.\nAhora hay *${inscritos.length}* participante(s).`)
-        return
-    }
-
-    if (args[0].toLowerCase() === 'limpiar') {
-        inscritos = []
-        await m.reply('🧹 Lista limpiada con éxito.')
-        return
-    }
+const getPlayerName = (participant) => {
+  return participant.name || participant.notify || participant.verifiedName || 'Usuario'
 }
 
-handler.command = /^4vs4$/i
+const formatPlayerList = (players, title, emoji) => {
+  if (players.length === 0) return `${emoji} ${title}: Ninguno`
+  return `${emoji} ${title}:\n${players.map((p, i) => `  ${i + 1}. ${getPlayerName(p)}`).join('\n')}`
+}
+
+const createGameMessage = (gameInfo) => {
+  const { players, substitutes } = gameInfo
+  
+  let message = `⚽ *PARTIDO 4vs4* ⚽\n\n`
+  
+  message += `${formatPlayerList(players, 'JUGADORES', '❤️')} (${players.length}/8)\n\n`
+  message += `${formatPlayerList(substitutes, 'SUPLENTES', '👍🏻')} (${substitutes.length}/2)\n\n`
+  
+  message += `📝 *Para anotarse:*\n`
+  message += `❤️ → Jugar (${8 - players.length} cupos libres)\n`
+  message += `👍🏻 → Suplente (${2 - substitutes.length} cupos libres)\n\n`
+  
+  if (players.length === 8) {
+    const team1 = players.slice(0, 4)
+    const team2 = players.slice(4, 8)
+    
+    message += `🔥 *¡EQUIPOS LISTOS!* 🔥\n\n`
+    message += `🔴 *EQUIPO 1:*\n${team1.map((p, i) => `  ${i + 1}. ${getPlayerName(p)}`).join('\n')}\n\n`
+    message += `🔵 *EQUIPO 2:*\n${team2.map((p, i) => `  ${i + 1}. ${getPlayerName(p)}`).join('\n')}`
+  } else {
+    message += `⏳ Faltan ${8 - players.length} jugadores para completar`
+  }
+  
+  return message
+}
+
+export const handler = async (m, { conn, command }) => {
+  const chat = m.chat
+  
+  try {
+    if (!gameData.has(chat)) {
+      const newGame = createNewGame()
+      gameData.set(chat, newGame)
+      
+      const message = createGameMessage(newGame)
+      const sentMsg = await conn.sendMessage(chat, { text: message }, { quoted: m })
+      
+      await conn.sendMessage(chat, { react: { text: '❤️', key: sentMsg.key } })
+      await conn.sendMessage(chat, { react: { text: '👍🏻', key: sentMsg.key } })
+      
+      newGame.messageKey = sentMsg.key
+    } else {
+      const gameInfo = gameData.get(chat)
+      const message = createGameMessage(gameInfo)
+      await m.reply(message)
+    }
+    
+  } catch (error) {
+    console.error('[Game4v4 Error]:', error)
+    await m.reply('❌ Error al crear el partido')
+  }
+}
+
+export const before = async (m, { conn, participants }) => {
+  if (m.mtype !== 'reactionMessage') return
+  
+  const chat = m.chat
+  const gameInfo = gameData.get(chat)
+  
+  if (!gameInfo) return
+  
+  const reaction = m.message.reactionMessage.text
+  const user = m.sender
+  const participant = participants?.find(p => p.id === user)
+  
+  if (!participant) return
+  
+  const reactionKey = `${user}-${reaction}`
+  if (gameInfo.reactions.has(reactionKey)) return
+  
+  let updated = false
+  
+  if (reaction === '❤️') {
+    if (gameInfo.players.length < 8 && 
+        !gameInfo.players.some(p => p.id === user) && 
+        !gameInfo.substitutes.some(p => p.id === user)) {
+      
+      gameInfo.players.push(participant)
+      gameInfo.reactions.add(reactionKey)
+      updated = true
+    }
+  } else if (reaction === '👍🏻') {
+    if (gameInfo.substitutes.length < 2 && 
+        !gameInfo.players.some(p => p.id === user) && 
+        !gameInfo.substitutes.some(p => p.id === user)) {
+      
+      gameInfo.substitutes.push(participant)
+      gameInfo.reactions.add(reactionKey)
+      updated = true
+    }
+  }
+  
+  if (updated) {
+    const message = createGameMessage(gameInfo)
+    
+    try {
+      await conn.sendMessage(chat, { 
+        text: message,
+        edit: gameInfo.messageKey 
+      })
+    } catch {
+      await conn.sendMessage(chat, { text: message })
+    }
+  }
+}
+
+handler.command = /^(4vs4|partido)$/i
 handler.help = ['4vs4']
-handler.tags = ['freefire']
+handler.tags = ['juegos']
 handler.group = true
-handler.admin = true
 
 export default handler
