@@ -124,6 +124,5 @@ export const before = async (m, { conn, participants }) => {
 handler.command = /^(4vs4|partido)$/i
 handler.help = ['4vs4']
 handler.tags = ['juegos']
-handler.group = true
 
 export default handler
