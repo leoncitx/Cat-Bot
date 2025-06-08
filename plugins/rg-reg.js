@@ -51,6 +51,6 @@ let handler = async (m, { conn, text, usedPrefix, command}) => {
 
 handler.help = ['registrar <nombre.edad>'];
 handler.tags = ['registro'];
-handler.command = ['registrar', 'register', 'verificar', 'verify'];
+handler.command = ['registrar', 'register', 'verificar', 'reg'];
 
 export default handler;
