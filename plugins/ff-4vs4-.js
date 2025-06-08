@@ -18,24 +18,24 @@ const formatPlayerList = (players, title, emoji) => {
 const createGameMessage = (gameInfo) => {
   const { players, substitutes } = gameInfo
   
-  let message = `⚽ *PARTIDO 4vs4* ⚽\n\n`
+  let message = `⚽ *PARTIDO 2vs2* ⚽\n\n`
   
-  message += `${formatPlayerList(players, 'JUGADORES', '❤️')} (${players.length}/8)\n\n`
+  message += `${formatPlayerList(players, 'JUGADORES', '❤️')} (${players.length}/4)\n\n`
   message += `${formatPlayerList(substitutes, 'SUPLENTES', '👍🏻')} (${substitutes.length}/2)\n\n`
   
   message += `📝 *Para anotarse:*\n`
-  message += `❤️ → Jugar (${8 - players.length} cupos libres)\n`
+  message += `❤️ → Jugar (${4 - players.length} cupos libres)\n`
   message += `👍🏻 → Suplente (${2 - substitutes.length} cupos libres)\n\n`
   
-  if (players.length === 8) {
-    const team1 = players.slice(0, 4)
-    const team2 = players.slice(4, 8)
+  if (players.length === 4) {
+    const team1 = players.slice(0, 2)
+    const team2 = players.slice(2, 4)
     
     message += `🔥 *¡EQUIPOS LISTOS!* 🔥\n\n`
     message += `🔴 *EQUIPO 1:*\n${team1.map((p, i) => `  ${i + 1}. ${getPlayerName(p)}`).join('\n')}\n\n`
     message += `🔵 *EQUIPO 2:*\n${team2.map((p, i) => `  ${i + 1}. ${getPlayerName(p)}`).join('\n')}`
   } else {
-    message += `⏳ Faltan ${8 - players.length} jugadores para completar`
+    message += `⏳ Faltan ${4 - players.length} jugadores para completar`
   }
   
   return message
@@ -52,10 +52,8 @@ export const handler = async (m, { conn, command }) => {
       const message = createGameMessage(newGame)
       const sentMsg = await conn.sendMessage(chat, { text: message }, { quoted: m })
       
-      await conn.sendMessage(chat, { react: { text: '❤️', key: sentMsg.key } })
-      await conn.sendMessage(chat, { react: { text: '👍🏻', key: sentMsg.key } })
-      
       newGame.messageKey = sentMsg.key
+      newGame.messageId = sentMsg.key.id
     } else {
       const gameInfo = gameData.get(chat)
       const message = createGameMessage(gameInfo)
@@ -63,21 +61,24 @@ export const handler = async (m, { conn, command }) => {
     }
     
   } catch (error) {
-    console.error('[Game4v4 Error]:', error)
+    console.error('[Game2v2 Error]:', error)
     await m.reply('❌ Error al crear el partido')
   }
 }
 
 export const before = async (m, { conn, participants }) => {
-  if (m.mtype !== 'reactionMessage') return
+  if (!m.message?.reactionMessage) return
   
   const chat = m.chat
   const gameInfo = gameData.get(chat)
   
   if (!gameInfo) return
+
+  const reactionMsg = m.message.reactionMessage
+  if (reactionMsg.key.id !== gameInfo.messageId) return
   
-  const reaction = m.message.reactionMessage.text
-  const user = m.sender
+  const reaction = reactionMsg.text
+  const user = reactionMsg.key.remoteJid === chat ? reactionMsg.key.participant : reactionMsg.key.remoteJid
   const participant = participants?.find(p => p.id === user)
   
   if (!participant) return
@@ -88,7 +89,7 @@ export const before = async (m, { conn, participants }) => {
   let updated = false
   
   if (reaction === '❤️') {
-    if (gameInfo.players.length < 8 && 
+    if (gameInfo.players.length < 4 && 
         !gameInfo.players.some(p => p.id === user) && 
         !gameInfo.substitutes.some(p => p.id === user)) {
       
@@ -113,10 +114,12 @@ export const before = async (m, { conn, participants }) => {
     try {
       await conn.sendMessage(chat, { 
         text: message,
-        edit: gameInfo.messageKey 
+        edit: gameInfo.messageKey
       })
-    } catch {
-      await conn.sendMessage(chat, { text: message })
+    } catch (e) {
+      const newMsg = await conn.sendMessage(chat, { text: message })
+      gameInfo.messageKey = newMsg.key
+      gameInfo.messageId = newMsg.key.id
     }
   }
 }
@@ -124,5 +127,6 @@ export const before = async (m, { conn, participants }) => {
 handler.command = /^(4vs4|partido)$/i
 handler.help = ['4vs4']
 handler.tags = ['juegos']
+handler.group = true
 
 export default handler
