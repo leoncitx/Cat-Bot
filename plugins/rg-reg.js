@@ -2,55 +2,43 @@
 import { createHash} from 'crypto';
 
 let handler = async (m, { conn, text, usedPrefix, command}) => {
-    let channelID = '120363414007802886@newsletter'; // ID del canal donde se enviará la notificación
-    let imageUrl = 'https://qu.ax/iVZTn.jpg'; // Imagen proporcionada
-    let regFormat = /^([^\s]+)\.(\d+)$/i;
+    let regFormat = /^([^\s]+)\.(\d+)\.(\w+)$/i;
+    let userDB = global.db.data.users[m.sender];
 
-    if (!regFormat.test(text)) {
-        return m.reply(`❌ Formato incorrecto.\n\nUsa el comando así: *${usedPrefix + command} nombre.edad*\nEjemplo: *${usedPrefix + command} Barboza.18*`);
+    if (userDB?.registered) {
+        return m.reply(`✅ Ya estás registrado.\nSi deseas eliminar tu registro, usa: *${usedPrefix}unreg*`);
 }
 
-    let [_, name, age] = text.match(regFormat);
+    if (!regFormat.test(text)) {
+        return m.reply(`❌ Formato incorrecto.\nUsa: *${usedPrefix + command} Nombre.Edad.País*\nEjemplo: *${usedPrefix + command} Barboza.18*`);
+}
+
+    let [_, name, age, country] = text.match(regFormat);
     age = parseInt(age);
 
-    if (name.length> 50) return m.reply('❌ El nombre no puede exceder los 50 caracteres.');
-    if (isNaN(age) || age < 5 || age> 100) return m.reply('❌ La edad ingresada no es válida.');
+    if (!name || name.length> 50) return m.reply('❌ Nombre inválido o demasiado largo.');
+    if (isNaN(age) || age < 5 || age> 100) return m.reply('❌ Edad no válida.');
+    if (!country || country.length> 30) return m.reply('❌ País inválido o demasiado largo.');
 
     let userHash = createHash('md5').update(m.sender).digest('hex');
 
-    let confirmMessage = `🎉 *¡Registro exitoso!*\n\n📂 Información registrada:\n👤 *Usuario:* ${name}\n🎂 *Edad:* ${age} años\n🆔 *Código de Registro:* ${userHash}`;
-
-    await conn.sendMessage(m.chat, {
-        text: confirmMessage,
-        contextInfo: {
-            externalAdReply: {
-                title: '✅ Registro completado',
-                body: 'Gracias por registrarte.',
-                thumbnailUrl: imageUrl,
-                mediaType: 1,
-                renderLargerThumbnail: true
-}
-}
-});
-
-    let notificationMessage = `📥 *Nuevo usuario registrado:*\n\n👤 *Nombre:* ${name}\n🎂 *Edad:* ${age} años\n🆔 *Código de Registro:* ${userHash}`;
-
-    await conn.sendMessage(channelID, {
-        text: notificationMessage,
-        contextInfo: {
-            externalAdReply: {
-                title: '🔔 Nuevo registro',
-                body: `Usuario ${name} ha sido registrado con éxito.`,
-                thumbnailUrl: imageUrl,
-                mediaType: 1,
-                renderLargerThumbnail: true
-}
-}
-});
+    global.db.data.users[m.sender] = {
+        name,
+        age,
+        country,
+        registered: true,
+        regTime: Date.now(),
+        id: userHash
 };
 
-handler.help = ['registrar <nombre.edad>'];
+    let confirmMsg = `🎉 *Registro exitoso!*\n\n📂 Tus datos:\n👤 *Nombre:* ${name}\n🎂 *Edad:* ${age} años\n🌍 *País:* ${country}\n🆔 *Código:* ${userHash}`;
+
+    await conn.sendMessage(m.chat, { text: confirmMsg});
+
+};
+
+handler.help = ['registrar <nombre.edad.país>'];
 handler.tags = ['registro'];
-handler.command = ['registrar', 'register', 'verificar', 'reg'];
+handler.command = ['registrar', 'reg'];
 
 export default handler;
