@@ -33,13 +33,13 @@ let handler = async (m, { conn, args, text}) => {
     { quoted: m}
 );
 
-  // Enviar el video como documento MP4
+  // Enviar el video como documento MP4 con el nombre de la música
   await conn.sendMessage(
     m.chat,
     {
       document: { url: media},
       mimetype: 'video/mp4',
-      fileName: 'video.mp4',
+      fileName: `${title}.mp4`,
       caption: `📁 *Aquí está tu video en documento*`,
       mentions: [m.sender],
 },
