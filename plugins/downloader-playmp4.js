@@ -33,14 +33,14 @@ let handler = async (m, { conn, args, text}) => {
     { quoted: m}
 );
 
-  // Enviar video después
+  // Enviar el video como documento MP4
   await conn.sendMessage(
     m.chat,
     {
-      video: { url: media},
+      document: { url: media},
       mimetype: 'video/mp4',
       fileName: 'video.mp4',
-      caption: `🎬 *Aquí está tu video*`,
+      caption: `📁 *Aquí está tu video en documento*`,
       mentions: [m.sender],
 },
     { quoted: m}
