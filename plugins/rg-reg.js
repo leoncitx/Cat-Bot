@@ -38,10 +38,14 @@ let handler = async (m, { conn, text, usedPrefix, command}) => {
         image: { url: imageUrl},
         caption: confirmMsg
 });
+
+    await conn.sendMessage(m.chat, {
+        text: `✅ *Verificación completada!*\n\nTu registro ha sido validado y guardado correctamente.`,
+});
 };
 
 handler.help = ['registrar <nombre.edad.país>'];
 handler.tags = ['registro'];
-handler.command = ['registrar', 'register'];
+handler.command = ['registrar', 'reg'];
 
 export default handler;
