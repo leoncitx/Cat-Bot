@@ -4,13 +4,14 @@ import { createHash} from 'crypto';
 let handler = async (m, { conn, text, usedPrefix, command}) => {
     let regFormat = /^([^\s]+)\.(\d+)\.(\w+)$/i;
     let userDB = global.db.data.users[m.sender];
+    let imageUrl = 'https://qu.ax/iVZTn.jpg';
 
     if (userDB?.registered) {
         return m.reply(`✅ Ya estás registrado.\nSi deseas eliminar tu registro, usa: *${usedPrefix}unreg*`);
 }
 
     if (!regFormat.test(text)) {
-        return m.reply(`❌ Formato incorrecto.\nUsa: *${usedPrefix + command} Nombre.Edad.País*\nEjemplo: *${usedPrefix + command} Barboza.18*`);
+        return m.reply(`❌ Formato incorrecto.\nUsa: *${usedPrefix + command} Nombre.Edad.País*\nEjemplo: *${usedPrefix + command} Barboza.18.Venezuela*`);
 }
 
     let [_, name, age, country] = text.match(regFormat);
@@ -33,12 +34,14 @@ let handler = async (m, { conn, text, usedPrefix, command}) => {
 
     let confirmMsg = `🎉 *Registro exitoso!*\n\n📂 Tus datos:\n👤 *Nombre:* ${name}\n🎂 *Edad:* ${age} años\n🌍 *País:* ${country}\n🆔 *Código:* ${userHash}`;
 
-    await conn.sendMessage(m.chat, { text: confirmMsg});
-
+    await conn.sendMessage(m.chat, {
+        image: { url: imageUrl},
+        caption: confirmMsg
+});
 };
 
 handler.help = ['registrar <nombre.edad.país>'];
 handler.tags = ['registro'];
-handler.command = ['registrar', 'reg'];
+handler.command = ['registrar', 'register'];
 
 export default handler;
