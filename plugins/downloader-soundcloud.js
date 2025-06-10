@@ -8,17 +8,25 @@ const MAX_RETRIES = 2;
 const TIMEOUT_MS = 10000;
 const RETRY_DELAY_MS = 12000;
 
+// Function to check if a user is blocked
 const isUserBlocked = (userId) => {
   try {
     const blockedUsers = JSON.parse(fs.readFileSync('./bloqueados.json', 'utf8'));
     return blockedUsers.includes(userId);
-  } catch {
+  } catch (error) {
+    // Log the error but don't prevent functionality if file is missing/corrupt
+    console.error('Error reading blocked users file:', error.message);
     return false;
   }
 };
 
+// Function to get the download URL from various APIs
 const getDownloadUrl = async (videoUrl) => {
-  const apis = [{ url: 'https://api.vreden.my.id/api/ytmp3?url=', type: 'vreden' }];
+  const apis = [
+    { url: 'https://api.vreden.my.id/api/ytmp3?url=', type: 'vreden' },
+    // You can add more APIs here for redundancy if available and reliable
+    // { url: 'https://another-api.com/ytmp3?url=', type: 'another_api' },
+  ];
 
   for (const api of apis) {
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
@@ -33,21 +41,32 @@ const getDownloadUrl = async (videoUrl) => {
             url: response.data.result.download.url.trim(),
             title: response.data.result.metadata.title
           };
+        } else {
+          // Log unexpected API response structure for debugging
+          console.warn(`API ${api.type} returned unexpected data on attempt ${attempt + 1}:`, response.data);
         }
       } catch (error) {
-        if (attempt < MAX_RETRIES - 1) await wait(RETRY_DELAY_MS);
+        console.error(`Error with API ${api.type} on attempt ${attempt + 1}:`, error.message);
+        if (attempt < MAX_RETRIES - 1) {
+          await wait(RETRY_DELAY_MS);
+        }
       }
     }
   }
-  return null;
+  return null; // Return null if all APIs fail after retries
 };
 
+// Function to send the audio message
 const sendAudioNormal = async (conn, chat, audioUrl, videoTitle) => {
   let thumbnailBuffer = null;
   try {
+    // Attempt to fetch the default thumbnail
     const response = await axios.get('https://files.catbox.moe/skhywv.jpg', { responseType: 'arraybuffer' });
     thumbnailBuffer = Buffer.from(response.data, 'binary');
-  } catch {}
+  } catch (error) {
+    console.error('Error fetching default audio thumbnail:', error.message);
+    // Continue without thumbnail if fetching fails
+  }
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
@@ -59,9 +78,9 @@ const sendAudioNormal = async (conn, chat, audioUrl, videoTitle) => {
           contextInfo: {
             externalAdReply: {
               title: videoTitle,
-              body: 'MediaHub Mu&ic',
+              body: 'MediaHub Music', // Corrected typo
               previewType: 'PHOTO',
-              thumbnail: thumbnailBuffer || null,
+              thumbnail: thumbnailBuffer || null, // Use null if buffer is not available
               mediaType: 1,
               renderLargerThumbnail: false,
               showAdAttribution: true,
@@ -70,28 +89,35 @@ const sendAudioNormal = async (conn, chat, audioUrl, videoTitle) => {
         },
         { quoted: null }
       );
-      return true;
+      return true; // Audio sent successfully
     } catch (error) {
-      if (attempt < MAX_RETRIES - 1) await wait(RETRY_DELAY_MS);
+      console.error(`Error sending audio message on attempt ${attempt + 1}:`, error.message);
+      if (attempt < MAX_RETRIES - 1) {
+        await wait(RETRY_DELAY_MS);
+      }
     }
   }
-  return false;
+  return false; // Failed to send audio after all retries
 };
 
+// Main handler for the 'play' command
 const handler = async (m, { conn, text, usedPrefix, command }) => {
   const userId = m.sender;
+
+  // Check if user is blocked
   if (isUserBlocked(userId)) {
     await conn.reply(m.chat, '🚫 Lo siento, estás en la lista de usuarios bloqueados.', m);
     return;
   }
 
+  // Handle no text input (show usage instructions)
   if (!text || !text.trim()) {
-    let thumbnailBuffer = null;
+    let helpThumbnailBuffer = null;
     try {
       const response = await axios.get('https://files.catbox.moe/rdxsm0.jpg', { responseType: 'arraybuffer' });
-      thumbnailBuffer = Buffer.from(response.data, 'binary');
-    } catch {
-      console.error('Error al obtener la miniatura de ayuda:', error);
+      helpThumbnailBuffer = Buffer.from(response.data, 'binary');
+    } catch (error) {
+      console.error('Error fetching help thumbnail:', error.message);
     }
 
     await conn.sendMessage(
@@ -100,9 +126,9 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         text: `Uso: ${usedPrefix + command} <nombre de la canción>\n> Ejemplo: ${usedPrefix + command} Mi Vida Eres Tu `,
         contextInfo: {
           externalAdReply: {
-            title: 'MediaHub Mu&ic',
+            title: 'MediaHub Music', // Corrected typo
             previewType: 'PHOTO',
-            thumbnail: thumbnailBuffer || null,
+            thumbnail: helpThumbnailBuffer || null,
             mediaType: 1,
             renderLargerThumbnail: false,
             showAdAttribution: true,
@@ -115,6 +141,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     return;
   }
 
+  // Determine greeting based on current time in Lima
   const currentTime = new Date().toLocaleString('en-US', { timeZone: 'America/Lima' });
   const currentHour = new Date(currentTime).getHours();
   const greeting = currentHour < 12 ? 'Buenos días 🌅' : currentHour < 18 ? 'Buenas tardes 🌄' : 'Buenas noches 🌃';
@@ -122,8 +149,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   const userNumber = m.sender.split('@')[0];
   const reactionMessage = await conn.reply(
     m.chat,
-    `${greeting} @${userNumber},\nEstoy buscando la música solicitada.\n
-> Gracias por usar MediaHub📱!`,
+    `${greeting} @${userNumber},\nEstoy buscando la música solicitada.\n\n> ¡Gracias por usar MediaHub📱!`,
     m,
     { mentions: [m.sender] }
   );
@@ -131,22 +157,27 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   await conn.sendMessage(m.chat, { react: { text: '📀', key: reactionMessage.key } }, { quoted: m });
 
   try {
+    // Search for the video on YouTube
     const searchResults = await yts(text.trim());
-    if (!searchResults?.videos?.length) throw new Error('No se encontraron resultados en YouTube.');
+    if (!searchResults?.videos?.length) {
+      await conn.sendMessage(m.chat, { react: { text: '🔴', key: reactionMessage.key } }, { quoted: m });
+      throw new Error('No se encontraron resultados en YouTube.');
+    }
 
     const videoInfo = searchResults.videos[0];
     const { title, timestamp: duration, views, ago, url: videoUrl } = videoInfo;
 
-    // Descargar la imagen del video como buffer para externalAdReply
-    let thumbnailBuffer = null;
+    // Download the video thumbnail as a buffer
+    let videoThumbnailBuffer = null;
     try {
       const response = await axios.get(videoInfo.image, { responseType: 'arraybuffer' });
-      thumbnailBuffer = Buffer.from(response.data, 'binary');
-    } catch {
-      console.error('Error al obtener la miniatura del video:', error);
+      videoThumbnailBuffer = Buffer.from(response.data, 'binary');
+    } catch (error) {
+      console.error('Error fetching video thumbnail:', error.message);
+      // Continue without video thumbnail if fetching fails
     }
 
-    // Formato exacto con externalAdReply
+    // Prepare and send video information message
     const description = `╭─⬣「 *MediaHub* 」⬣
 │  ≡◦ *🎵 Título* ∙ ${title}
 │  ≡◦ *⏱ Duración* ∙ ${duration || 'Desconocida'}
@@ -163,9 +194,9 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         contextInfo: {
           externalAdReply: {
             title: title,
-            body: 'MediaHub Mu&ic',
+            body: 'MediaHub Music', // Corrected typo
             previewType: 'PHOTO',
-            thumbnail: thumbnailBuffer || null,
+            thumbnail: videoThumbnailBuffer || null,
             mediaType: 1,
             renderLargerThumbnail: false,
             showAdAttribution: true,
@@ -175,18 +206,23 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       { quoted: m }
     );
 
+    // Get download URL from APIs
     const downloadData = await getDownloadUrl(videoUrl);
     if (!downloadData || !downloadData.url) {
       await conn.sendMessage(m.chat, { react: { text: '🔴', key: reactionMessage.key } }, { quoted: m });
       throw new Error('No se pudo descargar la música desde ninguna API.');
     }
 
+    // Send the audio file
     await conn.sendMessage(m.chat, { react: { text: '🟢', key: reactionMessage.key } }, { quoted: m });
     const success = await sendAudioNormal(conn, m.chat, downloadData.url, downloadData.title || title);
-    if (!success) throw new Error('No se pudo enviar el audio.');
+    if (!success) {
+      throw new Error('No se pudo enviar el audio después de varios intentos.');
+    }
 
   } catch (error) {
-    await conn.reply(m.chat, `🚨 *Error:* ${error.message || 'Error desconocido'}`, m);
+    // Centralized error handling for user feedback
+    await conn.reply(m.chat, `🚨 *Error:* ${error.message || 'Error desconocido, por favor intente de nuevo más tarde.'}`, m);
   }
 };
 
