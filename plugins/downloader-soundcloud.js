@@ -1,51 +1,51 @@
+
 import yts from 'yt-search';
 import fetch from 'node-fetch';
 
-const handler = async (m, { conn, command, text, usedPrefix }) => {
-  if (!text) throw m.reply(`Ejemplo: ${usedPrefix}${command} <consulta>`
+const searchYouTube = async (query) => {
+    const search = await yts(query);
+    return search.videos.length? search.videos[0]: null;
+};
 
-  const search = await yts(text)
-  const vid = search.videos[0]
-  if (!vid) throw m.reply('No se encontro resultados, intente cambiar su consulta~');
+const downloadAudio = async (url) => {
+    const response = await fetch(`https://nirkyy-dev.hf.space/api/v1/youtube-audio-v2?url=${encodeURIComponent(url)}`);
+    const data = await response.json();
+    return data?.audio_url || null;
+};
 
-  const { title, thumbnail, timestamp, views, ago, url } = vid
+const handler = async (m, { conn, command, text, usedPrefix}) => {
+    if (!text) return m.reply(`Ejemplo: ${usedPrefix}${command} <consulta>`);
 
-  await conn.sendMessage(m.chat, {
-    image: { url: thumbnail },
-    caption: `[✿] Deacargando *${title}*\n> Descargando su audio, esperw un momento...`,
-  }, { quoted: m })
+    try {
+        const video = await searchYouTube(text);
+        if (!video) return m.reply('No se encontraron resultados, intente cambiar su consulta.');
 
-  try {
-    const response = await fetch(`https://nirkyy-dev.hf.space/api/v1/youtube-audio-v2?url=${encodeURIComponent(url)}`)
-    let keni = await response.json();
-    if (!keni.data) return m.reply("Error al obtener los datos!")
-  
-    await conn.sendMessage(m.chat, {
-      audio: { url: keni.data },
-      mimetype: 'audio/mpeg',
-      fileName: `${title}.mp3`,
-      caption: `*${title}*\n*Duración*: ${timestamp}\n*Vistas*: ${views}\n*Publicado*: ${ago}`,
-      contextInfo: {
-        externalAdReply: {
-          showAdAttribution: true,
-          mediaType: 2,
-          mediaUrl: keni.data,
-          title: title,
-          body: 'Audio Download',
-          sourceUrl: args[0],
-          thumbnail: await (await conn.getFile(thumbnail)).data,
-        },
-      },
-    }, { quoted: m })
+        const { title, thumbnail, timestamp, views, ago, url} = video;
 
-  } catch (error) {
-    console.error('Error:', error.message)
-    throw m.reply(`Error: ${error.message}`);
-  }
+        await conn.sendMessage(m.chat, {
+            image: { url: thumbnail},
+            caption: `🎵 Descargando *${title}*\n⏳ Por favor espera...`,
+}, { quoted: m});
+
+        const audioUrl = await downloadAudio(url);
+        if (!audioUrl) return m.reply("❌ No se pudo obtener el audio del video.");
+
+        await conn.sendMessage(m.chat, {
+            audio: { url: audioUrl},
+            mimetype: 'audio/mpeg',
+            fileName: `${title}.mp3`,
+            caption: `🎶 *${title}*\n⏱️ *Duración:* ${timestamp}\n👀 *Vistas:* ${views}\n📅 *Publicado:* ${ago}`,
+}, { quoted: m});
+
+        await m.react("✅");
+} catch (error) {
+        console.error('Error:', error.message);
+        m.reply(`❌ Error al procesar la solicitud:\n${error.message}`);
 }
+};
 
-handler.help = ['play'].map(v => v + ' <consulta>')
-handler.tags = ['deacargas']
-handler.command = /^(play)$/i
+handler.help = ['play'].map(v => v + ' <consulta>');
+handler.tags = ['descargas'];
+handler.command = /^(play)$/i;
 
-export default handler
+export default handler;
