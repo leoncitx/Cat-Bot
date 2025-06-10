@@ -1,50 +1,54 @@
 import fetch from 'node-fetch';
 
-let handler = async (m, { conn, args, text}) => {
-  if (!args[0]) throw m.reply('Proporcione una consulta');
+let handler = async (m, { conn, usedPrefix, command, text }) => {
+  if (!text) return m.reply(`✨ Ingresa un texto para buscar en YouTube.\n> *Ejemplo:* ${usedPrefix + command} Shakira`);
 
-  const sender = m.sender.split('@')[0];
+  try {
+    const searchApi = `https://delirius-apiofc.vercel.app/search/ytsearch?q=${text}`;
+    const searchResponse = await fetch(searchApi);
+    const searchData = await searchResponse.json();
 
-  let ouh = await fetch(`https://fastrestapis.fasturl.cloud/downup/ytdown-v1?name=${text}&format=mp4&quality=720&server=auto`);
-  let gyh = await ouh.json();
+    if (!searchData?.data || searchData.data.length === 0) {
+      return m.reply(`⚠️ No se encontraron resultados para "${text}".`);
+    }
 
-  const { duration, thumbnail, views, description, lengthSeconds, uploadDate} = gyh.result.metadata;
-  const { author, name, bio, image, subCount} = gyh.result.author;
-  const { url, format, quality, media, title} = gyh.result;
+    const video = searchData.data[0]; // Tomar el primer resultado
+    const videoDetails = `
+🎵 *Título:* ${video.title}
+📺 *Canal:* ${video.author.name}
+⏱️ *Duración:* ${video.duration}
+👀 *Vistas:* ${video.views}
+📅 *Publicado:* ${video.publishedAt}
+🌐 *Enlace:* ${video.url}
+`;
 
-  m.reply('Procesando solicitud...');
+    await conn.sendMessage(m.chat, {
+      image: { url: video.image },
+      caption: videoDetails.trim()
+    }, { quoted: m });
 
-  let textcap = `*YOUTUBE VIDEO DOWNLOADER*\n\n
-  📌 *Título:* ${title}\n
-  ⏳ *Duración:* ${lengthSeconds} segundos\n
-  🎥 *Calidad:* ${quality}\n\n
-  📝 *Descripción:*\n${description}\n\n> ${wm}`;
+    const downloadApi = `https://api.vreden.my.id/api/ytmp3?url=${video.url}`;
+    const downloadResponse = await fetch(downloadApi);
+    const downloadData = await downloadResponse.json();
 
-  await conn.sendMessage(
-    m.chat,
-    {
-      image: { url: thumbnail},
-      caption: textcap,
-      mentions: [m.sender],
-},
-    { quoted: m}
-);
+    if (!downloadData?.result?.download?.url) {
+      return m.reply("❌ No se pudo obtener el audio del video.");
+    }
+    await conn.sendMessage(m.chat, {
+      audio: { url: downloadData.result.download.url },
+      mimetype: 'audio/mpeg',
+      fileName: `${video.title}.mp3`
+    }, { quoted: m });
 
-  await conn.sendMessage(
-    m.chat,
-    {
-      document: { url: media},
-      mimetype: 'video/mp4',
-      fileName: `${title}.mp4`,
-      caption: `📁 *Aquí está tu video en documento*`,
-      mentions: [m.sender],
-},
-    { quoted: m}
-);
+    await m.react("✅");
+  } catch (error) {
+    console.error(error);
+    m.reply(`❌ Error al procesar la solicitud:\n${error.message}`);
+  }
 };
 
-handler.help = ['play2 <consulta>'];
-handler.tags = ['downloader'];
-handler.command = ["play2"];
+handler.command = ['play', 'playaudio'];
+handler.help = ['play <texto>', 'playaudio <texto>'];
+handler.tags = ['media'];
 
 export default handler;
