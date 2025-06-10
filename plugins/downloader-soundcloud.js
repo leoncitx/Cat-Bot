@@ -1,3 +1,4 @@
+
 import yts from 'yt-search';
 import fetch from 'node-fetch';
 
@@ -6,7 +7,7 @@ const handler = async (m, { conn, command, text, usedPrefix }) => {
 
   const search = await yts(text)
   const vid = search.videos[0]
-  if (!vid) throw m.reply('No se encontro resultados, intente cambiar su consulta~');
+  if (!vid) throw m.reply('No se encontro resultados, intente cambiar su consulta🕺🏻~');
 
   const { title, thumbnail, timestamp, views, ago, url } = vid
 
@@ -19,7 +20,7 @@ const handler = async (m, { conn, command, text, usedPrefix }) => {
     const response = await fetch(`https://nirkyy-dev.hf.space/api/v1/youtube-audio-v2?url=${encodeURIComponent(url)}`)
     let keni = await response.json();
     if (!keni.data) return m.reply("Error al obtener los datos!")
-  
+
     await conn.sendMessage(m.chat, {
       audio: { url: keni.data },
       mimetype: 'audio/mpeg',
