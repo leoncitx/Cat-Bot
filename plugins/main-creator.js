@@ -8,7 +8,7 @@ async function handler(m, { conn }) {
     let name = await conn.getName(ownerJid) || 'Owner'; 
     let about = (await conn.fetchStatus(ownerJid).catch(() => {}))?.status || 'Creador de bots de WhatsApp y del Bot Barboza Ai';
     let empresa = 'Barboza- Servicios Tecnológicos';
-    let imagen = 'https://qu.ax/iVZTn.jpg'; // Reemplaza con la URL de la imagen que deseas mostrar
+    let imagen = 'https://files.catbox.moe/ltq7ph.jpg'; // Reemplaza con la URL de la imagen que deseas mostrar
 
     // Enviar imagen junto con el número del dueño y sus detalles
     await conn.sendMessage(m.chat, { 
