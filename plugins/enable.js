@@ -23,7 +23,7 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
       chat.bienvenida = isEnable;
       break;
 
-    case 'antiara':
+    case 'antiprivado2':
   if (!m.isGroup) {
     if (!isOwner) {
       global.dfail('group', m, conn);
@@ -33,7 +33,7 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
     global.dfail('admin', m, conn);
     throw false;
 }
-  chat.antiAra = isEnable;
+  chat.antiprivado2 = isEnable;
   break;
 
     case 'antilag':
