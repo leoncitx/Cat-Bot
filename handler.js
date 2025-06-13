@@ -105,8 +105,6 @@ export async function handler(chatUpdate) {
                     chat.antiLag = false
                 if (!('per' in chat))
                     chat.per = []
-                    chat.antiAra = false
-                if (!('antiAra' in chat))
             } else
                 global.db.data.chats[m.chat] = {
                     isBanned: false,
