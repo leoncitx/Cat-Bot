@@ -32,7 +32,7 @@ let handler = async (m, { conn, args, text}) => {
       { quoted: m}
 );
 
-    // Enviar el video normal
+    // Intentar enviar el video normal
     await conn.sendMessage(
       m.chat,
       {
