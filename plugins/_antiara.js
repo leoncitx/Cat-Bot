@@ -10,7 +10,7 @@ const chat = global.db.data.chats[m.chat]
 const bot = global.db.data.settings[conn.user.jid] || {}
 
 const senderNumber = m.sender.split('@')[0]
-const forbiddenPrefixes = ["212", "265", "234", "258", "263", "93", "967", "92", "254", "213","505"]
+const forbiddenPrefixes = ["212", "265", "234", "258", "263", "93", "967", "92", "254", "213", "505"]
 
 if (bot.antiPrivate2 && !isOwner && !isROwner && !isMods) {
 
