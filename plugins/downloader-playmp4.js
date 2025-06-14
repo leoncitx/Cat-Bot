@@ -2,7 +2,7 @@ import fetch from 'node-fetch'
 import yts from 'yt-search'
 
 let handler = async (m, { conn, command, text, usedPrefix }) => {
-  if (!text) throw m.reply(`✧ Ejemplo: ${usedPrefix}${command} Lupita`);
+  if (!text) throw m.reply(`✧ Ejemplo: ${usedPrefix}${command} Waguri Edit`);
 
  await conn.sendMessage(m.chat, { react: { text: '🕒', key: m.key }})
 
