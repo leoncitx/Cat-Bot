@@ -35,6 +35,7 @@ global.textbot = `Powered By Bot Barboza🌪️`
 global.dev = '• ⍴᥆ᥕᥱrᥱძ ᑲᥡ ᥴ᥆mᥙᥒі𝗍ᥡ ᑲ᥆𝗍 ᑲᥲrᑲ᥆zᥲ'
 global.listo = '*Aqui tiene ฅ^•ﻌ•^ฅ*'
 global.namechannel = 'ᑲ᥆𝗍 ᑲᥲrᑲ᥆zᥲ-ᥲі🌪️'
+global.channel = 'https://whatsapp.com/channel/0029Vaua0ZD3gvWjQaIpSy18'
 
 //*─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─*
 
