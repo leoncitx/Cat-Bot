@@ -2,26 +2,26 @@
 import fetch from 'node-fetch';
 
 let handler = async (m, { conn, args, text}) => {
-  if (!args[0]) throw m.reply('❗ Proporcione una consulta');
+  if (!text) throw m.reply('⚠️ Por favor, proporciona una consulta.');
 
   const sender = m.sender.split('@')[0];
 
   try {
-    m.reply('⏳ Procesando solicitud...');
+    m.reply('🔄 *Procesando tu solicitud...*');
 
     const res = await fetch(`https://fastrestapis.fasturl.cloud/downup/ytdown-v1?name=${encodeURIComponent(text)}&format=mp4&quality=720&server=auto`);
     const json = await res.json();
 
     if (!json?.result?.media) {
-      throw new Error('No media URL');
+      throw new Error('❌ No se encontró el contenido.');
 }
 
     const { thumbnail, description, lengthSeconds} = json.result.metadata;
     const { media, title, quality} = json.result;
 
-    const caption = `🎬 *YOUTUBE VIDEO DOWNLOADER*\n\n📌 *Título:* ${title}\n⏳ *Duración:* ${lengthSeconds} segundos\n🎥 *Calidad:* ${quality}\n\n📝 *Descripción:*\n${description}`;
+    const caption = `🎥 *DESCARGA EXITOSA*\n\n📌 *Título:* ${title}\n⏳ *Duración:* ${lengthSeconds} segundos\n🌟 *Calidad:* ${quality}\n\n📄 *Descripción:*\n${description}`;
 
-    // Enviar la miniatura con info
+    // Enviar imagen con información
     await conn.sendMessage(
       m.chat,
       {
@@ -32,14 +32,14 @@ let handler = async (m, { conn, args, text}) => {
       { quoted: m}
 );
 
-    // Enviar el video como video normal
+    // Enviar el video como archivo normal
     await conn.sendMessage(
       m.chat,
       {
         video: { url: media},
         mimetype: 'video/mp4',
         fileName: `${title}.mp4`,
-        caption: `✅ *Aquí está tu video, @${sender}*`,
+        caption: `✅ *Aquí tienes tu video, @${sender}* 🎬`,
         mentions: [m.sender]
 },
       { quoted: m}
