@@ -1,97 +1,58 @@
-import axios from 'axios'
-import fs from 'fs'
-import os from 'os'
-import ffmpeg from 'fluent-ffmpeg'
-import yts from 'yt-search'
 
-let handler = async (m, { conn, command, text, usedPrefix }) => {
-  if (!text) throw m.reply(`✧ Ejemplo: ${usedPrefix}${command} Waguri Edit`);
+import fetch from 'node-fetch';
 
- await conn.sendMessage(m.chat, { react: { text: '🕒', key: m.key }})
+let handler = async (m, { conn, args, text}) => {
+  if (!args[0]) throw m.reply('❗ Proporcione una consulta');
 
-    let results = await yts(text);
-    let tes = results.videos[0]
-
-  const args = text.split(' ');
-  const videoUrl = args[0];
-  const resolution = args[1] || '480';
-
-  const apiUrl = `https://api.ryzendesu.vip/api/downloader/ytmp4?url=${encodeURIComponent(tes.url)}&reso=480`;
+  const sender = m.sender.split('@')[0];
 
   try {
-    const response = await axios.get(apiUrl);
-    const { url: videoStreamUrl, filename } = response.data;
+    m.reply('⏳ Procesando solicitud...');
 
-    if (!videoStreamUrl) throw m.reply('No hay respuesta de la api.');
+    const res = await fetch(`https://fastrestapis.fasturl.cloud/downup/ytdown-v1?name=${encodeURIComponent(text)}&format=mp4&quality=720&server=auto`);
+    const json = await res.json();
 
-    const tmpDir = os.tmpdir();
-    const filePath = `${tmpDir}/${filename}`;
+    if (!json?.result?.media) {
+      throw new Error('No media URL');
+}
 
-    const writer = fs.createWriteStream(filePath);
-    const downloadResponse = await axios({
-      url: videoStreamUrl,
-      method: 'GET',
-      responseType: 'stream'
-    });
+    const { thumbnail, description, lengthSeconds} = json.result.metadata;
+    const { media, title, quality} = json.result;
 
-    downloadResponse.data.pipe(writer);
+    const caption = `🎬 *YOUTUBE VIDEO DOWNLOADER*\n\n📌 *Título:* ${title}\n⏳ *Duración:* ${lengthSeconds} segundos\n🎥 *Calidad:* ${quality}\n\n📝 *Descripción:*\n${description}`;
 
-    await new Promise((resolve, reject) => {
-      writer.on('finish', resolve);
-      writer.on('error', reject);
-    });
+    // Enviar la miniatura con info
+    await conn.sendMessage(
+      m.chat,
+      {
+        image: { url: thumbnail},
+        caption: caption,
+        mentions: [m.sender]
+},
+      { quoted: m}
+);
 
-    const outputFilePath = `${tmpDir}/${filename.replace('.mp4', '_fixed.mp4')}`;
+    // Enviar el video normal
+    await conn.sendMessage(
+      m.chat,
+      {
+        video: { url: media},
+        mimetype: 'video/mp4',
+        fileName: `${title}.mp4`,
+        caption: `✅ *Aquí está tu video, @${sender}*`,
+        mentions: [m.sender]
+},
+      { quoted: m}
+);
 
-    await new Promise((resolve, reject) => {
-      ffmpeg(filePath)
-        .outputOptions('-c copy')
-        .output(outputFilePath)
-        .on('end', resolve)
-        .on('error', reject)
-        .run();
-    });
-
-    const caption = `Aqui tiene su vídeo @${m.sender.split('@')[0]}`;
-
-await conn.sendMessage(m.chat, { document: { url: outputFilePath }, caption: caption, mimetype: 'video/mp4', fileName: `${tes.title}` + `.mp4`}, {quoted: m })
-
-/*    await conn.sendMessage(m.chat, {
-      video: { url: outputFilePath },
-      mimetype: "video/mp4",
-      fileName: filename,
-      caption,
-      mentions: [m.sender]
-    }, { quoted: m });*/
-await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key }})
-
-    fs.unlink(filePath, (err) => {
-      if (err) {
-        console.error(`Failed to delete original video file: ${err}`);
-      } else {
-        console.log(`Deleted original video file: ${filePath}`);
-      }
-    });
-
-    fs.unlink(outputFilePath, (err) => {
-      if (err) {
-        console.error(`Failed to delete processed video file: ${err}`);
-      } else {
-        console.log(`Deleted processed video file: ${outputFilePath}`);
-      }
-    });
-
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
-    await conn.sendMessage(m.chat, { react: { text: '❎', key: m.key }})
-  }
+} catch (e) {
+    console.error(e);
+    await conn.sendMessage(m.chat, { text: '⚠️ Intente más tarde, el vídeo es muy pesado o hubo un error al procesarlo.', mentions: [m.sender]}, { quoted: m});
+}
 };
 
-handler.help = ['playvideo *<consulta>*'];
+handler.help = ['play2 <consulta>'];
 handler.tags = ['downloader'];
-handler.command = /^(playvideo|playvid)$/i;
+handler.command = ["play2"];
 
-handler.register = true
-handler.disable = false
-
-export default handler
+export default handler;
