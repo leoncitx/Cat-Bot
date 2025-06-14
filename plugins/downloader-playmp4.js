@@ -1,53 +1,97 @@
-import fetch from 'node-fetch';
+import axios from 'axios'
+import fs from 'fs'
+import os from 'os'
+import ffmpeg from 'fluent-ffmpeg'
+import yts from 'yt-search'
 
-let handler = async (m, { conn, args, text}) => {
-  if (!args[0]) throw m.reply('Proporcione una consulta');
+let handler = async (m, { conn, command, text, usedPrefix }) => {
+  if (!text) throw m.reply(`✧ Ejemplo: ${usedPrefix}${command} Waguri Edit`);
 
-  const sender = m.sender.split('@')[0];
+ await conn.sendMessage(m.chat, { react: { text: '🕒', key: m.key }})
 
-  // Obtener información de la API
-  let ouh = await fetch(`https://fastrestapis.fasturl.cloud/downup/ytdown-v1?name=${text}&format=mp4&quality=720&server=auto`);
-  let gyh = await ouh.json();
+    let results = await yts(text);
+    let tes = results.videos[0]
 
-  const { duration, thumbnail, views, description, lengthSeconds, uploadDate} = gyh.result.metadata;
-  const { author, name, bio, image, subCount} = gyh.result.author;
-  const { url, format, quality, media, title} = gyh.result;
+  const args = text.split(' ');
+  const videoUrl = args[0];
+  const resolution = args[1] || '480';
 
-  m.reply('Procesando solicitud...');
+  const apiUrl = `https://api.ryzendesu.vip/api/downloader/ytmp4?url=${encodeURIComponent(tes.url)}&reso=480`;
 
-  let textcap = `*YOUTUBE VIDEO DOWNLOADER*\n\n
-  📌 *Título:* ${title}\n
-  ⏳ *Duración:* ${lengthSeconds} segundos\n
-  🎥 *Calidad:* ${quality}\n\n
-  📝 *Descripción:*\n${description}\n\n> ${wm}`;
+  try {
+    const response = await axios.get(apiUrl);
+    const { url: videoStreamUrl, filename } = response.data;
 
-  // Enviar imagen y detalles primero
-  await conn.sendMessage(
-    m.chat,
-    {
-      image: { url: thumbnail},
-      caption: textcap,
-      mentions: [m.sender],
-},
-    { quoted: m}
-);
+    if (!videoStreamUrl) throw m.reply('No hay respuesta de la api.');
 
-  // Enviar el video como documento MP4 con el nombre de la música
-  await conn.sendMessage(
-    m.chat,
-    {
-      document: { url: media},
-      mimetype: 'video/mp4',
-      fileName: `${title}.mp4`,
-      caption: `📁 *Aquí está tu video en documento*`,
-      mentions: [m.sender],
-},
-    { quoted: m}
-);
+    const tmpDir = os.tmpdir();
+    const filePath = `${tmpDir}/${filename}`;
+
+    const writer = fs.createWriteStream(filePath);
+    const downloadResponse = await axios({
+      url: videoStreamUrl,
+      method: 'GET',
+      responseType: 'stream'
+    });
+
+    downloadResponse.data.pipe(writer);
+
+    await new Promise((resolve, reject) => {
+      writer.on('finish', resolve);
+      writer.on('error', reject);
+    });
+
+    const outputFilePath = `${tmpDir}/${filename.replace('.mp4', '_fixed.mp4')}`;
+
+    await new Promise((resolve, reject) => {
+      ffmpeg(filePath)
+        .outputOptions('-c copy')
+        .output(outputFilePath)
+        .on('end', resolve)
+        .on('error', reject)
+        .run();
+    });
+
+    const caption = `Aqui tiene su vídeo @${m.sender.split('@')[0]}`;
+
+await conn.sendMessage(m.chat, { document: { url: outputFilePath }, caption: caption, mimetype: 'video/mp4', fileName: `${tes.title}` + `.mp4`}, {quoted: m })
+
+/*    await conn.sendMessage(m.chat, {
+      video: { url: outputFilePath },
+      mimetype: "video/mp4",
+      fileName: filename,
+      caption,
+      mentions: [m.sender]
+    }, { quoted: m });*/
+await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key }})
+
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error(`Failed to delete original video file: ${err}`);
+      } else {
+        console.log(`Deleted original video file: ${filePath}`);
+      }
+    });
+
+    fs.unlink(outputFilePath, (err) => {
+      if (err) {
+        console.error(`Failed to delete processed video file: ${err}`);
+      } else {
+        console.log(`Deleted processed video file: ${outputFilePath}`);
+      }
+    });
+
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+    await conn.sendMessage(m.chat, { react: { text: '❎', key: m.key }})
+  }
 };
 
-handler.help = ['play2 <consulta>'];
+handler.help = ['playvideo *<consulta>*'];
 handler.tags = ['downloader'];
-handler.command = ["play2"];
+handler.command = /^(playvideo|playvid)$/i;
 
-export default handler;
+handler.register = true
+handler.disable = false
+
+export default handler
