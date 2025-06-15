@@ -38,5 +38,5 @@ const handler = async (m, { conn}) => {
 }
 };
 
-handler.command = /^\.canal$/i;
+handler.command = /^\canal$/i;
 export default handler;
