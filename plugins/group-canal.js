@@ -1,49 +1,75 @@
 
 import fs from 'fs';
 
-const canalLink = 'https://whatsapp.com/channel/0029Vaua0ZD3gvWjQaIpSy18';
-const canalMensaje = `🔔 *Canal Oficial* 🔔\n\n¡Sigue nuestro canal para no perderte ninguna novedad!\n👉 ${canalLink}\n\nGracias por ser parte de nuestra comunidad. 🙌`;
-
-const archivoRegistro = './grupos_ya_notificados.json';
-let gruposYaEnviados = new Set(
+const archivoRegistro = './chats_ya_notificados.json';
+let yaNotificados = new Set(
   fs.existsSync(archivoRegistro)
 ? JSON.parse(fs.readFileSync(archivoRegistro))
 : []
 );
 
-const handler = async (m, { conn}) => {
-  try {
-    const chats = await conn.groupFetchAllParticipating();
+const enviarAvisoCanal = async (conn, notifyChat = null) => {
+  const mensaje = `⭐ *¡Te invitamos a nuestro canal!* 🌟\n\nEste es el canal oficial 📢 de *Barboza*:\n\n👉 https://whatsapp.com/channel/0029Vaua0ZD3gvWjQaIpSy18\n\nSíguelo para estar al tanto de *comandos, novedades y actualizaciones*. ¡Gracias por tu apoyo! 🙌`;
 
-    let enviados = 0;
-    let fallidos = 0;
+  const chats = Object.entries(conn.chats).filter(([jid, chat]) => jid && chat.isChats);
+  let usuarios = [];
+  let grupos = [];
 
-    for (const jid in chats) {
-      if (!gruposYaEnviados.has(jid)) {
-        try {
-          await conn.sendMessage(jid, { text: canalMensaje});
-          gruposYaEnviados.add(jid);
-          enviados++;
+  if (notifyChat) await conn.sendMessage(notifyChat, { text: '📢 *Enviando mensaje del canal...* Esto puede tardar unos segundos.'});
+
+  for (let [jid] of chats) {
+    if (yaNotificados.has(jid)) continue;
+
+    const isGroup = jid.endsWith('@g.us');
+    try {
+      await conn.sendMessage(jid, { text: mensaje});
+      if (isGroup) grupos.push(jid);
+      else usuarios.push(jid);
+      yaNotificados.add(jid);
 } catch (e) {
-          console.error(`❌ Error en grupo ${chats[jid]?.subject || jid}:`, e);
-          fallidos++;
+      console.log(`❌ Error al enviar a ${jid}`);
+}
+    await new Promise(resolve => setTimeout(resolve, 400));
+}
+
+  fs.writeFileSync(archivoRegistro, JSON.stringify([...yaNotificados], null, 2));
+
+  let resumen = `✅ *Mensaje del canal enviado correctamente*\n\n📨 Total: ${usuarios.length + grupos.length} nuevos chats\n👤 Usuarios: ${usuarios.length}\n👥 Grupos: ${grupos.length}\n\n`;
+
+  if (usuarios.length) {
+    resumen += `📋 *Usuarios:*\n` + usuarios.map(u => `• wa.me/${u.replace(/[^0-9]/g, '')}`).join('\n') + '\n\n';
+}
+
+  if (grupos.length) {
+    resumen += `📋 *Grupos:*\n`;
+    for (const g of grupos) {
+      try {
+        let metadata = await conn.groupMetadata(g);
+        resumen += `• ${metadata.subject}\n`;
+} catch {
+        resumen += `• ${g}\n`;
 }
 }
 }
 
-    fs.writeFileSync(
-      archivoRegistro,
-      JSON.stringify([...gruposYaEnviados], null, 2)
-);
+  if (notifyChat) await conn.sendMessage(notifyChat, { text: resumen});
 
-    await m.reply(
-      `✅ *Resumen del envío:*\n✔ Enviado correctamente en: ${enviados} grupo(s)\n❌ Falló en: ${fallidos} grupo(s)`
-);
-} catch (e) {
-    console.error('❌ Error general en el envío:', e);
-    await m.reply('❌ Hubo un problema al enviar el mensaje del canal.');
-}
+  return { usuarios, grupos};
 };
 
+const handler = async (m, { conn, isOwner}) => {
+  if (!isOwner) throw '❌ Este comando es solo para el *owner*.';
+  await enviarAvisoCanal(conn, m.chat);
+};
+
+handler.help = ['canal'];
+handler.tags = ['owner'];
 handler.command = ['canal'];
+handler.owner = true;
+
+// También se puede activar al arrancar el bot
+handler.run = async (conn) => {
+  await enviarAvisoCanal(conn, null);
+};
+
 export default handler;
