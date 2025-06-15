@@ -1,6 +1,41 @@
 //Mediahub Codes Update Oficial ✔️ 
-
 import fetch from 'node-fetch';
+import { URL } from 'url';
+
+const TIMEOUT = 15000;
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
+const RETRY_ATTEMPTS = 2;
+
+const isValidUrl = (url) => {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const checkFileSize = async (url) => {
+  try {
+    const response = await fetch(url, { method: 'HEAD', timeout: TIMEOUT });
+    const size = parseInt(response.headers.get('content-length'), 10);
+    return size <= MAX_FILE_SIZE;
+  } catch {
+    return false;
+  }
+};
+
+const sendMessageWithRetry = async (conn, chat, message, options, attempts = RETRY_ATTEMPTS) => {
+  for (let i = 0; i < attempts; i++) {
+    try {
+      await conn.sendMessage(chat, message, options);
+      return true;
+    } catch (error) {
+      if (i === attempts - 1) throw error;
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+};
 
 let handler = async (m, { conn, usedPrefix, command, text }) => {
   if (!text) {
@@ -13,10 +48,11 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
   }
 
   try {
-    await m.react('📀'); // buscando...
+    await m.react('📀');
 
-    const searchApi = `https://delirius-apiofc.vercel.app/search/ytsearch?q=${text}`;
-    const searchResponse = await fetch(searchApi);
+    const searchApi = `https://delirius-apiofc.vercel.app/search/ytsearch?q=${encodeURIComponent(text)}`;
+    const searchResponse = await fetch(searchApi, { timeout: TIMEOUT });
+    if (!searchResponse.ok) throw new Error('Error en la búsqueda');
     const searchData = await searchResponse.json();
 
     if (!searchData?.data || searchData.data.length === 0) {
@@ -30,6 +66,8 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 
     const video = searchData.data[0];
 
+    if (!isValidUrl(video.image)) throw new Error('URL de imagen no válida');
+
     let info = `╭─⬣「 *Barboza Ai* 」⬣
 │  ≡◦🎵 *Título:* ${video.title}
 │  ≡◦📺 *Canal:* ${video.author.name}
@@ -39,13 +77,16 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 │  ≡◦🔗 *Enlace:* ${video.url}
 ╰────────────⬣`;
 
-    await conn.sendMessage(m.chat, {
-      image: { url: video.image },
-      caption: info
-    }, { quoted: m });
+    await sendMessageWithRetry(
+      conn,
+      m.chat,
+      { image: { url: video.image }, caption: info },
+      { quoted: m }
+    );
 
-    const downloadApi = `https://api.vreden.my.id/api/ytmp3?url=${video.url}`;
-    const downloadResponse = await fetch(downloadApi);
+    const downloadApi = `https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(video.url)}`;
+    const downloadResponse = await fetch(downloadApi, { timeout: TIMEOUT });
+    if (!downloadResponse.ok) throw new Error('Error en la descarga');
     const downloadData = await downloadResponse.json();
 
     if (!downloadData?.result?.download?.url) {
@@ -56,19 +97,34 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 ╰────────────⬣`);
     }
 
-    await conn.sendMessage(m.chat, {
-      audio: { url: downloadData.result.download.url },
-      mimetype: 'audio/mpeg',
-      fileName: `${video.title}.mp3`
-    }, { quoted: m });
+    const audioUrl = downloadData.result.download.url;
 
-    await m.react('🟢'); // éxito
+    if (!isValidUrl(audioUrl) || !(await checkFileSize(audioUrl))) {
+      throw new Error('URL de audio no válida o archivo demasiado grande');
+    }
+
+    await sendMessageWithRetry(
+      conn,
+      m.chat,
+      {
+        audio: { url: audioUrl },
+        mimetype: 'audio/mpeg',
+        fileName: `${video.title}.mp3`
+      },
+      { quoted: m }
+    );
+
+    await m.react('🟢');
   } catch (error) {
     console.error(error);
     await m.react('🔴');
+    let errorMessage = error.message;
+    if (error.message.includes('Media upload failed')) {
+      errorMessage = 'Error al enviar el archivo multimedia';
+    }
     m.reply(`╭─⬣「 *Barboza Ai* 」⬣
 │  ❌ *Error Interno*
-│  ➤ ${error.message}
+│  ➤ ${errorMessage}
 ╰────────────⬣`);
   }
 };
