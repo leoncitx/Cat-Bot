@@ -1,5 +1,4 @@
 
-
 import { xpRange} from '../lib/levelling.js'
 
 const clockString = ms => {
@@ -12,23 +11,23 @@ const clockString = ms => {
 const imagen = "https://files.catbox.moe/ltq7ph.jpg";
 
 const menuHeader = `
-╭━━━「 📍 BARBOZA MD 」━━━╮
-┃ 👤 Bienvenido, %name
-┃ 🎖 Nivel: %level | XP: %exp/%max
-┃ 🔓 Límite: %limit | 📌 Modo: %mode
-┃ ⏱️ Uptime: %uptime | 🌍 Usuarios: %total
-┃ 🤖 Bot optimizado para mejor rendimiento.
-╰━━━━━━━━━━━━━━━━━━━━━━━╯
+_╭━━━「 📍 BARBOZA MD 」━━━╮_
+_┃ 👤 Bienvenido, %name_
+_┃ 🎖 Nivel: %level | XP: %exp/%max_
+_┃ 🔓 Límite: %limit | 📌 Modo: %mode_
+_┃ ⏱️ Uptime: %uptime | 🌍 Usuarios: %total_
+_┃ 🤖 Bot optimizado para mejor rendimiento._
+_╰━━━━━━━━━━━━━━━━━━━━━━━╯_
 `;
 
-const sectionDivider = `╰───────────────╯`;
+const sectionDivider = `_╰───────────────╯_`;
 
 const menuFooter = `
-╭────────────┈
-│ 🛠 Bot desarrollado para máxima eficiencia.
-│ 💡 Usa los comandos con el prefijo correspondiente.
-│ 🚀 Desarrollado por @Barboza-Team
-╰────────────┈
+_╭────────────┈_
+_│ 🛠 Bot desarrollado para máxima eficiencia._
+_│ 💡 Usa los comandos con el prefijo correspondiente._
+_│ 🚀 Desarrollado por @Barboza-Team_
+_╰────────────┈_
 `;
 
 let handler = async (m, { conn, usedPrefix: _p}) => {
@@ -41,7 +40,7 @@ let handler = async (m, { conn, usedPrefix: _p}) => {
     const uptime = clockString(process.uptime() * 1000);
     const name = await conn.getName(m.sender) || "Usuario";
 
-    if (!global.plugins) return conn.reply(m.chat, '❌ Plugins no cargados.', m);
+    if (!global.plugins) return conn.reply(m.chat, '❌ _Plugins no cargados._', m);
 
     let categorizedCommands = {};
     Object.values(global.plugins)
@@ -58,9 +57,9 @@ let handler = async (m, { conn, usedPrefix: _p}) => {
           const plugin = Object.values(global.plugins).find(p => p.help?.includes(cmd));
           const premium = plugin?.premium? '💎': '';
           const limited = plugin?.limit? '🌀': '';
-          return `│ 🔹 _${_p}${cmd}_ ${premium}${limited}`.trim();
+          return `_│ 🔹 ${_p}${cmd}_ ${premium}${limited}`.trim();
 }).join('\n');
-        return `╭─「 ${title} 」\n${entries}\n${sectionDivider}`;
+        return `_╭─「 ${title} 」_\n${entries}\n${sectionDivider}`;
 }).join('\n\n');
 
     const finalHeader = menuHeader
@@ -83,7 +82,7 @@ let handler = async (m, { conn, usedPrefix: _p}) => {
 
 } catch (e) {
     console.error(e);
-    conn.reply(m.chat, '⚠️ Error al generar el menú.', m);
+    conn.reply(m.chat, '⚠️ _Error al generar el menú._', m);
 }
 };
 
