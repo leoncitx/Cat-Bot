@@ -46,20 +46,45 @@ let handler = async (m, { conn, usedPrefix: _p}) => {
     Object.values(global.plugins)
 .filter(p => p?.help &&!p.disabled)
 .forEach(p => {
-        let tag = p.tags?.[0] || 'Otros';
+        const tag = p.tags?.[0] || 'Otros';
         categorizedCommands[tag] = categorizedCommands[tag] || new Set();
         (Array.isArray(p.help)? p.help: [p.help]).forEach(cmd => categorizedCommands[tag].add(cmd));
 });
 
     const menuBody = Object.entries(categorizedCommands)
 .map(([title, cmds]) => {
+        const emojis = {
+          "Anime": "🎭",
+          "Info": "ℹ️",
+          "Search": "🔎",
+          "Game": "🎮",
+          "SubBots": "🤖",
+          "RPG": "🌀",
+          "Registro": "📝",
+          "Sticker": "🎨",
+          "Imagen": "🖼️",
+          "Logo": "🖌️",
+          "Configuración": "⚙️",
+          "Premium": "💎",
+          "Descargas": "📥",
+          "Herramientas": "🛠️",
+          "Diversión": "🎉",
+          "NSFW": "🔞",
+          "Base de Datos": "📀",
+          "Audios": "🔊",
+          "Avanzado": "🗝️",
+          "Free Fire": "🔥",
+          "Otros": "🪪"
+};
+        const emoji = emojis[title] || "📁";
+        const upperTitle = title.toUpperCase();
         const entries = [...cmds].map(cmd => {
           const plugin = Object.values(global.plugins).find(p => p.help?.includes(cmd));
           const premium = plugin?.premium? '💎': '';
           const limited = plugin?.limit? '🌀': '';
           return `_│ 🔹 ${_p}${cmd}_ ${premium}${limited}`.trim();
 }).join('\n');
-        return `_╭─「 ${title} 」_\n${entries}\n${sectionDivider}`;
+        return `_╭─「 ${emoji} ${upperTitle} 」_\n${entries}\n${sectionDivider}`;
 }).join('\n\n');
 
     const finalHeader = menuHeader
