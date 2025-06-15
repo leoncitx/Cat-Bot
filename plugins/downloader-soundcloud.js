@@ -1,4 +1,3 @@
-//Mediahub Codes Update Oficial ✔️ 
 import yts from 'yt-search';
 import fs from 'fs';
 import axios from 'axios';
@@ -26,7 +25,7 @@ const countryCodes = {
   '+507': { country: 'Panamá', timeZone: 'America/Panama' },
   '+595': { country: 'Paraguay', timeZone: 'America/Asuncion' },
   '+51': { country: 'Perú', timeZone: 'America/Lima' },
-  '+1': { country: 'Puerto Rico', timeZone: 'America/Puerto_Rico' }, 
+  '+1': { country: 'Puerto Rico', timeZone: 'America/Puerto_Rico' },
   '+1-809': { country: 'República Dominicana', timeZone: 'America/Santo_Domingo' },
   '+1-829': { country: 'República Dominicana', timeZone: 'America/Santo_Domingo' },
   '+1-849': { country: 'República Dominicana', timeZone: 'America/Santo_Domingo' },
@@ -127,8 +126,7 @@ const sendAudioNormal = async (conn, chat, audioUrl, videoTitle) => {
 const handler = async (m, { conn, text, usedPrefix, command }) => {
   const userId = m.sender;
   if (isUserBlocked(userId)) {
-    await conn.reply(m.chat, '🚫 Lo siento, estás en la lista de usuarios bloqueados.', m);
-    return;
+    return conn.reply(m.chat, '🚫 Lo siento, estás en la lista de usuarios bloqueados.', m);
   }
 
   if (!text || !text.trim()) {
@@ -138,10 +136,11 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       thumbnailBuffer = Buffer.from(response.data, 'binary');
     } catch {}
 
-    await conn.sendMessage(
+    return conn.reply(
       m.chat,
+      `Uso: ${usedPrefix + command} <nombre de la canción>\n> Ejemplo: ${usedPrefix + command} Mi Vida Eres Tu`,
+      m,
       {
-        text: `Uso: ${usedPrefix + command} <nombre de la canción>\n> Ejemplo: ${usedPrefix + command} Mi Vida Eres Tu`,
         contextInfo: {
           externalAdReply: {
             title: 'Barboza Music',
@@ -153,10 +152,8 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
             sourceUrl: 'Ella Nunca Te Quizo'
           }
         }
-      },
-      { quoted: m }
+      }
     );
-    return;
   }
 
   const limaTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Lima' }));
@@ -192,10 +189,11 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 ╰─⬣
 > © Powered By Barboza™`;
 
-    await conn.sendMessage(
+    await conn.reply(
       m.chat,
+      description,
+      m,
       {
-        text: description,
         contextInfo: {
           externalAdReply: {
             title: title,
@@ -207,8 +205,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
             showAdAttribution: true,
           }
         }
-      },
-      { quoted: m }
+      }
     );
 
     const downloadData = await getDownloadUrl(videoUrl);
@@ -223,7 +220,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
   } catch (error) {
     await conn.sendMessage(m.chat, { react: { text: '🔴', key: reactionMessage.key } }, { quoted: m });
-    await conn.reply(m.chat, `🚨 *Error:* ${error.message || 'Error desconocido'}`, m);
+    return conn.reply(m.chat, `🚨 *Error:* ${error.message || 'Error desconocido'}`, m);
   }
 };
 
