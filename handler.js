@@ -267,11 +267,14 @@ conn: this,
 // Tesis estuvo aquí 🙀
                 let text = _args.join` `  
 command = (command || '').toLowerCase()  
-const gruposPermitidos = '120363146549758457@g.us','120363146549758457@g.us@g.us'  
-const comandosPermitidos = ['serbot', 'bots', 'kick', 'code', 's', 'delsession', 'on', 'off', 'tutosub'];  
+const gruposPermitidos = [
+  '120363146549758457@g.us','120363418782296007@g.us'
+];
 
-if (m.chat === gruposPermitidos && !comandosPermitidos.includes(command)) {
-            return
+const comandosPermitidos = ['serbot', 'bots', 'kick', 'code', 's', 'delsession', 'on', 'off', 'tutosub'];
+
+if (gruposPermitidos.includes(m.chat) &&!comandosPermitidos.includes(command)) {
+  return;
 }
 
                 let fail = plugin.fail || global.dfail
