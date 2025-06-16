@@ -267,15 +267,15 @@ conn: this,
 // Tesis estuvo aquí 🙀
                 let text = _args.join` `  
 command = (command || '').toLowerCase()  
-const groupLimitado = '120363146549758457@g.us'  
+const gruposLimitado = '120363146549758457@g.us','120363146549758457@g.us'  
 const comandosPermitidos = ['serbot', 'bots', 'kick', 'code', 's', 'delsession', 'on', 'off', 'tutosub'];  
 
-if (m.chat === groupLimitado && !comandosPermitidos.includes(command)) {
+if (m.chat === gruposLimitado && !comandosPermitidos.includes(command)) {
             return
 }
 
                 let fail = plugin.fail || global.dfail
-                let isAccept = plugin.command instanceof RegExp ? 
+               let isAccept = plugin.command instanceof RegExp ? 
                     plugin.command.test(command) :
                     Array.isArray(plugin.command) ?
                         plugin.command.some(cmd => cmd instanceof RegExp ? 
