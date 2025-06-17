@@ -1,7 +1,7 @@
 
 let handler = async (m, { conn, participants, groupMetadata}) => {
   try {
-    const pp = await conn.profilePictureUrl(m.chat, 'image').catch(_ => './storage/avatar_contact.png');
+    const pp = await conn.profilePictureUrl(m.chat, 'image').catch(() => './storage/avatar_contact.png');
 
     const chat = global.db.data.chats[m.chat] || {};
     const { isBanned, welcome, detect, sWelcome, sBye, sPromote, sDemote, antiLink, delete: del} = chat;
@@ -9,16 +9,16 @@ let handler = async (m, { conn, participants, groupMetadata}) => {
     const groupAdmins = participants.filter(p => p.admin);
     const listAdmin = groupAdmins.map((v, i) => `${i + 1}. @${v.id.split('@')[0]}`).join('\n');
 
-    const ownerId = groupMetadata.owner || groupAdmins.find(p => p.admin === 'superadmin')?.id || m.chat.split`-`[0] + '@s.whatsapp.net';
+    const ownerId = groupMetadata.owner || (groupAdmins.length? groupAdmins[0].id: m.chat.split`-`[0] + '@s.whatsapp.net');
 
     const text = `
 ╭─「 *INFO DE GRUPO* 」
-║❥ *ID:* ${groupMetadata.id}
-║❥ *Nombre:* ${groupMetadata.subject}
-║❥ *Miembros:* ${participants.length}
+║❥ *ID:* ${groupMetadata.id || 'Desconocido'}
+║❥ *Nombre:* ${groupMetadata.subject || 'Desconocido'}
+║❥ *Miembros:* ${participants.length || 0}
 ║❥ *Dueño de Grupo:* @${ownerId.split('@')[0]}
 ║❥ *Admins:*
-${listAdmin}
+${listAdmin.length? listAdmin: 'No hay administradores.'}
 ║❥ *Configuración de grupo:*
 ║❥ • ${isBanned? '✅': '❎'} Baneado
 ║❥ • ${welcome? '✅': '❎'} Bienvenida
@@ -33,7 +33,7 @@ ${listAdmin}
 • Degradados: ${sDemote || '-'}
 
 *Descripción*:
-• ${groupMetadata.desc?.toString() || 'desconocido'}
+• ${groupMetadata.desc?.toString() || 'Desconocida'}
 `.trim();
 
     await conn.sendFile(m.chat, pp, 'grupo.jpg', text, m, false, {
