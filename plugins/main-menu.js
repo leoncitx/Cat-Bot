@@ -1,4 +1,5 @@
-import { xpRange } from '../lib/levelling.js';
+
+import { xpRange} from '../lib/levelling.js';
 
 const clockString = ms => {
   const h = Math.floor(ms / 3600000);
@@ -30,32 +31,31 @@ const menuFooter = `
 ╰❒
 `.trim();
 
-let handler = async (m, { conn, usedPrefix: _p }) => {
+let handler = async (m, { conn, usedPrefix: _p}) => {
   try {
-    const user = global.db.data.users[m.sender] || { level: 1, exp: 0, limit: 5 };
-    const { exp, level, limit } = user;
-    const { min, xp } = xpRange(level, global.multiplier || 1);
+    const user = global.db.data.users[m.sender] || { level: 1, exp: 0, limit: 5};
+    const { exp, level, limit} = user;
+    const { min, xp} = xpRange(level, global.multiplier || 1);
     const totalreg = Object.keys(global.db?.data?.users || {}).length;
-    const mode = global.opts?.self ? 'Privado 🔒' : 'Público 🌐';
+    const mode = global.opts?.self? 'Privado 🔒': 'Público 🌐';
     const uptime = clockString(process.uptime() * 1000);
     const name = await conn.getName(m.sender) || "Usuario";
 
-    if (!global.plugins) return conn.reply(m.chat, '❌ _Plugins no cargados._', m);
-
     let categorizedCommands = {};
     Object.values(global.plugins)
-      .filter(p => p?.help && !p.disabled)
-      .forEach(p => {
+.filter(p => p?.help &&!p.disabled)
+.forEach(p => {
         const tag = p.tags?.[0] || 'Otros';
         categorizedCommands[tag] = categorizedCommands[tag] || new Set();
-        (Array.isArray(p.help) ? p.help : [p.help]).forEach(cmd => categorizedCommands[tag].add(cmd));
-      });
+        (Array.isArray(p.help)? p.help: [p.help]).forEach(cmd => categorizedCommands[tag].add(cmd));
+});
 
     const emojis = {
       "Anime": "🎭",
       "Info": "ℹ️",
       "Search": "🔎",
       "Game": "🎮",
+      "Diversión": "🎉",
       "SubBots": "🤖",
       "RPG": "🌀",
       "Registro": "📝",
@@ -66,48 +66,42 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
       "Premium": "💎",
       "Descargas": "📥",
       "Herramientas": "🛠️",
-      "Diversión": "🎉",
       "NSFW": "🔞",
       "Base de Datos": "📀",
       "Audios": "🔊",
       "Avanzado": "🗝️",
       "Free Fire": "🔥",
       "Otros": "🪪"
-    };
+};
 
     const menuBody = Object.entries(categorizedCommands).map(([title, cmds]) => {
       const emoji = emojis[title] || "📁";
-      const entries = [...cmds].map(cmd => {
-        const plugin = Object.values(global.plugins).find(p => p.help?.includes(cmd));
-        const premium = plugin?.premium ? '💎' : '';
-        const limited = plugin?.limit ? '🌀' : '';
-        return `│ ◦ ${_p}${cmd} ${premium}${limited}`.trim();
-      }).join('\n');
-      return `╭─「 ${emoji} ${title.toUpperCase()} 」\n${entries}\n${sectionDivider}`;
-    }).join('\n\n');
+      const entries = [...cmds].map(cmd => `│ ◦ _${_p}${cmd}_`).join('\n');
+      return `╭─「 ${emoji} *${title.toUpperCase()}* 」\n${entries}\n${sectionDivider}`;
+}).join('\n\n');
 
     const finalHeader = menuHeader
-      .replace('%name', name)
-      .replace('%level', level)
-      .replace('%exp', exp - min)
-      .replace('%max', xp)
-      .replace('%limit', limit)
-      .replace('%mode', mode)
-      .replace('%uptime', uptime)
-      .replace('%total', totalreg);
+.replace('%name', name)
+.replace('%level', level)
+.replace('%exp', exp - min)
+.replace('%max', xp)
+.replace('%limit', limit)
+.replace('%mode', mode)
+.replace('%uptime', uptime)
+.replace('%total', totalreg);
 
     const fullMenu = `${finalHeader}\n\n${menuBody}\n\n${menuFooter}`;
 
     await conn.sendMessage(m.chat, {
-      image: { url: imagen },
+      image: { url: imagen},
       caption: fullMenu,
       mentions: [m.sender]
-    }, { quoted: m });
+}, { quoted: m});
 
-  } catch (e) {
+} catch (e) {
     console.error(e);
     conn.reply(m.chat, '⚠️ Error al generar el menú.', m);
-  }
+}
 };
 
 handler.command = ['menu', 'help', 'menú'];
