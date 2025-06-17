@@ -1,7 +1,6 @@
 
 let handler = async (m, { conn, participants, groupMetadata}) => {
   try {
-    const pp = await conn.profilePictureUrl(m.chat, 'image').catch(() => './storage/avatar_contact.png');
     const chat = global.db.data.chats[m.chat] || {};
     const { isBanned, welcome, detect, sWelcome, sBye, sPromote, sDemote, antiLink, delete: del} = chat;
 
@@ -38,9 +37,7 @@ let handler = async (m, { conn, participants, groupMetadata}) => {
 ${groupMetadata.desc?.toString() || 'Sin descripción definida.'}
 `.trim();
 
-    await conn.sendFile(m.chat, pp, 'grupo.jpg', text, m, false, {
-      mentions: [...groupAdmins.map(v => v.id), ownerId]
-});
+    await conn.sendMessage(m.chat, { text, mentions: [...groupAdmins.map(v => v.id), ownerId]}, { quoted: m});
 
 } catch (e) {
     console.error(e);
