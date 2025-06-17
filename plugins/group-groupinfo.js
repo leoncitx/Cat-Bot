@@ -1,41 +1,54 @@
-//
 
-let handler = async (m, { conn, participants, groupMetadata }) => {
-    const pp = await conn.profilePictureUrl(m.chat, 'image').catch(_ => null) || './storage/avatar_contact.png'
-    const { isBanned, welcome, detect, sWelcome, sBye, sPromote, sDemote, antiLink, delete: del } = global.db.data.chats[m.chat]
-    const groupAdmins = participants.filter(p => p.admin)
-    const listAdmin = groupAdmins.map((v, i) => `${i + 1}. @${v.id.split('@')[0]}`).join('\n')
-    const owner = groupMetadata.owner || groupAdmins.find(p => p.admin === 'superadmin')?.id || m.chat.split`-`[0] + '@s.whatsapp.net'
-    let text = `
+let handler = async (m, { conn, participants, groupMetadata}) => {
+  try {
+    const pp = await conn.profilePictureUrl(m.chat, 'image').catch(_ => './storage/avatar_contact.png');
+
+    const chat = global.db.data.chats[m.chat] || {};
+    const { isBanned, welcome, detect, sWelcome, sBye, sPromote, sDemote, antiLink, delete: del} = chat;
+
+    const groupAdmins = participants.filter(p => p.admin);
+    const listAdmin = groupAdmins.map((v, i) => `${i + 1}. @${v.id.split('@')[0]}`).join('\n');
+
+    const ownerId = groupMetadata.owner || groupAdmins.find(p => p.admin === 'superadmin')?.id || m.chat.split`-`[0] + '@s.whatsapp.net';
+
+    const text = `
 ╭─「 *INFO DE GRUPO* 」
 ║❥ *ID:* ${groupMetadata.id}
 ║❥ *Nombre:* ${groupMetadata.subject}
 ║❥ *Miembros:* ${participants.length}
-║❥ *Dueño de Grupo:* @${owner.split('@')[0]}
-║❥ *Admins:* 
+║❥ *Dueño de Grupo:* @${ownerId.split('@')[0]}
+║❥ *Admins:*
 ${listAdmin}
 ║❥ *Configuración de grupo:*
-║❥ • ${isBanned ? '✅' : '❎'} Baneado
-║❥ • ${welcome ? '✅' : '❎'} Bienvenida
-║❥ • ${detect ? '✅' : '❎'} Detector
-║❥ • ${del ? '❎' : '✅'} Anti Delete
-║❥ • ${antiLink ? '✅' : '❎'} Anti Link WhatsApp
+║❥ • ${isBanned? '✅': '❎'} Baneado
+║❥ • ${welcome? '✅': '❎'} Bienvenida
+║❥ • ${detect? '✅': '❎'} Detector
+║❥ • ${!del? '✅': '❎'} Anti Delete
+║❥ • ${antiLink? '✅': '❎'} Anti Link WhatsApp
 ╰────
 *Configuración de mensajes:*
-• Bienvenida: ${sWelcome}
-• Despedida: ${sBye}
-• Promovidos: ${sPromote}
-• Degradados: ${sDemote}
+• Bienvenida: ${sWelcome || '-'}
+• Despedida: ${sBye || '-'}
+• Promovidos: ${sPromote || '-'}
+• Degradados: ${sDemote || '-'}
 
-*Descripción* :
+*Descripción*:
 • ${groupMetadata.desc?.toString() || 'desconocido'}
-`.trim()
-    conn.sendFile(m.chat, pp, 'pp.jpg', text, m, false, { mentions: [...groupAdmins.map(v => v.id), owner] })
+`.trim();
+
+    await conn.sendFile(m.chat, pp, 'grupo.jpg', text, m, false, {
+      mentions: [...groupAdmins.map(v => v.id), ownerId]
+});
+
+} catch (e) {
+    console.error(e);
+    conn.reply(m.chat, '⚠️ Hubo un error al obtener la información del grupo.', m);
 }
+};
 
-handler.help = ['infogp']
-handler.tags = ['group']
-handler.command = ['infogrupo', 'groupinfo', 'infogp'] 
-handler.group = true
+handler.help = ['infogp'];
+handler.tags = ['group'];
+handler.command = ['infogrupo', 'groupinfo', 'infogp'];
+handler.group = true;
 
-export default handler
+export default handler;
