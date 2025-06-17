@@ -51,31 +51,32 @@ let handler = async (m, { conn, usedPrefix: _p}) => {
 });
 
     const emojis = {
-      "Anime": "🎭",
-      "Info": "ℹ️",
-      "Search": "🔎",
-      "Game": "🎮",
-      "Diversión": "🎉",
-      "SubBots": "🤖",
-      "RPG": "🌀",
-      "Registro": "📝",
-      "Sticker": "🎨",
-      "Imagen": "🖼️",
-      "Logo": "🖌️",
-      "Configuración": "⚙️",
-      "Premium": "💎",
-      "Descargas": "📥",
-      "Herramientas": "🛠️",
-      "NSFW": "🔞",
-      "Base de Datos": "📀",
-      "Audios": "🔊",
-      "Avanzado": "🗝️",
-      "Free Fire": "🔥",
-      "Otros": "🪪"
+      anime: "🎭",
+      info: "ℹ️",
+      search: "🔎",
+      game: "🎮",
+      diversión: "🎉",
+      subbots: "🤖",
+      rpg: "🌀",
+      registro: "📝",
+      sticker: "🎨",
+      imagen: "🖼️",
+      logo: "🖌️",
+      configuración: "⚙️",
+      premium: "💎",
+      descargas: "📥",
+      herramientas: "🛠️",
+      nsfw: "🔞",
+      "base de datos": "📀",
+      audios: "🔊",
+      avanzado: "🗝️",
+      "free fire": "🔥",
+      otros: "🪪"
 };
 
     const menuBody = Object.entries(categorizedCommands).map(([title, cmds]) => {
-      const emoji = emojis[title] || "📁";
+      const cleanTitle = title.toLowerCase().trim();
+      const emoji = emojis[cleanTitle] || "📁";
       const entries = [...cmds].map(cmd => `│ ◦ _${_p}${cmd}_`).join('\n');
       return `╭─「 ${emoji} *${title.toUpperCase()}* 」\n${entries}\n${sectionDivider}`;
 }).join('\n\n');
