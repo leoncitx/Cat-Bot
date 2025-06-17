@@ -2,38 +2,40 @@
 let handler = async (m, { conn, participants, groupMetadata}) => {
   try {
     const pp = await conn.profilePictureUrl(m.chat, 'image').catch(() => './storage/avatar_contact.png');
-
     const chat = global.db.data.chats[m.chat] || {};
     const { isBanned, welcome, detect, sWelcome, sBye, sPromote, sDemote, antiLink, delete: del} = chat;
 
     const groupAdmins = participants.filter(p => p.admin);
-    const listAdmin = groupAdmins.map((v, i) => `${i + 1}. @${v.id.split('@')[0]}`).join('\n');
-
-    const ownerId = groupMetadata.owner || (groupAdmins.length? groupAdmins[0].id: m.chat.split`-`[0] + '@s.whatsapp.net');
+    const listAdmin = groupAdmins.map((v, i) => `  ${i + 1}. @${v.id.split('@')[0]}`).join('\n');
+    const ownerId = groupMetadata.owner || groupAdmins.find(p => p.admin === 'superadmin')?.id || m.chat.split`-`[0] + '@s.whatsapp.net';
 
     const text = `
-╭─「 *INFO DE GRUPO* 」
-║❥ *ID:* ${groupMetadata.id || 'Desconocido'}
-║❥ *Nombre:* ${groupMetadata.subject || 'Desconocido'}
-║❥ *Miembros:* ${participants.length || 0}
-║❥ *Dueño de Grupo:* @${ownerId.split('@')[0]}
-║❥ *Admins:*
-${listAdmin.length? listAdmin: 'No hay administradores.'}
-║❥ *Configuración de grupo:*
-║❥ • ${isBanned? '✅': '❎'} Baneado
-║❥ • ${welcome? '✅': '❎'} Bienvenida
-║❥ • ${detect? '✅': '❎'} Detector
-║❥ • ${!del? '✅': '❎'} Anti Delete
-║❥ • ${antiLink? '✅': '❎'} Anti Link WhatsApp
-╰────
-*Configuración de mensajes:*
-• Bienvenida: ${sWelcome || '-'}
-• Despedida: ${sBye || '-'}
-• Promovidos: ${sPromote || '-'}
-• Degradados: ${sDemote || '-'}
+╭━━━〔 *📋 INFORMACIÓN DEL GRUPO* 〕━━━╮
+┃👥 *Nombre:* ${groupMetadata.subject}
+┃🆔 *ID:* ${groupMetadata.id}
+┃👤 *Creador:* @${ownerId.split('@')[0]}
+┃👪 *Miembros:* ${participants.length}
+┃🛠️ *Administradores:*
+┃${listAdmin}
+╰━━━━━━━━━━━━━━━━━━━━━━━╯
 
-*Descripción*:
-• ${groupMetadata.desc?.toString() || 'Desconocida'}
+╭──〔 ⚙️ *CONFIGURACIONES* 〕──╮
+┃🚫 *Baneado:* ${isBanned? '✅': '❎'}
+┃👋 *Bienvenida:* ${welcome? '✅': '❎'}
+┃🕵️ *Detector:* ${detect? '✅': '❎'}
+┃🗑️ *Anti Delete:* ${!del? '✅': '❎'}
+┃🔗 *Anti Link:* ${antiLink? '✅': '❎'}
+╰──────────────────────────╯
+
+╭──〔 📨 *MENSAJES PERSONALIZADOS* 〕──╮
+┃👋 *Bienvenida:* ${sWelcome || '-'}
+┃👋 *Despedida:* ${sBye || '-'}
+┃📈 *Promociones:* ${sPromote || '-'}
+┃📉 *Degradaciones:* ${sDemote || '-'}
+╰────────────────────────────────────╯
+
+📜 *Descripción:*
+${groupMetadata.desc?.toString() || 'Sin descripción definida.'}
 `.trim();
 
     await conn.sendFile(m.chat, pp, 'grupo.jpg', text, m, false, {
@@ -42,7 +44,7 @@ ${listAdmin.length? listAdmin: 'No hay administradores.'}
 
 } catch (e) {
     console.error(e);
-    conn.reply(m.chat, '⚠️ Hubo un error al obtener la información del grupo.', m);
+    conn.reply(m.chat, '⚠️ Ocurrió un error al obtener la información del grupo.', m);
 }
 };
 
