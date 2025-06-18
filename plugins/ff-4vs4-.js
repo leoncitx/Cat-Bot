@@ -1,67 +1,62 @@
 
-let jugadoresConfirmados = [];
-let suplentes = [];
+let registroFF = {};
 
 const handler = async (msg, { conn}) => {
   const chatId = msg.key.remoteJid;
+  const keyMensaje = msg.key.id;
 
-  // Mensaje inicial con instrucciones
-  const texto = `🎮 *4 vs 4 | Free Fire*
+  const textoInicial = `🔥 *Registro 4vs4 - Free Fire* 🔥
 
-Reacciona para unirte al equipo:
-❤️ — Para jugar (Titulares)
-👍🏻 — Para suplente
+❤️ Reacciona para jugar como *Titular*
+👍🏻 Reacciona para ser *Suplente*
 
-⏳ Los primeros 4 con ❤️ serán titulares.
-`;
+Los primeros 4 con ❤️ serán los titulares.`;
 
-  const m = await conn.sendMessage(chatId, { text: texto}, { quoted: msg});
+  const mensaje = await conn.sendMessage(chatId, { text: textoInicial}, { quoted: msg});
 
-  // Reacciona al propio mensaje para que otros sigan el ejemplo (opcional)
-  await conn.sendMessage(chatId, { react: { text: "❤️", key: m.key}});
+  const mensajeId = mensaje.key.id;
+  registroFF[mensajeId] = { titulares: [], suplentes: [], key: mensaje.key};
 
-  // Escucha reacciones por 2 minutos
-  const reacciones = conn.ev.on("messages.reaction", async reaction => {
-    if (!reaction.key || reaction.key.id!== m.key.id) return;
+  conn.ev.on("messages.reaction", async reaction => {
+    if (!reaction.key || reaction.key.id!== mensajeId) return;
 
-    const user = reaction.sender || reaction.participant;
+    const participante = reaction.sender || reaction.participant;
+    const usuario = participante.split("@")[0];
     const emoji = reaction.reaction;
 
-    // Titulares
-    if (emoji === "❤️") {
-      if (!jugadoresConfirmados.includes(user) && jugadoresConfirmados.length < 4) {
-        jugadoresConfirmados.push(user);
-}
+    const registro = registroFF[mensajeId];
+    if (!registro) return;
+
+    // Evitar duplicados
+    registro.titulares = registro.titulares.filter(p => p!== participante);
+    registro.suplentes = registro.suplentes.filter(p => p!== participante);
+
+    if (emoji === "❤️" && registro.titulares.length < 4) {
+      registro.titulares.push(participante);
+} else if (emoji === "👍🏻") {
+      registro.suplentes.push(participante);
 }
 
-    // Suplentes
-    if (emoji === "👍🏻") {
-      if (!suplentes.includes(user) &&!jugadoresConfirmados.includes(user)) {
-        suplentes.push(user);
-}
-}
-});
+    const listaTitulares = registro.titulares.map((u, i) => `*${i + 1}.* @${u.split("@")[0]}`).join("\n") || "_Vacante_";
+    const listaSuplentes = registro.suplentes.map((u, i) => `*${i + 1}.* @${u.split("@")[0]}`).join("\n") || "_Nadie aún_";
 
-  // Espera 2 minutos para cerrar lista
-  setTimeout(async () => {
-    conn.ev.off("messages.reaction", reacciones); // Dejar de escuchar
+    const textoActualizado = `🔥 *Registro 4vs4 - Free Fire* 🔥
 
-    let titulares = jugadoresConfirmados.map((u, i) => `*${i + 1}.* @${u.split("@")[0]}`).join("\n");
-    let listaSuplente = suplentes.map((u, i) => `*${i + 1}.* @${u.split("@")[0]}`).join("\n");
-
-    const resumen = `✅ *Equipos Confirmados* ✅
+❤️ Reacciona para jugar como *Titular*
+👍🏻 Reacciona para ser *Suplente*
 
 🎯 *Titulares:*
-${titulares || "_Nadie reaccionó_"}
+${listaTitulares}
 
 🪑 *Suplentes:*
-${listaSuplente || "_Sin suplentes_"}`;
+${listaSuplentes}`;
 
     await conn.sendMessage(chatId, {
-      text: resumen,
-      mentions: [...jugadoresConfirmados,...suplentes]
+      text: textoActualizado,
+      edit: mensaje.key,
+      mentions: [...registro.titulares,...registro.suplentes]
 });
-}, 120000); // 2 minutos
+});
 };
 
 handler.command = ["4vs4"];
