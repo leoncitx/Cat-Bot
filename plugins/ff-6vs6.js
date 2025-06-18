@@ -60,7 +60,7 @@ ${listaSuplentes}`;
 });
 };
 
-handler.command = ["4vs4"];
+handler.command = ["6vs6"];
 handler.tags = ["juegos"];
 handler.help = ["4vs4"];
 module.exports = handler;
