@@ -1,39 +1,42 @@
 
-const handler = async (m, { conn, args, command}) => {
-  if (!args[0]) return m.reply(`⚠️ Ingresa el link de la comunidad o canal.\n\nEjemplo:\n.inspec https://chat.whatsapp.com/ABC123...`);
+const handler = async (m, { conn, args}) => {
+  if (!args[0]) {
+    return m.reply(`📌 Ingresa el enlace de invitación de una comunidad o canal.\n\nEjemplo:\n.ins https://chat.whatsapp.com/xxxx`);
+}
 
   const url = args[0];
+  const code = url.split("/").pop().trim();
 
-  // Validar formato del link
-  const regex = /chat\.whatsapp\.com\/([a-zA-Z0-9]+)/;
-  const match = url.match(regex);
-  if (!match) return m.reply("❌ El enlace no parece ser válido.");
-
-  const inviteCode = match[1];
+  if (!code || code.length < 6) return m.reply("❌ Enlace inválido.");
 
   try {
-    const info = await conn.groupGetInviteInfo(inviteCode);
-    const chatID = info.id;
-    const name = info.subject;
-    const isChannel = chatID.startsWith("120363") && chatID.includes("g.us") && chatID.includes("nestewall"); // ajuste personalizado
-    const isCommunity = chatID.startsWith("120363") && chatID.includes("g.us") &&!chatID.includes("nestewall");
+    await conn.groupAcceptInvite(code); // intenta unirse
+    await new Promise(r => setTimeout(r, 2000)); // esperar para que aparezca en conn.chats
 
-    let tipo = "Grupo desconocido";
-    if (isChannel) tipo = "Canal (nestewall)";
-    else if (isCommunity) tipo = "Comunidad";
+    const chats = conn.chats;
+    const encontrados = Object.entries(chats).filter(([id, data]) => data?.inviteCode === code || id.includes(code));
 
-    m.reply(`📦 *Resultado de inspección:*
+    if (!encontrados.length) return m.reply("⚠️ No se encontró el grupo tras unirse. Puede que el bot no haya sido aceptado.");
 
-📛 *Nombre:* ${name}
-🆔 *ID:* ${chatID}
+    const [id, info] = encontrados[0];
+    const tipo = id.includes("nestewall")? "📢 Canal (Newsletter)"
+: id.startsWith("120363")? "👥 Comunidad"
+: "👤 Grupo común";
+
+    const nombre = info?.name || info?.subject || "Sin nombre";
+
+    return m.reply(`🔎 *Resultado de inspección:*
+
+📛 *Nombre:* ${nombre}
+🆔 *ID:* ${id}
 📌 *Tipo:* ${tipo}`);
 } catch (e) {
     console.error(e);
-    m.reply("❌ No se pudo inspeccionar el enlace. ¿El bot está autorizado para verlo?");
+    return m.reply("❌ Error al unirse o inspeccionar el enlace. ¿Está activo el link? ¿Tiene permisos el bot?");
 }
 };
 
 handler.command = ["ins"];
-handler.help = ["ins <enlace>"];
+handler.help = ["ins <link de invitación>"];
 handler.tags = ["tools"];
 export default handler;
