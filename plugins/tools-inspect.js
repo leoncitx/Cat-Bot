@@ -33,7 +33,7 @@ const handler = async (m, { conn, args, command}) => {
 }
 };
 
-handler.command = ["inspect"];
-handler.help = ["inspect <enlace>"];
+handler.command = ["ins"];
+handler.help = ["ins <enlace>"];
 handler.tags = ["tools"];
 export default handler;
