@@ -3,7 +3,6 @@ let registroFF = {};
 
 const handler = async (msg, { conn}) => {
   const chatId = msg.key.remoteJid;
-  const keyMensaje = msg.key.id;
 
   const textoInicial = `🔥 *Registro 4vs4 - Free Fire* 🔥
 
@@ -27,16 +26,18 @@ Los primeros 4 con ❤️ serán los titulares.`;
     const registro = registroFF[mensajeId];
     if (!registro) return;
 
-    // Evitar duplicados
+    // Evitar duplicados en listas
     registro.titulares = registro.titulares.filter(p => p!== participante);
     registro.suplentes = registro.suplentes.filter(p => p!== participante);
 
+    // Agregar jugadores según reacción
     if (emoji === "❤️" && registro.titulares.length < 4) {
       registro.titulares.push(participante);
 } else if (emoji === "👍🏻") {
       registro.suplentes.push(participante);
 }
 
+    // Generar lista actualizada
     const listaTitulares = registro.titulares.map((u, i) => `*${i + 1}.* @${u.split("@")[0]}`).join("\n") || "_Vacante_";
     const listaSuplentes = registro.suplentes.map((u, i) => `*${i + 1}.* @${u.split("@")[0]}`).join("\n") || "_Nadie aún_";
 
@@ -53,7 +54,7 @@ ${listaSuplentes}`;
 
     await conn.sendMessage(chatId, {
       text: textoActualizado,
-      edit: mensaje.key,
+      edit: registro.key, // Editar el mismo mensaje si es posible
       mentions: [...registro.titulares,...registro.suplentes]
 });
 });
