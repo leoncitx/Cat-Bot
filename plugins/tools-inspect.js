@@ -1,8 +1,8 @@
 
-const handler = async (m, { conn, args }) => {
+const handler = async (m, { conn, args}) => {
   if (!args[0]) {
-    return m.reply(`📌 Ingresa el enlace de invitación de una comunidad o canal.\n\nEjemplo:\n.ins https://chat.whatsapp.com/xxxx`);
-  }
+    return m.reply(`📌 Ingresa el enlace de invitación de una comunidad o canal.\n\nEjemplo:\n.ins https://chat.whatsapp.com/xxxxx`);
+}
 
   const url = args[0];
   const code = url.split("/").pop().trim();
@@ -10,32 +10,38 @@ const handler = async (m, { conn, args }) => {
   if (!code || code.length < 6) return m.reply("❌ Enlace inválido.");
 
   try {
-    await conn.groupAcceptInvite(code); // intenta unirse
-    await new Promise(r => setTimeout(r, 2000)); // esperar para que aparezca en conn.chats
+    await conn.groupAcceptInvite(code);
+    await new Promise(r => setTimeout(r, 3000)); // tiempo para que se actualicen los chats
 
     const chats = conn.chats;
-    const encontrados = Object.entries(chats).filter(([id, data]) => data?.inviteCode === code || id.includes(code));
+    const candidatos = Object.entries(chats).filter(([id, data]) =>
+      (data?.inviteCode === code) ||
+      id.includes("g.us") && (data?.name || "").toLowerCase().includes("newsletter") ||
+      id.includes("nestewall") ||
+      data?.subject?.toLowerCase().includes("canal") ||
+      data?.subject?.toLowerCase().includes("comunidad")
+);
 
-    if (!encontrados.length) return m.reply("⚠️ No se encontró el grupo tras unirse. Puede que el bot no haya sido aceptado.");
+    if (!candidatos.length) return m.reply("⚠️ No se pudo identificar el ID. El bot puede no tener acceso completo aún.");
 
-    const [id, info] = encontrados[0];
-    const tipo = id.includes("nestewall") ? "📢 Canal (Newsletter)"
-      : id.startsWith("120363") ? "👥 Comunidad"
-      : "👤 Grupo común";
-
-    const nombre = info?.name || info?.subject || "Sin nombre";
+    const [id, info] = candidatos[0];
+    const name = info?.name || info?.subject || "Sin nombre";
+    const tipo = id.includes("nestewall")? "📢 Canal (Newsletter)"
+: id.startsWith("120363")? "👥 Comunidad"
+: "👤 Grupo común";
 
     return m.reply(`🔎 *Resultado de inspección:*
 
-📛 *Nombre:* ${nombre}
+📛 *Nombre:* ${name}
+🆔 *ID:* ${id}
 📌 *Tipo:* ${tipo}`);
-  } catch (e) {
-    console.error(e);
-    return m.reply("❌ Error al unirse o inspeccionar el enlace. ¿Está activo el link? ¿Tiene permisos el bot?");
-  }
+} catch (e) {
+    console.error("❌ Error inspeccionando:", e);
+    return m.reply("❌ No se pudo unir o extraer el ID. Verifica que el enlace esté activo y que el bot tenga permisos.");
+}
 };
 
 handler.command = ["ins"];
-handler.help = ["ins <link de invitación>"];
+handler.help = ["ins <enlace de invitación>"];
 handler.tags = ["tools"];
 export default handler;
