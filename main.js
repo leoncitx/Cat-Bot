@@ -478,7 +478,7 @@ _quickTest().catch(console.error);
 
 setInterval(() => {
   if (process.send) {
-    console.log('â° Reinicio automÃ¡tico ejecutado cada 59 minutos');
+    console.log('â° Reinicio automÃ¡tico ejecutado cada 5 horas');
     process.send('reset');
   }
 }, 1000 * 60 * 45);
