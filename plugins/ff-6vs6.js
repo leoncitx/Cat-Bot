@@ -1,80 +1,66 @@
-let inscritos6vs6 = []
 
-const handler = async (m, { conn, args, command, usedPrefix }) => {
-    if (!args[0]) {
-        const texto = `
-*6 𝐕𝐄𝐑𝐒𝐔𝐒 6*
+let registroFF = {};
 
-⏱ 𝐇𝐎𝐑𝐀𝐑𝐈𝐎                   •
-🇲🇽 𝐌𝐄𝐗𝐈𝐂𝐎 : 
-🇨🇴 𝐂𝐎𝐋𝐎𝐌𝐁𝐈𝐀 : 
+const handler = async (msg, { conn}) => {
+  const chatId = msg.key.remoteJid;
 
-➥ 𝐌𝐎𝐃𝐀𝐋𝐈𝐃𝐀𝐃: 
-➥ 𝐉𝐔𝐆𝐀𝐃𝐎𝐑𝐄𝐒:
+  const textoInicial = `🔥 *Registro 4vs4 - Free Fire* 🔥
 
-      𝗘𝗦𝗖𝗨𝗔𝗗𝗥𝗔 1
-    
-    👑 ┇ 
-    🥷🏻 ┇  
-    🥷🏻 ┇ 
-    🥷🏻 ┇ 
-    🥷🏻 ┇ 
-    🥷🏻 ┇ 
-    
-    ʚ 𝐒𝐔𝐏𝐋𝐄𝐍𝐓𝐄𝐒:
-    🥷🏻 ┇ 
-    🥷🏻 ┇
+❤️ Reacciona para jugar como *Titular*
+👍🏻 Reacciona para ser *Suplente*
 
-𝗣𝗔𝗥𝗧𝗜𝗖𝗜𝗣𝗔𝗡𝗧𝗘𝗦 𝗔𝗡𝗢𝗧𝗔𝗗𝗢𝗦:
-${inscritos6vs6.length === 0 ? 'Ninguno aún.' : inscritos6vs6.map((n, i) => `${i + 1}. ${n}`).join('\n')}
-        `.trim()
+Los primeros 4 con ❤️ serán los titulares.`;
 
-        const buttons = [
-            {
-                buttonId: `${usedPrefix}6vs6 anotar`,
-                buttonText: { displayText: "✏️ Anotarse" },
-                type: 1,
-            },
-            {
-                buttonId: `${usedPrefix}6vs6 limpiar`,
-                buttonText: { displayText: "🗑 Limpiar Lista" },
-                type: 1,
-            },
-        ]
+  const mensaje = await conn.sendMessage(chatId, { text: textoInicial}, { quoted: msg});
 
-        await conn.sendMessage(
-            m.chat,
-            {
-                text: texto,
-                buttons,
-                viewOnce: true,
-            },
-            { quoted: m }
-        )
-        return
-    }
+  const mensajeId = mensaje.key.id;
+  registroFF[mensajeId] = { titulares: [], suplentes: [], key: mensaje.key};
 
-    if (args[0].toLowerCase() === 'anotar') {
-        const nombre = m.pushName || 'Usuario'
-        if (inscritos6vs6.includes(nombre)) {
-            return m.reply('❗Ya estás anotado.')
-        }
-        inscritos6vs6.push(nombre)
-        await m.reply(`✅ *${nombre}* ha sido anotado.\nAhora hay *${inscritos6vs6.length}* participante(s).`)
-        return
-    }
+  conn.ev.on("messages.reaction", async reaction => {
+    if (!reaction.key || reaction.key.id!== mensajeId) return;
 
-    if (args[0].toLowerCase() === 'limpiar') {
-        inscritos6vs6 = []
-        await m.reply('🧹 Lista limpiada con éxito.')
-        return
-    }
+    const participante = reaction.sender || reaction.participant;
+    const usuario = participante.split("@")[0];
+    const emoji = reaction.reaction;
+
+    const registro = registroFF[mensajeId];
+    if (!registro) return;
+
+    // Evitar duplicados en listas
+    registro.titulares = registro.titulares.filter(p => p!== participante);
+    registro.suplentes = registro.suplentes.filter(p => p!== participante);
+
+    // Agregar jugadores según reacción
+    if (emoji === "❤️" && registro.titulares.length < 4) {
+      registro.titulares.push(participante);
+} else if (emoji === "👍🏻") {
+      registro.suplentes.push(participante);
 }
 
-handler.command = /^6vs6$/i
-handler.help = ['6vs6']
-handler.tags = ['freefire']
-handler.group = true
-handler.admin = true
+    // Generar lista actualizada
+    const listaTitulares = registro.titulares.map((u, i) => `*${i + 1}.* @${u.split("@")[0]}`).join("\n") || "_Vacante_";
+    const listaSuplentes = registro.suplentes.map((u, i) => `*${i + 1}.* @${u.split("@")[0]}`).join("\n") || "_Nadie aún_";
 
-export default handler
+    const textoActualizado = `🔥 *Registro 4vs4 - Free Fire* 🔥
+
+❤️ Reacciona para jugar como *Titular*
+👍🏻 Reacciona para ser *Suplente*
+
+🎯 *Titulares:*
+${listaTitulares}
+
+🪑 *Suplentes:*
+${listaSuplentes}`;
+
+    await conn.sendMessage(chatId, {
+      text: textoActualizado,
+      edit: registro.key, // Editar el mismo mensaje si es posible
+      mentions: [...registro.titulares,...registro.suplentes]
+});
+});
+};
+
+handler.command = ["4vs4"];
+handler.tags = ["juegos"];
+handler.help = ["4vs4"];
+module.exports = handler;
