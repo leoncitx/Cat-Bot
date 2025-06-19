@@ -3,30 +3,34 @@ import fetch from 'node-fetch';
 
 let handler = async (m, { conn, text}) => {
   if (!text) {
-    return m.reply(`💨 Por favor, ingresa el nombre de una canción de Spotify.\n\nEjemplo:\n.spotify shape of you`);
+    return m.reply(`💨 *Spotify Downloader*
+
+Por favor, ingresa el nombre de una canción.
+
+📌 Ejemplo:
+.spotify Shape of You`);
 }
 
-  await m.react('🕒');
+  await m.react('🔍');
 
   try {
     const res = await fetch(`https://api.nekorinn.my.id/downloader/spotifyplay?q=${encodeURIComponent(text)}`);
     const json = await res.json();
 
     if (!json.status ||!json.result?.downloadUrl) {
-      return m.reply("❌ No se pudo encontrar ni obtener la canción. Intenta con otro título.");
+      return m.reply("❌ No se pudo obtener la canción. Intenta con otro título.");
 }
 
     const song = json.result;
-    const title = song?.title || "Sin título";
-    const artists = Array.isArray(song?.artists)? song.artists.join(", "): "Artista desconocido";
+    const title = song.title && song.title.trim()? song.title: "Título desconocido";
+    const artists = Array.isArray(song.artists) && song.artists.length> 0
+? song.artists.join(", ")
+: "Artista no encontrado";
 
-    // Si duración viene como string "mm:ss", se respeta; si es en milisegundos, se convierte
     let duracionFormateada = "Duración desconocida";
-    if (song?.duration) {
-      const dur = isNaN(song.duration)? song.duration: parseInt(song.duration);
-      if (typeof dur === 'string') {
-        duracionFormateada = dur;
-} else if (!isNaN(dur)) {
+    if (song.duration) {
+      const dur = parseInt(song.duration);
+      if (!isNaN(dur) && dur> 0) {
         const min = Math.floor(dur / 60000);
         const seg = Math.floor((dur % 60000) / 1000);
         duracionFormateada = `${min}:${String(seg).padStart(2, "0")}`;
@@ -52,7 +56,7 @@ let handler = async (m, { conn, text}) => {
     await m.react('✅');
 } catch (error) {
     console.error(error);
-    m.reply("⚠️ Hubo un error al procesar tu búsqueda. Intenta de nuevo más tarde.");
+    m.reply("⚠️ Ocurrió un error al procesar tu búsqueda. Intenta nuevamente más tarde.");
 }
 };
 
