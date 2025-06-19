@@ -1,73 +1,63 @@
-
 import fetch from 'node-fetch';
 
-const handler = async (m, { conn, text}) => {
+let handler = async (m, { conn, args, command, usedPrefix }) => {
+  const text = args.join(" ");
   if (!text) {
-    return m.reply(`💨 *Spotify Downloader*
-
-Por favor, ingresa el nombre de una canción.
-
-📌 Ejemplo:
-.spotify Shape of You`);
-}
-
-  await m.react('🔍');
+    return m.reply(
+      `╭─⬣「 *Barboza AI* 」⬣
+│ ≡◦ 🎧 *Uso correcto del comando:*
+│ ≡◦ ${usedPrefix + command} shakira soltera
+╰─⬣
+> © Barboza AI`
+    );
+  }
 
   try {
-    const res = await fetch(`https://api.nekorinn.my.id/downloader/spotifyplay?q=${encodeURIComponent(text)}`);
-    const json = await res.json();
+    let res = await fetch(`https://api.nekorinn.my.id/downloader/spotifyplay?q=${encodeURIComponent(text)}`);
+    let json = await res.json();
 
-    if (!json.status ||!json.result?.downloadUrl) {
-      return m.reply("❌ No se pudo obtener la canción. Intenta con otro título.");
-}
+    if (!json.status || !json.result || !json.result.downloadUrl) {
+      return m.reply(
+        `╭─⬣「 *Barboza AI* 」⬣
+│ ≡◦ ❌ *No se encontró resultado para:* ${text}
+╰─⬣`
+      );
+    }
 
-    const song = json.result;
-    const title = song?.title?.trim() || "Título desconocido";
-    const artists = Array.isArray(song.artists) && song.artists.length> 0
-? song.artists.join(", ")
-: "Artista no encontrado";
-
-    const views = song?.views || 0;
-    const ago = song?.ago || "Fecha desconocida";
-    const videoUrl = song?.sourceUrl || "Sin URL";
-
-    let duracionFormateada = "Duración desconocida";
-    if (song.duration) {
-      const dur = parseInt(song.duration);
-      if (!isNaN(dur) && dur> 0) {
-        const min = Math.floor(dur / 60000);
-        const seg = Math.floor((dur % 60000) / 1000);
-        duracionFormateada = `${min}:${String(seg).padStart(2, "0")}`;
-}
-}
-
-    const description = `╭─⬣「 *Barboza-Ai* 」⬣
-│  ≡◦ 🎵 *Título:* ${title}
-│  ≡◦ 🎤 *Artista(s):* ${artists}
-│  ≡◦ ⏱ *Duración:* ${duracionFormateada}
-│  ≡◦ 👀 *Vistas:* ${views.toLocaleString()}
-│  ≡◦ 📅 *Publicado:* ${ago}
-│  ≡◦ 🔗 *URL:* ${videoUrl}
-╰─⬣
-> © Powered By Barboza™`;
-
-    await conn.sendMessage(m.chat, { text: description}, { quoted: m});
+    let { title, artist, duration, cover, url } = json.result.metadata;
+    let audio = json.result.downloadUrl;
 
     await conn.sendMessage(m.chat, {
-      audio: { url: song.downloadUrl},
-      mimetype: 'audio/mpeg',
-      fileName: `${title}.mp3`,
-}, { quoted: m});
+      image: { url: cover },
+      caption: `╭─⬣「 *MÚSICA SPOTIFY* 」⬣
+│ ≡◦ 🎵 *Título:* ${title}
+│ ≡◦ 👤 *Artista:* ${artist}
+│ ≡◦ ⏱️ *Duración:* ${duration}
+│ ≡◦ 🌐 *Spotify:* ${url}
+╰─⬣`,
+    }, { quoted: m });
 
-    await m.react('✅');
-} catch (error) {
-    console.error(error);
-    m.reply("⚠️ Hubo un error al procesar tu búsqueda. Intenta nuevamente más tarde.");
-}
+    await conn.sendMessage(m.chat, {
+      audio: { url: audio },
+      mimetype: 'audio/mp4',
+      ptt: false,
+      fileName: `${title}.mp3`
+    }, { quoted: m });
+
+  } catch (e) {
+    console.log(e);
+    return m.reply(
+      `╭─⬣「 *Barboza AI* 」⬣
+│ ≡◦ ⚠️ *Error al procesar la solicitud.*
+│ ≡◦ Intenta nuevamente más tarde.
+╰─⬣`
+    );
+  }
 };
 
-handler.help = ['spotify <nombre de canción>'];
+handler.help = ['spotify'].map(v => v + ' <nombre>');
 handler.tags = ['descargas'];
 handler.command = ['spotify'];
+handler.register = true;
 
 export default handler;
