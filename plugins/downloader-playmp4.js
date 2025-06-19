@@ -14,7 +14,6 @@ let handler = async (m, { conn, command, text, usedPrefix }) => {
   
   const apiUrl = `https://www.apis-anomaki.zone.id/downloader/ytv?url=${encodeURIComponent(tes.url)}`;
 
-  try {
     const respuesta = await fetch(apiUrl);
     const keni = await respuesta.json()
     const { url, qualityLabel, fps } = keni.result.formats[0];
@@ -44,15 +43,10 @@ let handler = async (m, { conn, command, text, usedPrefix }) => {
       mentions: [m.sender]
     }, { quoted: m });
 await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key }})
-
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
-    await conn.sendMessage(m.chat, { react: { text: '❎', key: m.key }})
-  }
 };
 
 handler.help = ['playvideo *<consulta>*'];
 handler.tags = ['descargas'];
-handler.command = /^(playvideo|playvid|play2)$/i;
+handler.command = /^(playvideo|playvid)$/i;
 
 export default handler
