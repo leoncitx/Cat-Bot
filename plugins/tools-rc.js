@@ -1,5 +1,3 @@
-
-
 let handler = async (m, { args, text, command, conn }) => {
     if (!args[0]) {
         return m.reply(`💨 ¡Hola! Para reaccionar a un mensaje, usa el siguiente formato:\n${command} https://whatsapp.com/channel/... ¡Hola, amigos! 🎉`);
@@ -20,13 +18,19 @@ let handler = async (m, { args, text, command, conn }) => {
 
     const emojiInput = args.slice(1).join(' ').toLowerCase();
     const emoji = emojiInput.split('').map(c => {
-        return c === '' ? "•" : (hurufGaya[c] || c);
+        return hurufGaya[c] || c;  // Cambié esta línea para evitar el uso de "" para caracteres vacíos.
     }).join('');
 
     try {
         const link = args[0];
-        const channelId = link.split('/')[4];
-        const messageId = link.split('/')[5];
+        const parts = link.split('/');
+
+        if (parts.length < 6) {
+            return m.reply("❌ El enlace proporcionado no es válido. Asegúrate de que contenga todos los componentes necesarios.");
+        }
+
+        const channelId = parts[4];
+        const messageId = parts[5];
 
         const res = await conn.newsletterMetadata("invite", channelId);
         await conn.newsletterReactMessage(res.id, messageId, emoji);
