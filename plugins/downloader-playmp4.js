@@ -1,58 +1,58 @@
+import fetch from 'node-fetch'
+import yts from 'yt-search'
 
-import fetch from 'node-fetch';
+let handler = async (m, { conn, command, text, usedPrefix }) => {
+  if (!text) throw m.reply(`✧ Ejemplo: ${usedPrefix}${command} Waguri Edit`);
 
-let handler = async (m, { conn, args, text}) => {
-  if (!text) throw m.reply('⚠️ Por favor, proporciona una consulta.');
+ await conn.sendMessage(m.chat, { react: { text: '🕒', key: m.key }})
 
-  const sender = m.sender.split('@')[0];
+    let results = await yts(text);
+    let tes = results.videos[0]
+
+  const args = text.split(' ');
+  const videoUrl = args[0];
+  
+  const apiUrl = `https://www.apis-anomaki.zone.id/downloader/ytv?url=${encodeURIComponent(tes.url)}`;
 
   try {
-    m.reply('🔄 *Procesando tu solicitud...*');
+    const respuesta = await fetch(apiUrl);
+    const keni = await respuesta.json()
+    const { url, qualityLabel, fps } = keni.result.formats[0];
+    const { title } = keni.result;
 
-    const res = await fetch(`https://fastrestapis.fasturl.cloud/downup/ytdown-v1?name=${encodeURIComponent(text)}&format=mp4&quality=720&server=auto`);
-    const json = await res.json();
+    if (!url) throw m.reply('No hay respuesta de la api.');
 
-    if (!json?.result?.media) {
-      throw new Error('❌ No se encontró el contenido.');
-}
 
-    const { thumbnail, description, lengthSeconds} = json.result.metadata;
-    const { media, title, quality} = json.result;
+    const caption = `
+      *💮 PLAY VIDEO 💮*
+ 
+  ✧ : \`titulo;\` ${tes.title || 'no encontrado'}
+  ✧ : \`duracion;\` ${tes.duration || 'no encontrado'}
+  ✧ : \`calidad;\` ${qualityLabel || 'no encontrado'}
+  ✧ : \`fps;\` ${fps || 'no encontrado'}
+ 
+> ${wm}
+> Pedido de @${m.sender.split('@')[0]}`;
 
-    const caption = `🎥 *DESCARGA EXITOSA*\n\n📌 *Título:* ${title}\n⏳ *Duración:* ${lengthSeconds} segundos\n🌟 *Calidad:* ${quality}\n\n📄 *Descripción:*\n${description}`;
+//await conn.sendMessage(m.chat, { document: { url: url }, caption: caption, mimetype: 'video/mp4', fileName: `${title}` + `.mp4`}, {quoted: m })
 
-    // Enviar imagen con información
-    await conn.sendMessage(
-      m.chat,
-      {
-        image: { url: thumbnail},
-        caption: caption,
-        mentions: [m.sender]
-},
-      { quoted: m}
-);
+    await conn.sendMessage(m.chat, {
+      video: { url: url },
+      mimetype: "video/mp4",
+      fileName: title,
+      caption,
+      mentions: [m.sender]
+    }, { quoted: m });
+await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key }})
 
-    // Enviar el video como archivo normal
-    await conn.sendMessage(
-      m.chat,
-      {
-        video: { url: media},
-        mimetype: 'video/mp4',
-        fileName: `${title}.mp4`,
-        caption: `✅ *Aquí tienes tu video, @${sender}* 🎬`,
-        mentions: [m.sender]
-},
-      { quoted: m}
-);
-
-} catch (e) {
-    console.error(e);
-    await conn.sendMessage(m.chat, { text: '⚠️ Intente más tarde, el vídeo es muy pesado o hubo un error al procesarlo.', mentions: [m.sender]}, { quoted: m});
-}
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+    await conn.sendMessage(m.chat, { react: { text: '❎', key: m.key }})
+  }
 };
 
-handler.help = ['play2 <consulta>'];
-handler.tags = ['downloader'];
-handler.command = ["play2"];
+handler.help = ['playvideo *<consulta>*'];
+handler.tags = ['descargas'];
+handler.command = /^(playvideo|playvid|play2)$/i;
 
-export default handler;
+export default handler
