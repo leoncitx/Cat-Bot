@@ -61,5 +61,5 @@ _*🎶 Enviando música...*_`.trim();
 };
 
 handler.tags = ['downloader']
-handler.command = ['spotify'];
+handler.command = ['spoti'];
 export default handler;
