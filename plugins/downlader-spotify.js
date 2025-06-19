@@ -2,7 +2,9 @@
 import fetch from 'node-fetch';
 
 let handler = async (m, { conn, text}) => {
-  if (!text) return m.reply(`💨 Por favor, ingresa el nombre de una canción de Spotify.\n\nEjemplo:\n.spotify shape of you`);
+  if (!text) {
+    return m.reply(`💨 Por favor, ingresa el nombre de una canción de Spotify.\n\nEjemplo:\n.spotify shape of you`);
+}
 
   await m.react('🕒');
 
@@ -14,25 +16,35 @@ let handler = async (m, { conn, text}) => {
       return m.reply("❌ No se pudo encontrar ni obtener la canción. Intenta con otro título.");
 }
 
-    const { title, artists, duration, downloadUrl} = json.result;
+    const song = json.result;
+    const title = song?.title || "Sin título";
+    const artists = Array.isArray(song?.artists)? song.artists.join(", "): "Artista desconocido";
 
-    const duracionMs = parseInt(duration);
-    const minutos = Math.floor(duracionMs / 60000);
-    const segundos = ((duracionMs % 60000) / 1000).toFixed(0);
-    const duracionFormateada = `${minutos}:${segundos.padStart(2, '0')}`;
+    // Si duración viene como string "mm:ss", se respeta; si es en milisegundos, se convierte
+    let duracionFormateada = "Duración desconocida";
+    if (song?.duration) {
+      const dur = isNaN(song.duration)? song.duration: parseInt(song.duration);
+      if (typeof dur === 'string') {
+        duracionFormateada = dur;
+} else if (!isNaN(dur)) {
+        const min = Math.floor(dur / 60000);
+        const seg = Math.floor((dur % 60000) / 1000);
+        duracionFormateada = `${min}:${String(seg).padStart(2, "0")}`;
+}
+}
 
     await conn.sendMessage(m.chat, {
-      text: `🎵 *Canción encontrada*:
+      text: `🎶 *Spotify Track*
 
 📛 *Título:* ${title}
-🎤 *Artista:* ${artists?.join(", ") || "Desconocido"}
+🎤 *Artista(s):* ${artists}
 ⏱️ *Duración:* ${duracionFormateada}
 
-🔊 Enviando audio...`,
+📥 Descargando...`,
 }, { quoted: m});
 
     await conn.sendMessage(m.chat, {
-      audio: { url: downloadUrl},
+      audio: { url: song.downloadUrl},
       mimetype: 'audio/mpeg',
       fileName: `${title}.mp3`,
 }, { quoted: m});
@@ -40,11 +52,11 @@ let handler = async (m, { conn, text}) => {
     await m.react('✅');
 } catch (error) {
     console.error(error);
-    m.reply("⚠️ Ocurrió un error al intentar obtener el audio. Intenta más tarde.");
+    m.reply("⚠️ Hubo un error al procesar tu búsqueda. Intenta de nuevo más tarde.");
 }
 };
 
-handler.help = ['spotify <texto>'];
+handler.help = ['spotify <nombre de canción>'];
 handler.tags = ['descargas'];
 handler.command = ['spotify'];
 
