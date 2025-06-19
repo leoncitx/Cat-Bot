@@ -62,9 +62,9 @@ return m.reply("✦ Ocurrió un error al procesar tu solicitud. Inténtalo de nu
 }}
 
 
-handler.help = ["spotify"]
+handler.help = ["spo"]
 handler.tags = ["descarga"]
-handler.command = ['splay', 'spotify']
+handler.command = ['splay', 'sp']
 handler.limit = true
 
 export default handler
