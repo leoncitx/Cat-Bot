@@ -31,7 +31,7 @@ let ytSearchHandler = async (m, { conn, text, usedPrefix, command }) => {
       caption += `SI QUIERES DESCARGAR AUDIO/VIDEO USA LOS COMANDOS MAS LA URL DEL VIDEO\n`;
       caption += `.ytmp3+ ${video.url} Audio\n`;
       caption += `.ytmp4+ ${video.url} Video\n\n`;
-      caption += `> © Prohibido la copia, Código Oficial de Miku™`;
+      caption += `> © Prohibido la copia, Código Oficial de Barboza MD™`;
 
       // Enviar mensaje con imagen y descripción
       await conn.sendMessage(
