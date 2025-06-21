@@ -32,9 +32,4 @@
 │ 🔔 Sigue el proyecto y mantente al día:
 │ 📢 [`Canal de actualizaciones`](https://whatsapp.com/channel/0029Vb8kvXUBfxnzYWsbS81I)
 │
-╰────────────⊰ 𖤐 ⊱────────────╯
-
-📸 *Vista previa del bot:*
-https://qu.ax/Mvhfa.jpg
-
-> _Bot Barboza Ai_
+╰────────────⊰ *Barboza-MD ⊱────────────╯
