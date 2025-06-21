@@ -1,7 +1,6 @@
-
-let handler = async (m, { isPrems, conn}) => {
-let img = 'https://i.imgur.com/rdR2U7p.jpg' // Imagen atractiva
-let texto = `🎧 *M E N Ú   D E   A U D I O S* 🎧
+let handler = async (m, { isPrems, conn }) => {
+  let img = 'https://i.imgur.com/rdR2U7p.jpg'; // Imagen atractiva
+  let texto = `🎧 *M E N Ú   D E   A U D I O S* 🎧
 
 🎵 _Tunometecabrasaramambiche_
 🕵️ _Me Anda Buscando Anonymous_
@@ -110,28 +109,39 @@ let texto = `🎧 *M E N Ú   D E   A U D I O S* 🎧
 👗 _Tráiganle Una Falda_
 ❓ _Una Pregunta_
 🚷 _Vete A La VRG_
-🎭 _:V_
+🎭 _:V_`;
 
-const fkontak = {
-  "key": {
-    "participants": "0@s.whatsapp.net",
-    "remoteJid": "status@broadcast",
-    "fromMe": false,
-    "id": "Halo"
-},
-  "message": {
-    "contactMessage": {
-      "vcard": `BEGIN:VCARD\nVERSION:3.0\nN:Sy;Bot;;;\nFN:y\nitem1.TEL;waid=${
-        m.sender.split('@')[0]
-}:${m.sender.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD`
-}
-},
-  "participant": "0@s.whatsapp.net"
-}
-await conn.sendFile(m.chat, img, 'img.jpg', texto, fkontak)
-global.db.data.users[m.sender].lastcofre = new Date * 1
-}
-handler.help = ['menuaudios2']
-handler.tags = ['main']
-handler.command = ['menuaudios2', 'menu2']
-export default handler
+  // It's generally better to define fkontak directly within the handler if it's dynamic
+  // based on the current message sender.
+  const fkontak = {
+    key: {
+      participants: '0@s.whatsapp.net',
+      remoteJid: 'status@broadcast',
+      fromMe: false,
+      id: 'Halo',
+    },
+    message: {
+      contactMessage: {
+        vcard: `BEGIN:VCARD\nVERSION:3.0\nN:Sy;Bot;;;\nFN:y\nitem1.TEL;waid=${m.sender.split('@')[0]}:${m.sender.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD`,
+      },
+    },
+    participant: '0@s.whatsapp.net',
+  };
+
+  await conn.sendFile(m.chat, img, 'img.jpg', texto, fkontak);
+
+  // Ensure global.db.data.users[m.sender] exists before trying to assign to it.
+  // This prevents potential errors if the user isn't in the database yet.
+  if (global.db && global.db.data && global.db.data.users) {
+    global.db.data.users[m.sender] = global.db.data.users[m.sender] || {}; // Initialize if undefined
+    global.db.data.users[m.sender].lastcofre = new Date() * 1;
+  } else {
+    console.warn("Warning: global.db.data.users is not accessible. 'lastcofre' might not be saved.");
+  }
+};
+
+handler.help = ['menuaudios2'];
+handler.tags = ['main'];
+handler.command = ['menuaudios2', 'menu2'];
+
+export default handler;
