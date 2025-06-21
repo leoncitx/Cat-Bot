@@ -1,75 +1,90 @@
 import fetch from 'node-fetch';
 
-let tiktokSessions = new Map();
+// Objeto para almacenar las sesiones de TikTok por chat
+const tiktokSessions = new Map();
 
-const tiktokHandler = async (m, { conn, command, args, usedPrefix }) => {
-    let query = args.join(' ').trim();
+/**
+ * Maneja el comando de búsqueda de TikTok.
+ * @param {object} m - El objeto del mensaje.
+ * @param {object} options - Opciones del comando (conn, command, args, usedPrefix).
+ */
+const tiktokSearchHandler = async (m, { conn, args, usedPrefix }) => {
+    const query = args.join(' ').trim();
 
-    let session = tiktokSessions.get(m.chat) || {
-        videos: [],
-        currentIndex: 0,
-        query: query || ''
-    };
-
-    if (command === 'tksearch') {
-        if (!query) {
-            return conn.reply(
-                m.chat,
-                `❌ Escribe lo que quieres buscar\nEjemplo: ${usedPrefix}tksearch Videos Graciosos `,
-                m
-            );
-        }
-
-        session = { videos: [], currentIndex: 0, query: query };
-        tiktokSessions.set(m.chat, session);
-
-        try {
-            const apiUrl = `https://delirius-apiofc.vercel.app/search/tiktoksearch?query=${encodeURIComponent(query)}`;
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-
-            if (!data.meta || !data.meta.length) {
-                return conn.reply(m.chat, '❌ No se encontraron videos', m);
-            }
-
-            session.videos = data.meta;
-            tiktokSessions.set(m.chat, session);
-
-            return await sendVideoWithButtons(session, m, conn, usedPrefix);
-        } catch (error) {
-            console.error(error);
-            return conn.reply(m.chat, '❌ Error al buscar videos', m);
-        }
+    if (!query) {
+        return conn.reply(
+            m.chat,
+            `❌ Por favor, escribe lo que quieres buscar.\nEjemplo: ${usedPrefix}tiktoksearch videos de gatos`,
+            m
+        );
     }
 
-    if (command === 'tkseguir') {
-        if (!session.videos.length) {
-            return conn.reply(m.chat, '❌ Primero usa .tksearch para buscar videos', m);
+    try {
+        await conn.reply(m.chat, `⏳ Buscando videos de TikTok para "${query}"...`, m);
+
+        const apiUrl = `https://delirius-apiofc.vercel.app/search/tiktoksearch?query=${encodeURIComponent(query)}`;
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        if (!data.meta || data.meta.length === 0) {
+            return conn.reply(m.chat, '❌ No se encontraron videos para tu búsqueda.', m);
         }
 
-        if (session.currentIndex + 1 >= session.videos.length) {
-            return conn.reply(m.chat, '✅ No hay más videos, vuelve a buscar.', m);
-        }
+        // Guarda la sesión para este chat
+        tiktokSessions.set(m.chat, {
+            videos: data.meta,
+            currentIndex: 0,
+            query: query
+        });
 
-        session.currentIndex += 1;
-        tiktokSessions.set(m.chat, session);
-        return await sendVideoWithButtons(session, m, conn, usedPrefix);
+        await sendTikTokVideo(m, conn);
+    } catch (error) {
+        console.error('Error en tiktokSearchHandler:', error);
+        return conn.reply(m.chat, '❌ Ocurrió un error al realizar la búsqueda de TikTok. Inténtalo de nuevo más tarde.', m);
     }
 };
 
-async function sendVideoWithButtons(session, m, conn, usedPrefix) {
-    const video = session.videos[session.currentIndex];
+/**
+ * Maneja el comando para ver el siguiente video de TikTok.
+ * @param {object} m - El objeto del mensaje.
+ * @param {object} options - Opciones del comando (conn, command, args, usedPrefix).
+ */
+const tiktokNextHandler = async (m, { conn }) => {
+    const session = tiktokSessions.get(m.chat);
 
-    const caption = session.currentIndex === 0 
-        ? `✅ Usa el botón para ver más videos.\n\n_*©Prohibido La Copia, Código Oficial De Barboza Bot ™*_`
-        : `_*©Prohibido La Copia, Código Oficial De Barboza Bot™*_`;
+    if (!session || !session.videos || session.videos.length === 0) {
+        return conn.reply(m.chat, '❌ Primero usa `.tiktoksearch` para buscar videos.', m);
+    }
+
+    if (session.currentIndex + 1 >= session.videos.length) {
+        return conn.reply(m.chat, '✅ Has llegado al final de los resultados de esta búsqueda. Puedes iniciar una nueva con `.tiktoksearch`.', m);
+    }
+
+    session.currentIndex += 1;
+    tiktokSessions.set(m.chat, session); // Actualiza la sesión
+
+    await sendTikTokVideo(m, conn);
+};
+
+/**
+ * Envía el video de TikTok actual de la sesión.
+ * @param {object} m - El objeto del mensaje.
+ * @param {object} conn - La conexión del bot.
+ */
+async function sendTikTokVideo(m, conn) {
+    const session = tiktokSessions.get(m.chat);
+    if (!session || !session.videos || session.videos.length === 0) {
+        return conn.reply(m.chat, 'No hay videos disponibles en la sesión actual.', m);
+    }
+
+    const video = session.videos[session.currentIndex];
+    const caption = `🎬 Video ${session.currentIndex + 1} de ${session.videos.length} (Búsqueda: "${session.query}")\n\n*Título:* ${video.title || 'Sin título'}\n*Autor:* ${video.author || 'Desconocido'}\n\n_©Barboza Bot - Prohibida la copia_`;
 
     try {
         const buttons = [];
-        
         if (session.currentIndex + 1 < session.videos.length) {
             buttons.push({
-                buttonId: `${usedPrefix}tkseguir`,
+                buttonId: '.tiktoknext',
                 buttonText: { displayText: "➡️ Siguiente Video" },
                 type: 1
             });
@@ -81,18 +96,26 @@ async function sendVideoWithButtons(session, m, conn, usedPrefix) {
                 video: { url: video.hd },
                 caption: caption,
                 buttons: buttons,
-                viewOnce: true
+                viewOnce: true // Para que el mensaje se vea una sola vez
             },
             { quoted: m }
         );
     } catch (error) {
-        console.error(error);
-        conn.reply(m.chat, '❌ Error al enviar el video', m);
+        console.error('Error al enviar el video de TikTok:', error);
+        conn.reply(m.chat, '❌ Error al enviar el video. Es posible que el enlace no sea válido o que haya un problema con el servidor de TikTok.', m);
     }
 }
 
-tiktokHandler.help = ['tksearch <búsqueda>', 'tkseguir'];
-tiktokHandler.tags = ['search', 'tiktok'];
-tiktokHandler.command = /^(tksearch|tkseguir)$/i;
+// Exporta los handlers para que puedan ser usados por tu bot
+tiktokSearchHandler.help = ['tiktoksearch <búsqueda>'];
+tiktokSearchHandler.tags = ['search', 'tiktok'];
+tiktokSearchHandler.command = /^(tiktoksearch)$/i;
 
-export default tiktokHandler;
+tiktokNextHandler.help = ['tiktoknext'];
+tiktokNextHandler.tags = ['search', 'tiktok'];
+tiktokNextHandler.command = /^(tiktoknext)$/i;
+
+export {
+    tiktokSearchHandler,
+    tiktokNextHandler
+};
