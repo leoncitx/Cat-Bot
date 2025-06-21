@@ -70,7 +70,7 @@ let handler = async (m, { conn, args, usedPrefix, command}) => {
 │ 📥 Asegúrate de enviar una imagen o video
 │     válido, o prueba con un enlace directo.
 │
-│ 📌 Si necesitas ayuda, usa *.help*
+│ 📌 Si necesitas ayuda, usa *.menu*
 ╰────────────────────────────╯`, m, rcanal)
 }
 }
