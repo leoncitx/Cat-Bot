@@ -1,23 +1,38 @@
-import { sticker } from '../lib/sticker.js'
+
+import { sticker} from '../lib/sticker.js'
 import uploadFile from '../lib/uploadFile.js'
 import uploadImage from '../lib/uploadImage.js'
-import { webp2png } from '../lib/webp2mp4.js'
+import { webp2png} from '../lib/webp2mp4.js'
 
-let handler = async (m, { conn, args, usedPrefix, command }) => {
+let handler = async (m, { conn, args, usedPrefix, command}) => {
   let stiker = false
+  const emoji = '✨'
+
   try {
-    let q = m.quoted ? m.quoted : m
+    let q = m.quoted? m.quoted: m
     let mime = (q.msg || q).mimetype || q.mediaType || ''
 
     if (/webp|image|video/g.test(mime)) {
-      if (/video/g.test(mime) && (q.msg || q).seconds > 15) {
-        return m.reply(`${emoji} ¡El video no puede durar más de 15 segundos!...`)
-      }
+      if (/video/g.test(mime) && (q.msg || q).seconds> 15) {
+        return m.reply(`📽️ *Demasiado largo...*\nTu video excede los 15 segundos. Por favor, usa uno más corto para poder hacer el sticker.`)
+}
 
       let img = await q.download?.()
       if (!img) {
-        return conn.reply(m.chat, `${emoji} Por favor, envía una imagen o video para hacer un sticker.`, m, rcanal)
-      }
+        return conn.reply(m.chat,
+`╭─〔 🌟 *CREADOR DE STICKERS* 🌟 〕─╮
+│
+│ 🖼️ *Envía una imagen o video corto*
+│     para generar tu sticker personalizado.
+│
+│ ⏱️ *Máx. duración de video:* 15 segundos
+│
+│ 🌐 También puedes usar un enlace:
+│     *.sticker https://ejemplo.com/imagen.png*
+│
+│ 🚀 ¡Exprésate con estilo!
+╰──────────────────────────────╯`, m, rcanal)
+}
 
       let out
       try {
@@ -27,29 +42,38 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
         let texto2 = packstickers.text2 || global.packsticker2
 
         stiker = await sticker(img, false, texto1, texto2)
-      } finally {
+} finally {
         if (!stiker) {
           if (/webp/g.test(mime)) out = await webp2png(img)
           else if (/image/g.test(mime)) out = await uploadImage(img)
           else if (/video/g.test(mime)) out = await uploadFile(img)
-          if (typeof out !== 'string') out = await uploadImage(img)
+          if (typeof out!== 'string') out = await uploadImage(img)
           stiker = await sticker(false, out, global.packsticker, global.packsticker2)
-        }
-      }
-    } else if (args[0]) {
+}
+}
+} else if (args[0]) {
       if (isUrl(args[0])) {
         stiker = await sticker(false, args[0], global.packsticker, global.packsticker2)
-      } else {
-        return m.reply(`⚠️ El URL es incorrecto...`)
-      }
-    }
-  } finally {
+} else {
+        return m.reply(`⚠️ *URL no válida.* Por favor, verifica el enlace e intenta nuevamente.`)
+}
+}
+} finally {
     if (stiker) {
       conn.sendFile(m.chat, stiker, 'sticker.webp', '', m, rcanal)
-    } else {
-      return conn.reply(m.chat, `🤖 Envié una foto o video para convertirla en sticker siga el canal gracias .`, m, rcanal)
-    }
-  }
+} else {
+      return conn.reply(m.chat,
+`╭─〔 🤖 *STICKER BOT* 🤖 〕─╮
+│
+│ ❌ No se pudo crear el sticker.
+│
+│ 📥 Asegúrate de enviar una imagen o video
+│     válido, o prueba con un enlace directo.
+│
+│ 📌 Si necesitas ayuda, usa *.help*
+╰────────────────────────────╯`, m, rcanal)
+}
+}
 }
 
 handler.help = ['stiker <img>', 'sticker <url>']
