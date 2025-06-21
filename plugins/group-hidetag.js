@@ -1,74 +1,92 @@
 import { generateWAMessageFromContent } from '@whiskeysockets/baileys';
-import * as fs from 'fs';
+import * as fs from 'fs'; // Not used in the provided logic, consider removing if not needed elsewhere.
 
 const handler = async (m, { conn, text, participants, isOwner, isAdmin }) => {
+  // Define a constant for the watermark to avoid repetition
+  const WATERMARK = '\n\n> _BOT - BARBOZA 🌪️_';
+  // Define a default thumbnail URL for externalAdReply
+  const DEFAULT_THUMBNAIL = 'https://telegra.ph/file/03d1e7fc24e1a72c60714.jpg';
+
+  // Extract JIDs of all participants
+  const mentionedJids = participants.map((p) => conn.decodeJid(p.id));
+
   try {
-    const users = participants.map((u) => conn.decodeJid(u.id));
-    const watermark = '\n\n> _BOT- BARBOZA 🌪️_';
+    // Determine the message to be re-sent or quoted
+    const quotedMessage = m.quoted ? m.quoted : m;
+    const quotedMessageType = quotedMessage.mtype;
+    const quotedMessageContent = quotedMessage.msg || quotedMessage.text;
 
-    const q = m.quoted ? m.quoted : m || m.text || m.sender;
-    const c = m.quoted ? await m.getQuotedObj() : m.msg || m.text || m.sender;
-    const msg = conn.cMod(
-      m.chat,
-      generateWAMessageFromContent(
-        m.chat,
-        { [m.quoted ? q.mtype : 'extendedTextMessage']: m.quoted ? c.message[q.mtype] : { text: '' || c } },
-        { quoted: m, userJid: conn.user.id }
-      ),
-      (text || q.text) + watermark,
-      conn.user.jid,
-      { mentions: users }
-    );
-
-    await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id });
-  } catch {
-    const users = participants.map((u) => conn.decodeJid(u.id));
-    const quoted = m.quoted ? m.quoted : m;
-    const mime = (quoted.msg || quoted).mimetype || '';
-    const isMedia = /image|video|sticker|audio/.test(mime);
-    const watermark = '\n\n> BOT - BARBOZA';
-
-    if (isMedia) {
-      const mediax = await quoted.download?.();
-      const options = { mentions: users, quoted: m };
-
-      if (quoted.mtype === 'imageMessage') {
-        conn.sendMessage(m.chat, { image: mediax, caption: (text || '') + watermark, ...options });
-      } else if (quoted.mtype === 'videoMessage') {
-        conn.sendMessage(m.chat, { video: mediax, caption: (text || '') + watermark, mimetype: 'video/mp4', ...options });
-      } else if (quoted.mtype === 'audioMessage') {
-        conn.sendMessage(m.chat, { audio: mediax, caption: watermark, mimetype: 'audio/mpeg', fileName: `Hidetag.mp3`, ...options });
-      } else if (quoted.mtype === 'stickerMessage') {
-        conn.sendMessage(m.chat, { sticker: mediax, ...options });
-      }
-    } else {
-      const more = String.fromCharCode(8206);
-      const masss = more.repeat(850) + watermark;
-
-      await conn.relayMessage(
-        m.chat,
-        {
-          extendedTextMessage: {
-            text: `${masss}`,
-            contextInfo: {
-              mentionedJid: users,
-              externalAdReply: {
-                thumbnail: 'https://telegra.ph/file/03d1e7fc24e1a72c60714.jpg',
-                sourceUrl: global.canal
-              }
-            }
-          }
+    // Handle different types of quoted messages
+    let messageContent;
+    if (quotedMessageType === 'extendedTextMessage') {
+      messageContent = {
+        extendedTextMessage: {
+          text: (text || quotedMessageContent.text || '') + WATERMARK,
+          contextInfo: { mentionedJid: mentionedJids },
         },
-        {}
-      );
+      };
+    } else {
+      // For other message types (image, video, audio, sticker), re-send with caption/watermark
+      const media = await quotedMessage.download?.();
+      const options = { mentions: mentionedJids, quoted: m };
+
+      switch (quotedMessageType) {
+        case 'imageMessage':
+          messageContent = { image: media, caption: (text || '') + WATERMARK, ...options };
+          break;
+        case 'videoMessage':
+          messageContent = { video: media, caption: (text || '') + WATERMARK, mimetype: 'video/mp4', ...options };
+          break;
+        case 'audioMessage':
+          messageContent = { audio: media, caption: WATERMARK, mimetype: 'audio/mpeg', fileName: `Hidetag.mp3`, ...options };
+          break;
+        case 'stickerMessage':
+          messageContent = { sticker: media, ...options };
+          break;
+        default:
+          // Fallback for unhandled types or simple text messages
+          messageContent = { extendedTextMessage: { text: (text || m.text || '') + WATERMARK, contextInfo: { mentionedJid: mentionedJids } } };
+          break;
+      }
     }
+
+    // Generate and relay the message
+    const generatedMessage = generateWAMessageFromContent(m.chat, messageContent, { quoted: m, userJid: conn.user.id });
+    await conn.relayMessage(m.chat, generatedMessage.message, { messageId: generatedMessage.key.id });
+
+  } catch (error) {
+    console.error('Error in hidetag handler:', error);
+    // Fallback if the primary method fails, using an externalAdReply for a more visual tag
+    const more = String.fromCharCode(8206);
+    const masss = more.repeat(850) + WATERMARK;
+
+    await conn.relayMessage(
+      m.chat,
+      {
+        extendedTextMessage: {
+          text: masss,
+          contextInfo: {
+            mentionedJid: mentionedJids,
+            externalAdReply: {
+              thumbnail: DEFAULT_THUMBNAIL,
+              sourceUrl: global.canal, // Assuming global.canal is defined elsewhere
+              renderV2: true, // Use the new rendering engine for externalAdReply
+            },
+          },
+        },
+      },
+      {}
+    );
   }
 };
 
+// ---
+// Handler Configuration
+// ---
 handler.help = ['hidetag'];
 handler.tags = ['group'];
 handler.command = /^(hidetag|notify|notificar|noti|n|hidetah|hidet)$/i;
 handler.group = true;
-handler.Botadmin = true;
+handler.botAdmin = true; // Corrected from Botadmin to botAdmin for consistency
 
 export default handler;
