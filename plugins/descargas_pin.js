@@ -1,25 +1,49 @@
+import axios from 'axios';
 
-import fetch from 'node-fetch'; // Solo si estás en Node.js
-
-let handler = async (m, { conn, text, usedPrefix, command}) => {
-  if (!text) throw `🌸 Usa el comando así:\n${usedPrefix + command} miku kawaii`;
-
-  try {
-    const res = await fetch(`https://anime-xi-wheat.vercel.app/api/pinterest?q=${encodeURIComponent(text)}`);
-    const json = await res.json();
-
-    if (!json ||!json.result ||!Array.isArray(json.result) || json.result.length === 0) {
-      throw `❌ No se encontraron imágenes para: *${text}*`;
+const handler = async (m, { conn, args, usedPrefix, command}) => {
+  if (!args[0]) {
+    return conn.reply(m.chat, `❌ *Uso incorrecto:*\n${usedPrefix + command} <término de búsqueda>\n\nEjemplo:\n${usedPrefix + command} miku kawaii`, m);
 }
 
-    const imageUrl = json.result[Math.floor(Math.random() * json.result.length)];
+  const query = encodeURIComponent(args.join(" "));
+  const apiUrl = `https://api.siputzx.my.id/api/s/pinterest?query=${query}`;
 
-    await conn.sendFile(m.chat, imageUrl, 'pinterest.jpg', `✨ Resultado para: *${text}*`, m);
-} catch (e) {
-    console.error('[ERROR PINTEREST]', e);
-    throw `⚠️ Hubo un error al obtener la imagen. Intenta con otra palabra o revisa la consola.`;
+  try {
+    await m.react("🔍");
+    const response = await axios.get(apiUrl);
+    const data = response.data.data;
+
+    if (!data || data.length === 0) {
+      return conn.reply(m.chat, `⚠️ *No se encontraron imágenes para:* ${args.join(" ")}`, m);
+}
+
+    // Elegir 5 imágenes aleatorias únicas
+    const randomImages = [];
+    const usedIndices = new Set();
+
+    while (randomImages.length < 5 && usedIndices.size < data.length) {
+      const index = Math.floor(Math.random() * data.length);
+      if (!usedIndices.has(index)) {
+        usedIndices.add(index);
+        randomImages.push(data[index].images_url);
+}
+}
+
+    for (let i = 0; i < randomImages.length; i++) {
+      await conn.sendMessage(m.chat, {
+        image: { url: randomImages[i]},
+        caption: `📌 *Resultado ${i + 1}/5 para:* _${args.join(" ")}_`,
+}, { quoted: m});
+}
+
+    await m.react("✅");
+
+} catch (error) {
+    await m.react("💥");
+    console.error("❌ Error al obtener imágenes de Pinterest:", error);
+    await conn.reply(m.chat, "🚫 *Hubo un problema al buscar en Pinterest. Intenta de nuevo más tarde.*", m);
 }
 };
 
-handler.command = ['pin'];
+handler.command = ["pin"];
 export default handler;
