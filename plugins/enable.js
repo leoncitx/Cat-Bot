@@ -228,7 +228,14 @@ para el bot
 `.trim())
       throw false
   }
-  m.reply(`⚠️「 𝘼𝙫𝙞𝙨𝙤 」\n> 💎 𝘾𝙤𝙢𝙖𝙣𝙙𝙤: *${type}*\n> 👤 𝙁𝙪𝙚: *${isEnable ? '𝘈𝘤𝘵𝘪𝘷𝘢𝘥𝘰' : '𝘋𝘦𝘴𝘢𝘤𝘵𝘪𝘷𝘢𝘥𝘰'}*\n> ${isAll ? '*𝘌𝘯 𝘦𝘴𝘵𝘦 𝘉𝘰𝘵*' : isUser ? '' : '*𝘌𝘯 𝘦𝘴𝘵𝘦 𝘊𝘩𝘢𝘵*'}`)
+
+m.reply(`⚠️ *Barboza-MD Notificación* ⚠️
+
+💎 *Comando ejecutado:* *${type}*
+👤 *Estado actual:* *${isEnable? 'Activado ✅': 'Desactivado ❌'}*
+📍 *Ámbito:* ${isAll? '*Todo el Bot* 🌐': isUser? '*Usuario específico* 👥': '*Este Chat* 💬'}
+
+🚀 *Muchas gracias por usar Bot Barboza Ai*🎖️`)
 }
 
 handler.help = ['enable', 'disable', 'on', 'off']
