@@ -7,7 +7,6 @@ const clockString = ms => {
   return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
 };
 
-
 const imagen = "https://files.catbox.moe/ltq7ph.jpg";
 
 const menuHeader = `
@@ -33,14 +32,13 @@ const menuFooter = `
 ╰❒
 `.trim();
 
-
-let handler = async (m,rcanal{ conn, usedPrefix: _p }) => {
+let handler = async (m, { conn, usedPrefix: _p }) => { // Corrected parameter here
   try {
     const user = global.db?.data?.users?.[m.sender] || { level: 1, exp: 0, limit: 5 };
     const { exp, level, limit } = user;
     const { min, xp } = xpRange(level, global.multiplier || 1);
     const totalreg = Object.keys(global.db?.data?.users || {}).length;
- 
+
     const mode = global.opts?.self ? 'Privado 🔒' : 'Público 🌐';
     const uptime = clockString(process.uptime() * 1000);
 
@@ -58,12 +56,11 @@ let handler = async (m,rcanal{ conn, usedPrefix: _p }) => {
         const tag = tags[0] || 'Otros';
         if (!Array.isArray(p.help) && typeof p.help !== 'string') return;
         const commands = Array.isArray(p.help) ? p.help : [p.help];
-        
+
         categorizedCommands[tag] = categorizedCommands[tag] || new Set();
         commands.forEach(cmd => categorizedCommands[tag].add(cmd));
       });
 
-  
     const emojis = {
       anime: "🎭",
       info: "ℹ️",
@@ -115,7 +112,7 @@ let handler = async (m,rcanal{ conn, usedPrefix: _p }) => {
 
   } catch (e) {
     console.error(e);
-    conn.reply(m.chat, '⚠️ Ocurrió un error al generar el menú. Por favor, inténtalo de nuevo más tarde o contacta al soporte.', m,rcanal);
+    conn.reply(m.chat, '⚠️ Ocurrió un error al generar el menú. Por favor, inténtalo de nuevo más tarde o contacta al soporte.', m); // Removed rcanal here
   }
 };
 handler.command = ['menu', 'help', 'menú'];
