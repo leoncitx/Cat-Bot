@@ -33,21 +33,28 @@ const menuFooter = `
 
 let handler = async (m, { conn, usedPrefix: _p}) => {
   try {
-    const user = global.db.data.users[m.sender] || { level: 1, exp: 0, limit: 5};
+    const user = global.db?.data?.users?.[m.sender] || { level: 1, exp: 0, limit: 5};
     const { exp, level, limit} = user;
     const { min, xp} = xpRange(level, global.multiplier || 1);
     const totalreg = Object.keys(global.db?.data?.users || {}).length;
     const mode = global.opts?.self? 'Privado 🔒': 'Público 🌐';
     const uptime = clockString(process.uptime() * 1000);
-    const name = await conn.getName(m.sender) || "Usuario";
+
+    let name = "Usuario";
+    try {
+      name = await conn.getName(m.sender);
+} catch {}
 
     let categorizedCommands = {};
+
     Object.values(global.plugins)
 .filter(p => p?.help &&!p.disabled)
 .forEach(p => {
         const tag = p.tags?.[0] || 'Otros';
+        if (!Array.isArray(p.help) && typeof p.help!== 'string') return;
+        const commands = Array.isArray(p.help)? p.help: [p.help];
         categorizedCommands[tag] = categorizedCommands[tag] || new Set();
-        (Array.isArray(p.help)? p.help: [p.help]).forEach(cmd => categorizedCommands[tag].add(cmd));
+        commands.forEach(cmd => categorizedCommands[tag].add(cmd));
 });
 
     const emojis = {
