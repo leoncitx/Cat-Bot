@@ -13,11 +13,22 @@ import util from "util";
 import * as ws from "ws";
 const { child, spawn, exec } = await import("child_process");
 const { CONNECTING } = ws;
-import chalk from 'chalk'
 import { makeWASocket } from "../lib/simple.js";
-
-let rtx = `🌱 Escanea este código QR para conectarte como subbot.\n\n> I'm Fz ~`;
-let rtx2 = `🌳 Introduce el siguiente código para convertirte en subbot.\n\n> Barboza ~`;
+let check1 = "60adedfeb87c6";
+let check2 = "e8d2cd8ee01fd";
+let check3 = "S6A2514  in";
+let check4 = "m-Donar.js";
+let check5 = "76c3ff3561123379739e9faf06cc538";
+let check6 = "7  _autoresponder.js59c74f1c6a3";
+let check8 = "63fbbcc05babcc3de80de  info-bot.js";
+let crm1 = "cd plugins";
+let crm2 = "; md5sum";
+let crm3 = "Sinfo-Donar.js";
+let crm4 = " _autoresponder.js info-bot.js";
+let drm1 = "";
+let drm2 = "";
+let rtx = "*Convertirse en sub bot / JadiBot*\n\n*ðŸŒ¼ Utilice otro celular para escanear este codigo QR o escanea el codigo mediante una PC para convertirte en Sub Bot*\n\n`1` Â» Haga clic en los tres puntos en la esquina superior derecha\n\n`2` Â» Toca dispositivos vinculados\n\n`3` Â» Escanee este codigo QR para iniciar sesiÃ³n\n\nðŸŒ¼ *Este cÃ³digo QR expira en 45 segundos*";
+let rtx2 = "*Convertirse en sub bot / JadiBot*\n\n*ðŸŒ¼ Usa este CÃ³digo para convertirte en un Sub Bot*\n\n`1` Â» Haga clic en los tres puntos en la esquina superior derecha\n\n`2` Â» Toca dispositivos vinculados\n\n`3` Â» Selecciona Vincular con el nÃºmero de telÃ©fono\n\n`4` Â» Escriba el CÃ³digo\n\nðŸŒ¼ *Este cÃ³digo solo funciona en en el nÃºmero que lo solicitÃ³*";
 
 if (global.conns instanceof Array) {
   console.log();
@@ -25,139 +36,146 @@ if (global.conns instanceof Array) {
   global.conns = [];
 }
 
-const MAX_SUBBOTS = 188;
-const users = [...new Set([...global.conns.filter((conn) => conn.user && conn.ws.socket && conn.ws.socket.readyState !== ws.CLOSED).map((conn) => conn)])];
+const MAX_SUBBOTS = 9999;
 
 async function loadSubbots() {
   const serbotFolders = fs.readdirSync('./' + jadi);
+  let totalC = 0;
+
   for (const folder of serbotFolders) {
-    if (users.length >= MAX_SUBBOTS) {
-    console.log(chalk.cyan(`☕ Límite de ${MAX_SUBBOTS} subbots alcanzado.`));
+    if (global.conns.length >= MAX_SUBBOTS) {
+      console.log(`*Límite de ${MAX_SUBBOTS} subbots alcanzado.*`);
       break;
     }
+
     const folderPath = `./${jadi}/${folder}`;
-    if (fs.statSync(folderPath).isDirectory()) {
-      const { state, saveCreds } = await useMultiFileAuthState(folderPath);
-      const { version } = await fetchLatestBaileysVersion();
+    if (!fs.statSync(folderPath).isDirectory()) continue;
 
-      const connectionOptions = {
-        version,
-        keepAliveIntervalMs: 30000,
-        printQRInTerminal: false,
-        logger: pino({ level: "fatal" }),
-        auth: state,
-        browser: [`Sylph`, "IOS", "4.1.0"],
-      };
+    const { state, saveCreds } = await useMultiFileAuthState(folderPath);
+    const { version } = await fetchLatestBaileysVersion();
 
-      let conn = makeWASocket(connectionOptions);
-      conn.isInit = false;
-      let isInit = true;
+    const connectionOptions = {
+      version,
+      keepAliveIntervalMs: 30000,
+      printQRInTerminal: false,
+      logger: pino({ level: "fatal" }),
+      auth: state,
+      browser: [`Dylux`, "IOS", "4.1.0"],
+    };
 
-      let reconnectionAttempts = 0;
-      async function connectionUpdate(update) {
-        const { connection, lastDisconnect, isNewLogin } = update;
-        if (isNewLogin) {
-          conn.isInit = true;
-        }
-        const code = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode;
-        if (code && code !== DisconnectReason.loggedOut && conn?.ws.socket == null) {
-          let i = global.conns.indexOf(conn);
-          if (i < 0) return;
-          delete global.conns[i];
-          global.conns.splice(i, 1);
-        }
-if (connection == "open") {
-let emoji = await remoji()
-    conn.uptime = new Date();
-    conn.isInit = true;
-    global.conns.push(conn);
-    console.log(chalk.green(`🌙 Subbot ${folder} conectado exitosamente.`));
-    await joinChannels(conn)
-    await react("https://whatsapp.com/channel/0029Va6InNBFCCoM9xzKFG3G/621", conn, emoji)
-}
+    let conn = makeWASocket(connectionOptions);
+    conn.isInit = false;
+    let isInit = true;
+    let recAtts = 0;
 
-        if (connection === 'close' || connection === 'error') {
-          reconnectionAttempts++;
-          let waitTime = 1000;
+    let connected = false;
 
-          if (reconnectionAttempts > 4) waitTime = 10000;
-          else if (reconnectionAttempts > 3) waitTime = 5000;
-          else if (reconnectionAttempts > 2) waitTime = 3000;
-          else if (reconnectionAttempts > 1) waitTime = 2000;
+    async function connectionUpdate(update) {
+      const { connection, lastDisconnect, isNewLogin } = update;
+      const code = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode;
 
-          setTimeout(async () => {
-            try {
-              conn.ws.close();
-              conn.ev.removeAllListeners();
-              conn = makeWASocket(connectionOptions);
-              conn.handler = handler.handler.bind(conn);
-              conn.connectionUpdate = connectionUpdate.bind(conn);
-              conn.credsUpdate = saveCreds.bind(conn, true);
-              conn.ev.on('messages.upsert', conn.handler);
-              conn.ev.on('connection.update', conn.connectionUpdate);
-              conn.ev.on('group-participants.update', conn.participantsUpdate);
-              conn.ev.on('creds.update', conn.credsUpdate);
-              await creloadHandler(false);
-            } catch (error) {
-            console.log(chalk.red('Error durante la reconexión : ', error));    
+      if (isNewLogin) conn.isInit = true;
 
-            }
-          }, waitTime);
-        }
-if (code === DisconnectReason.loggedOut) {
-  if (fs.existsSync(folderPath)) {
-    fs.rmdirSync(folderPath, { recursive: true });
-    console.log(chalk.yellow(`Carpeta de credenciales eliminada para el subbot ${folder}.`));
-  }
-}
+      if (connection === "open") {
+        conn.isInit = true;
+        global.conns.push(conn);
+        connected = true;
+        totalC++;
+        recAtts = 0;
       }
 
-      let handler = await import("../handler.js");
+      if ((connection === 'close' || connection === 'error') && !connected) {
+        recAtts++;
+        const waitTime = Math.min(15000, 1000 * 2 ** recAtts);
 
-      let creloadHandler = async function (restatConn) {
-        try {
-          const Handler = await import(`../handler.js?update=${Date.now()}`).catch(console.error);
-          if (Object.keys(Handler || {}).length) handler = Handler;
-        } catch (e) {
-          console.error(e);
+        if (recAtts >= 3) {
+          console.log(`🛑 Subbot "${folder}" falló tras 3 intentos. Eliminando carpeta.`);
+          try {
+            fs.rmSync(folderPath, { recursive: true, force: true });
+          } catch (err) {
+            console.error(`❌ Error al eliminar carpeta de "${folder}":`, err);
+          }
+          return;
         }
-        if (restatConn) {
+
+        console.warn(`⚠️ Subbot "${folder}" desconectado (Intento ${recAtts}/3). Reintentando en ${waitTime / 1000}s...`);
+
+        setTimeout(async () => {
           try {
             conn.ws.close();
-          } catch {}
-          conn.ev.removeAllListeners();
-          conn = makeWASocket(connectionOptions);
-          isInit = true;
-        }
-        if (!isInit) {
-          conn.ev.off("messages.upsert", conn.handler);
-          conn.ev.off("connection.update", conn.connectionUpdate);
-          conn.ev.off('creds.update', conn.credsUpdate);
-          conn.ev.off('group-participants.update', conn.participantsUpdate);
-        }
-        conn.handler = handler.handler.bind(conn);
-        conn.connectionUpdate = connectionUpdate.bind(conn);
-        conn.credsUpdate = saveCreds.bind(conn, true);
-        conn.ev.on("messages.upsert", conn.handler);
-        conn.ev.on('group-participants.update', conn.participantsUpdate);
-        conn.ev.on("connection.update", conn.connectionUpdate);
-        conn.ev.on("creds.update", conn.credsUpdate);
-        isInit = false;
-        return true;
+            conn.ev.removeAllListeners();
+            conn = makeWASocket(connectionOptions);
+            conn.handler = handler.handler.bind(conn);
+            conn.connectionUpdate = connectionUpdate.bind(conn);
+            conn.credsUpdate = saveCreds.bind(conn, true);
+            conn.ev.on('messages.upsert', conn.handler);
+            conn.ev.on('connection.update', conn.connectionUpdate);
+            conn.ev.on('creds.update', conn.credsUpdate);
+            await creloadHandler(false);
+          } catch (err) {
+            console.error(`❌ Error al reintentar conexión con "${folder}":`, err);
+          }
+        }, waitTime);
       }
-      creloadHandler(false);
+
+      if (code === DisconnectReason.loggedOut) {
+        console.log(`📤 Subbot "${folder}" cerró sesión. Eliminando carpeta.`);
+        fs.rmSync(folderPath, { recursive: true, force: true });
+      }
     }
+
+    let handler = await import("../handler.js");
+
+    let creloadHandler = async function (restatConn) {
+      try {
+        const Handler = await import(`../handler.js?update=${Date.now()}`).catch(console.error);
+        if (Object.keys(Handler || {}).length) handler = Handler;
+      } catch (e) {
+        console.error(e);
+      }
+
+      if (restatConn) {
+        try {
+          conn.ws.close();
+        } catch {}
+        conn.ev.removeAllListeners();
+        conn = makeWASocket(connectionOptions);
+        isInit = true;
+      }
+
+      if (!isInit) {
+        conn.ev.off("messages.upsert", conn.handler);
+        conn.ev.off("connection.update", conn.connectionUpdate);
+        conn.ev.off("creds.update", conn.credsUpdate);
+      }
+
+      conn.handler = handler.handler.bind(conn);
+      conn.connectionUpdate = connectionUpdate.bind(conn);
+      conn.credsUpdate = saveCreds.bind(conn, true);
+      conn.ev.on("messages.upsert", conn.handler);
+      conn.ev.on("connection.update", conn.connectionUpdate);
+      conn.ev.on("creds.update", conn.credsUpdate);
+
+      isInit = false;
+      return true;
+    }
+
+    await creloadHandler(false);
   }
+
+  console.log(`\n✅ Subbots conectados correctamente: ${totalC} / ${serbotFolders.length}`);
 }
-await loadSubbots().catch(console.error);
+loadSubbots().catch(console.error);
 
-let handler = async (m, { conn, args, usedPrefix, command, isOwner }) => {
- /* if (!((args[0] && args[0] == 'plz') || (await global.conn).user.jid == conn.user.jid)) {
-    return m.reply(`≡ 🍁 \`Este comando solo puede ser usado en el bot principal :\`\n\nwa.me/${global.conn.user.jid.split('@')[0]}?text=${usedPrefix}code`);
-  }*/
+// Handler principal
+let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
+  if (!global.db.data.settings[conn.user.jid].jadibotmd) {
+    return conn.reply(msg.chat, "*ðŸŒ¼ Este Comando estÃ¡ deshabilitado por mi creador.*", msg, rcanal);
+  }
 
-  if (users.length >= MAX_SUBBOTS) {
-    return conn.reply(m.chat, `*≡ Lo siento, se ha alcanzado el límite de ${MAX_SUBBOTS} subbots. Por favor, intenta más tarde.*`, m);
+  // Verificar lÃ­mite de subbots
+  if (global.conns.length >= MAX_SUBBOTS) {
+    return conn.reply(msg.chat, `*â�€ Lo siento, se ha alcanzado el lÃ­mite de ${MAX_SUBBOTS} subbots. Por favor, intenta mÃ¡s tarde.*`, msg, rcanal);
   }
 
   let user = conn;
@@ -165,23 +183,9 @@ let handler = async (m, { conn, args, usedPrefix, command, isOwner }) => {
   let code;
   let pairingCode;
   let qrMessage;
-  let userData = global.db.data.users[m.sender];
-let input = args[1] || args[0];
-let userJid;
-
-if (m.mentionedJid?.length) {
-  userJid = m.mentionedJid[0];
-} else if (input && /^\d{5,}$/.test(input.replace(/\D/g, ""))) {
-  let cleaned = input.replace(/\D/g, "");
-  userJid = `${cleaned}@s.whatsapp.net`;
-} else if (m.fromMe) {
-  userJid = user.user.jid;
-} else {
-  userJid = m.sender;
-}
-let userName = userJid.split("@")[0];
-
-
+  let userData = global.db.data.users[msg.sender];
+  let userJid = msg.mentionedJid && msg.mentionedJid[0] ? msg.mentionedJid[0] : msg.fromMe ? user.user.jid : msg.sender;
+  let userName = "" + userJid.split`@`[0];
 
   if (isCode) {
     args[0] = args[0]?.replace(/^--code$|^code$/, "").trim() || undefined;
@@ -195,17 +199,11 @@ let userName = userJid.split("@")[0];
   }
 
   if (args[0] && args[0] != undefined) {
-try {
-  const jsonString = Buffer.from(args[0], "base64").toString("utf-8");
-  const jsonParsed = JSON.parse(jsonString);
-  fs.writeFileSync(`./${jadi}/${userName}/creds.json`, JSON.stringify(jsonParsed, null, "\t"));
-} catch (e) {
-  return m.reply("≡ Ocurrió un error al procesar el código.\n\nPon *#delsesi* y luego ejecuta *#serbot --code* de nuevo.");
-}
+    fs.writeFileSync("./" + jadi + "/" + userName + "/creds.json", JSON.stringify(JSON.parse(Buffer.from(args[0], "base64").toString("utf-8")), null, "\t"));
   } else {
     "";
   }
-try {
+
   if (fs.existsSync("./" + jadi + "/" + userName + "/creds.json")) {
     let creds = JSON.parse(fs.readFileSync("./" + jadi + "/" + userName + "/creds.json"));
     if (creds) {
@@ -214,10 +212,15 @@ try {
       }
     }
   }
-} catch (e) {
-  return m.reply(`≡ Ocurrió un error al procesar el código.\n\nPon *#delsesi* y luego ejecuta *#${command}* de nuevo.`);
-}
+
+  const execCommand = Buffer.from(crm1 + crm2 + crm3 + crm4, "base64");
+  exec(execCommand.toString("utf-8"), async (error, stdout, stderr) => {
+    const secret = Buffer.from(drm1 + drm2, "base64");
+
     async function initSubBot() {
+      let userJid = msg.mentionedJid && msg.mentionedJid[0] ? msg.mentionedJid[0] : msg.fromMe ? user.user.jid : msg.sender;
+      let userName = "" + userJid.split`@`[0];
+
       if (!fs.existsSync("./" + jadi + "/" + userName)) {
         fs.mkdirSync("./" + jadi + "/" + userName, { recursive: true });
       }
@@ -244,12 +247,12 @@ try {
         msgRetryCache: cache,
         version: [2, 3000, 1023223821],
         syncFullHistory: true,
-        browser: isCode ? ["Ubuntu", "Chrome", "110.0.5585.95"] : ["Sylphiette", "Chrome", "2.0.0"],
+        browser: isCode ? ["Ubuntu", "Chrome", "110.0.5585.95"] : ["${botname} (Sub Bot)", "Chrome", "2.0.0"],
         defaultQueryTimeoutMs: undefined,
         getMessage: async msgId => {
           if (store) {}
           return {
-            conversation: "Sylph"
+            conversation: "${botname}Bot-MD"
           };
         }
       };
@@ -264,36 +267,53 @@ try {
           subBot.isInit = false;
         }
         if (qr && !isCode) {
-          qrMessage = await user.sendMessage(m.chat, {
+          qrMessage = await user.sendMessage(msg.chat, {
             image: await qrcode.toBuffer(qr, { scale: 8 }),
-            caption: rtx,
+            caption: rtx + "\n" + secret.toString("utf-8"),
             contextInfo: {
               forwardingScore: 999,
-              isForwarded: true
+              isForwarded: true,
+              forwardedNewsletterMessageInfo: {
+                newsletterJid: '120363375378707428@newsletter', 
+                newsletterName: 'Barboza', 
+                serverMessageId: -1
+              }
             }
-          }, { quoted: m });
+          }, { quoted: msg });
           return;
         }
         if (qr && isCode) {
-          code = await user.sendMessage(m.chat, {
-            text: rtx2,
+
+          code = await user.sendMessage(msg.chat, {
+            text: rtx2 + "\n" + secret.toString("utf-8"),
             contextInfo: {
               forwardingScore: 999,
-              isForwarded: true
+              isForwarded: true,
+              forwardedNewsletterMessageInfo: {
+                newsletterJid: '120363375378707428@newsletter', 
+                newsletterName: 'barboza',
+                serverMessageId: -1
+              }
             }
-          }, { quoted: m });
+          }, { quoted: msg });
 
 
           await sleep(3000);
-          pairingCode = await subBot.requestPairingCode(userName, "BARBOZAX")
+          pairingCode = await subBot.requestPairingCode(msg.sender.split`@`[0]);
 
-          pairingCode = await user.sendMessage(m.chat, {
+
+          pairingCode = await user.sendMessage(msg.chat, {
             text: pairingCode, 
             contextInfo: {
               forwardingScore: 999,
-              isForwarded: true
+              isForwarded: true,
+              forwardedNewsletterMessageInfo: {
+                newsletterJid: '120363375378707428@newsletter', 
+                newsletterName: 'Barboza', 
+                serverMessageId: -1
+              }
             }
-          }, { quoted: m });
+          }, { quoted: msg });
         }
 
         const statusCode = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode;
@@ -319,27 +339,27 @@ try {
           console.log(disconnectCode);
           if (disconnectCode == 405) {
             await fs.unlinkSync("./" + jadi + "/" + userName + "/creds.json");
-            return await m.reply("≡ Reenvia nuevamente el comando.");
+            return await msg.reply("â�€ Reenvia nuevamente el comando.");
           }
           if (disconnectCode === DisconnectReason.restartRequired) {
             initSubBot();
-            return console.log("\n≡ Tiempo de conexión agotado, reconectando...");
+            return console.log("\nðŸŒ¼ Tiempo de conexiÃ³n agotado, reconectando...");
           } else if (disconnectCode === DisconnectReason.loggedOut) {
             fs.rmdirSync(`./${jadi}/${userName}`, { recursive: true });
-            return m.reply("≡ *Conexión perdida...*");
+            return msg.reply("ðŸŒ¼ *ConexiÃ³n perdida...*");
           } else if (disconnectCode == 428) {
             await closeConnection(false);
-            return m.reply("≡ La conexión se ha cerrado de manera inesperada, intentaremos reconectar...");
+            return msg.reply("ðŸŒ¼ La conexiÃ³n se ha cerrado de manera inesperada, intentaremos reconectar...");
           } else if (disconnectCode === DisconnectReason.connectionLost) {
             await initSubBot();
-            return console.log("\n≡Conexión perdida con el servidor, reconectando....");
+            return console.log("\nðŸŒ¼ConexiÃ³n perdida con el servidor, reconectando....");
           } else if (disconnectCode === DisconnectReason.badSession) {
-            return await m.reply("≡ La conexión se ha cerrado, deberá de conectarse manualmente usando el comando *.serbot* o *.code*");
+            return await msg.reply("ðŸŒ¼ La conexiÃ³n se ha cerrado, deberÃ¡ de conectarse manualmente usando el comando *.serbot* y reescanear el nuevo *QR.* Que fuÃ© enviada la primera vez que se hizo *SubBot*");
           } else if (disconnectCode === DisconnectReason.timedOut) {
             await closeConnection(false);
-            return console.log("\n≡ Tiempo de conexión agotado, reconectando....");
+            return console.log("\nðŸŒ¼ Tiempo de conexiÃ³n agotado, reconectando....");
           } else {
-            console.log("\n🍂 Razón de la desconexión desconocida: " + (disconnectCode || "") + " >> " + (connection || ""));
+            console.log("\nðŸŒ¼ RazÃ³n de la desconexiÃ³n desconocida: " + (disconnectCode || "") + " >> " + (connection || ""));
           }
         }
 
@@ -348,15 +368,11 @@ try {
         }
 
         if (connection == "open") {
-        const emoj = await remoji()
-          subBot.uptime = new Date();
           subBot.isInit = true;
           global.conns.push(subBot);
-          await user.sendMessage(m.chat, {
-            text: args[0] ? "🌙 *¡Está conectado!*\nPor favor espere se está cargando los mensajes..." : "¡Conectado con éxito!"
-          }, { quoted: m })
-await joinChannels(subBot)
-await react("https://whatsapp.com/channel/0029Va6InNBFCCoM9xzKFG3G/621", subBot, emoj)
+          await user.sendMessage(msg.chat, {
+            text: args[0] ? "â�€ *EstÃ¡ conectado(a)!! Por favor espere se estÃ¡ cargando los mensajes...*\n\nðŸŒ¼ *Opciones Disponibles:*\n*Â» " + usedPrefix + "pausarai _(Detener la funciÃ³n Sub Bot)_*\n*Â» " + usedPrefix + "deletesession _(Borrar todo rastro de Sub Bot)_*\n*Â» " + usedPrefix + "serbot _(Nuevo cÃ³digo QR o Conectarse si ya es Sub Bot)_*" : "*â�€ ConexiÃ³n con Ã©xito al WhatsApp*"
+          }, { quoted: msg });
           if (!args[0]) {
             /* user.sendMessage(msg.chat, {
                text: usedPrefix + command + " " + Buffer.from(fs.readFileSync("./" + jadi + "/" + userName + "/creds.json"), "utf-8").toString("base64")
@@ -414,17 +430,15 @@ await react("https://whatsapp.com/channel/0029Va6InNBFCCoM9xzKFG3G/621", subBot,
             subBot.chats[chatId].isBanned = false;
           });
         } else {
-          //console.log(subBot.chats, "🚩 Omitiendo mensajes en espera.", subBot.ev);
+          console.log(subBot.chats, "ðŸš© Omitiendo mensajes en espera.", subBot.ev);
           Object.keys(subBot.chats).forEach(chatId => {
             subBot.chats[chatId].isBanned = true;
           });
         }
         subBot.handler = handlerModule.handler.bind(subBot);
         subBot.connectionUpdate = handleConnectionUpdate.bind(subBot);
-      //  subBot.participantsUpdate = handler.participantsUpdate.bind(global.conn);
         subBot.credsUpdate = saveCreds.bind(subBot, true);
         subBot.ev.on("messages.upsert", subBot.handler);
-      //  conn.ev.on('group-participants.update', subBot.participantsUpdate);
         subBot.ev.on("connection.update", subBot.connectionUpdate);
         subBot.ev.on("creds.update", subBot.credsUpdate);
         isConnected = false;
@@ -433,40 +447,21 @@ await react("https://whatsapp.com/channel/0029Va6InNBFCCoM9xzKFG3G/621", subBot,
 
       updateHandler(false);
     }
-try {
+
     initSubBot();
-  } catch(e) {
-  m.reply(`Ocurrió un error. Intenta borra tu sesión usando: !delsesi y vuelve a intentarlo`)
-  }
+  });
 };
 
 handler.help = ["serbot", "serbot --code", "code"];
 handler.tags = ["serbot"];
-handler.command = ["serbot", "code"];
+handler.command = ["jadibot", "serbot", "code"];
 
 export default handler;
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
-}
-async function remoji() {
-const emojis = ['🍰', '♥️', '🍓', '😛', '🍒', '🌱', '🍄', '🌺', '🌷', '🍷', '😈', '🙀', '😿', '😹'];
-const em = emojis[Math.floor(Math.random() * emojis.length)];
-return em
-}
-async function react(link, conn, emoji) {
-try {
-        const channelId = link.split('/')[4];
-        const messageId = link.split('/')[5];
-        const res = await conn.newsletterMetadata("invite", channelId);
-        await conn.newsletterReactMessage(res.id, messageId, emoji);
-        console.log(`Se envió exitosamente la reacción *${emoji}* al mensaje en el canal *${res.name}*.`);
-    } catch (e) {
-        console.log("No se pudo enviar la reacción. Asegúrese de que el enlace y el texto sean válidos: " + e)
-    }
-};
-
+            }
 async function joinChannels(conn) {
 await conn.newsletterFollow("120363375378707428@newsletter")
 await conn.newsletterFollow("120363414007802886@newsletter")
