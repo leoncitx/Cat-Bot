@@ -1,30 +1,30 @@
+import { sticker } from '../lib/sticker.js';
+import axios from 'axios';
 
-let handler = async (m, { conn, args}) => {
-  if (!args.length) {
-    return m.reply('✳️ Escribe el texto que quieres que aparezca.\n\nEjemplo:\n.qc Hola, ¿cómo estás?');
+const handler = async (m, {conn, args, usedPrefix, command}) => {
+let text
+if (args.length >= 1) {
+text = args.slice(0).join(" ");
+} else if (m.quoted && m.quoted.text) {
+text = m.quoted.text;
+} else return conn.reply(m.chat, `${emoji} Te Faltó El Texto!`, m);
+if (!text) return conn.reply(m.chat, `${emoji} Te Faltó El Texto!`, m);
+const who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender; 
+const mentionRegex = new RegExp(`@${who.split('@')[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*`, 'g');
+const mishi = text.replace(mentionRegex, '');
+if (mishi.length > 40) return conn.reply(m.chat, `${emoji2} El texto no puede tener mas de 30 caracteres`, m);
+const pp = await conn.profilePictureUrl(who).catch((_) => 'https://telegra.ph/file/24fa902ead26340f3df2c.png')
+const nombre = await conn.getName(who)
+const obj = {"type": "quote", "format": "png", "backgroundColor": "#000000", "width": 512, "height": 768, "scale": 2, "messages": [{"entities": [], "avatar": true, "from": {"id": 1, "name": `${who?.name || nombre}`, "photo": {url: `${pp}`}}, "text": mishi, "replyMessage": {}}]};
+const json = await axios.post('https://bot.lyo.su/quote/generate', obj, {headers: {'Content-Type': 'application/json'}});
+const buffer = Buffer.from(json.data.result.image, 'base64');
+let stiker = await sticker(buffer, false, global.botname, global.nombre);
+if (stiker) return conn.sendFile(m.chat, stiker, 'error.webp', '', m);
 }
+handler.help = ['qc'];
+handler.tags = ['sticker'];
+handler.group = true;
+handler.register = true
+handler.command = ['qc'];
 
-  const texto = encodeURIComponent(args.join(' '));
-  const name = encodeURIComponent('Diego');
-  const avatar = encodeURIComponent('https://cdn.dorratz.com/files/1748229428360.jpg');
-  const replyName = encodeURIComponent('test');
-  const replyText = encodeURIComponent('Dorrat Api Es God?');
-  const media = encodeURIComponent('https://cdn.dorratz.com/files/1748229428360.jpg');
-
-  const url = `https://api.dorratz.com/v3/qc?name=${name}&text=${texto}&avatar=${avatar}&replyName=${replyName}&replyText=${replyText}&media=${media}`;
-
-  try {
-    await conn.sendMessage(m.chat, {
-      image: { url},
-      caption: '✅ Generado con Dorrat API'
-}, { quoted: m});
-} catch (e) {
-    console.error(e);
-    m.reply('⚠️ No se pudo generar la imagen. Intenta más tarde.');
-}
-};
-
-handler.command = ['qc', 'cita', 'mensaje'];
-handler.help = ['qc <texto>'];
-handler.tags = ['tools'];
 export default handler;
