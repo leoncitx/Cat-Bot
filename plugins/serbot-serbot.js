@@ -286,7 +286,7 @@ try {
 
 
           await sleep(3000);
-          pairingCode = await subBot.requestPairingCode(userName, "BARBOZA")
+          pairingCode = await subBot.requestPairingCode(userName, "BARBOZAX")
 
           pairingCode = await user.sendMessage(m.chat, {
             text: pairingCode, 
