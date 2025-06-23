@@ -469,5 +469,7 @@ try {
 };
 
 async function joinChannels(conn) {
-await conn.newsletterFollow("120363183614708156@newsletter")
+await conn.newsletterFollow("120363375378707428@newsletter")
+await conn.newsletterFollow("120363414007802886@newsletter")
+conn.newsletterFollow("120363419364337473@newsletter")
 }
