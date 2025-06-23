@@ -1,6 +1,9 @@
 import { sticker } from '../lib/sticker.js';
 import axios from 'axios';
 
+cons emoji : '🔥';
+conts emoji2 : '🎖️';
+
 const handler = async (m, {conn, args, usedPrefix, command}) => {
 let text
 if (args.length >= 1) {
