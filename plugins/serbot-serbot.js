@@ -137,7 +137,6 @@ if (code === DisconnectReason.loggedOut) {
         }
         conn.handler = handler.handler.bind(conn);
         conn.connectionUpdate = connectionUpdate.bind(conn);
-        conn.participantsUpdate = handler.participantsUpdate.bind(conn);
         conn.credsUpdate = saveCreds.bind(conn, true);
         conn.ev.on("messages.upsert", conn.handler);
         conn.ev.on('group-participants.update', conn.participantsUpdate);
