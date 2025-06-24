@@ -19,12 +19,13 @@ export async function before(m, { conn, isOwner, isROwner}) {
   const allChats = Object.keys(conn.chats || {});
   const isKnownChat = allChats.includes(m.chat);
 
-  // Bloquea si es privado desde Marruecos y no es contacto ni dueño
-  if (countryCode === '212' &&!isKnownChat && isUser) {
+    // Bloquea si es privado desde Marruecos y no es contacto ni dueño
+  if (countryCode === '212' && !isKnownChat && isUser) {
     await conn.updateBlockStatus(senderJID, 'block');
     console.log(`🛑 Usuario ${senderJID} de Marruecos bloqueado por privado (no es contacto conocido).`);
     return true;
 }
+
 
   const botSettings = global.db?.data?.settings?.[conn?.user?.jid] || {};
 
