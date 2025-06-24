@@ -32,7 +32,7 @@ mentionedJid: conn.parseMention(i.inf),
          await conn.reply(m.chat, `Error al obtener la información del canal: ${error.message}`, m);
       }
    }
-handler.command = ["inspector", "inspect", "id"]
+handler.command = ["inspector", "inspeccionar", "id"]
 handler.help = ["inspect"]
 handler.tags = ["tools"]
 export default handler
