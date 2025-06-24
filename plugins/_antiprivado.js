@@ -1,28 +1,31 @@
+
 export async function before(m, { conn, isOwner, isROwner}) {
-    if (m.isBaileys && m.fromMe) return true;
-    if (m.isGroup) return false;
-    if (!m.message) return true;
+  if (m.isBaileys && m.fromMe) return true;
+  if (m.isGroup) return false;
+  if (!m.message) return true;
 
-    // Extract the country code from the sender's JID
-    const senderJID = m.sender;
-    const countryCodeMatch = senderJID.match(/^(\d+)/); 
-    const countryCode = countryCodeMatch ? countryCodeMatch[1] : null;
+  const senderJID = m.sender;
+  const countryCodeMatch = senderJID.match(/^(\d+)/);
+  const countryCode = countryCodeMatch? countryCodeMatch[1]: null;
 
-    // Check if the country code is 212 (Morocco)
-    if (countryCode === '212') {
-        if (!isOwner && !isROwner) { // Only block if the sender is not an owner
-            await conn.updateBlockStatus(m.chat, 'block'); // Blocks the user without sending a message
-            console.log(`User ${m.sender} from Morocco (212) blocked for private contact.`);
-        }
-        return true; // Return true to stop further processing for this message
-    }
+  const contact = await conn.getContactById(senderJID);
+  const isSavedContact = contact?.name && contact.name!== senderJID.split('@')[0];
 
-    const botSettings = global.db.data.settings[this.user.jid] || {};
+  // Si es el país 212 y no es un contacto conocido ni el dueño, bloquear
+  if (countryCode === '212' &&!isSavedContact &&!isOwner &&!isROwner) {
+    await conn.updateBlockStatus(senderJID, 'block');
+    console.log(`🛑 Usuario ${senderJID} de Marruecos bloqueado por privado (desconocido).`);
+    return true;
+}
 
-    if (botSettings.antiPrivate && !isOwner && !isROwner) {
-        await conn.updateBlockStatus(m.chat, 'block'); // Blocks the user without sending a message
-        console.log(`User ${m.sender} blocked for private contact.`);
-    }
+  const botSettings = global.db?.data?.settings?.[conn?.user?.jid] || {};
 
-    return false;
+  // Bloquea si está activado el antiPrivate Y no es contacto conocido
+  if (botSettings.antiPrivate &&!isSavedContact &&!isOwner &&!isROwner) {
+    await conn.updateBlockStatus(senderJID, 'block');
+    console.log(`🛑 Usuario ${senderJID} bloqueado por privado (antiPrivate activado).`);
+    return true;
+}
+
+  return false;
 }
