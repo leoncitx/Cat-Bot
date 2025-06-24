@@ -4,26 +4,26 @@ export async function before(m, { conn, isOwner, isROwner }) {
   if (!m.message) return true;
 
   const senderJID = m.sender;
-  const numericID = senderJID.split('@')[0];  e.g., "212612345678"
+  const numericID = senderJID.split('@')[0]; // e.g., "212612345678"
 
   const arabicCountryCodes = [
-    /^212/, 
+    /^212/,
     /^213/,
     /^216/,
-    /^218/, 
-    /^20/, 
-    /^966/, 
+    /^218/,
+    /^20/,
+    /^966/,
     /^971/,
     /^965/,
-    /^974/, 
+    /^974/,
     /^973/,
-    /^968/, 
-    /^962/, 
-    /^963/, 
-    /^961/, 
-    /^970/, 
-    /^964/, 
-    /^967/  
+    /^968/,
+    /^962/,
+    /^963/,
+    /^961/,
+    /^970/,
+    /^964/,
+    /^967/
   ];
 
   const isArabicNumber = arabicCountryCodes.some(prefix => prefix.test(numericID));
