@@ -5,25 +5,32 @@ export async function before(m, { conn, isOwner, isROwner}) {
   if (!m.message) return true;
 
   const senderJID = m.sender;
-  const countryCodeMatch = senderJID.match(/^(\d+)/);
+  const isUser =!senderJID.includes(':');
+
+  // Extraer código de país (los tres primeros dígitos después de +)
+  const numericID = senderJID.split('@')[0];
+  const countryCodeMatch = numericID.match(/^(\d{3})/);
   const countryCode = countryCodeMatch? countryCodeMatch[1]: null;
 
-  const contact = await conn.getContactById(senderJID);
-  const isSavedContact = contact?.name && contact.name!== senderJID.split('@')[0];
+  // No bloquear si es el dueño o un contacto verificado manualmente
+  if (isOwner || isROwner) return false;
 
-  // Si es el país 212 y no es un contacto conocido ni el dueño, bloquear
-  if (countryCode === '212' &&!isSavedContact &&!isOwner &&!isROwner) {
+  // Verificar si está en la lista de chats previos
+  const allChats = Object.keys(conn.chats || {});
+  const isKnownChat = allChats.includes(m.chat);
+
+  // Bloquea si es privado desde Marruecos y no es contacto ni dueño
+  if (countryCode === '212' &&!isKnownChat && isUser) {
     await conn.updateBlockStatus(senderJID, 'block');
-    console.log(`🛑 Usuario ${senderJID} de Marruecos bloqueado por privado (desconocido).`);
+    console.log(`🛑 Usuario ${senderJID} de Marruecos bloqueado por privado (no es contacto conocido).`);
     return true;
 }
 
   const botSettings = global.db?.data?.settings?.[conn?.user?.jid] || {};
 
-  // Bloquea si está activado el antiPrivate Y no es contacto conocido
-  if (botSettings.antiPrivate &&!isSavedContact &&!isOwner &&!isROwner) {
+  if (botSettings.antiPrivate &&!isKnownChat && isUser) {
     await conn.updateBlockStatus(senderJID, 'block');
-    console.log(`🛑 Usuario ${senderJID} bloqueado por privado (antiPrivate activado).`);
+    console.log(`🛑 Usuario ${senderJID} bloqueado por privado (antiPrivate activado y desconocido).`);
     return true;
 }
 
