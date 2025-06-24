@@ -1,27 +1,28 @@
-export async function before(m, { conn, isOwner, isROwner }) {
+export async function before(m, { conn, isOwner, isROwner}) {
     if (m.isBaileys && m.fromMe) return true;
-    if (m.isGroup) return false;.
+    if (m.isGroup) return false;
     if (!m.message) return true;
-    const senderJid = m.sender;
 
-    if (!isOwner && !isROwner) {
-        try {
-            const contact = await conn.getContactById(senderJid;
+    // Extract the country code from the sender's JID
+    const senderJID = m.sender;
+    const countryCodeMatch = senderJID.match(/^(\d+)/); 
+    const countryCode = countryCodeMatch ? countryCodeMatch[1] : null;
 
-            if (!contact || !contact.name || contact.name === senderJid.split('@')[0]) {
-                await conn.updateBlockStatus(m.chat, 'block');
-                console.log(`Usuario ${senderJid} bloqueado por contacto privado (no es un contacto conocido).`);
-                return true;
-            } else {
-                console.log(`Usuario ${senderJid} permitido (es un contacto conocido: ${contact.name}).`);
-                return false; 
-            }
-        } catch (error) {
-             console.error(`Error al verificar contacto ${senderJid}:`, error);
-            await conn.updateBlockStatus(m.chat, 'block');
-            console.log(`Usuario ${senderJid} bloqueado por contacto privado (error al verificar o no conocido).`);
-            return true;
+    // Check if the country code is 212 (Morocco)
+    if (countryCode === '212') {
+        if (!isOwner && !isROwner) { // Only block if the sender is not an owner
+            await conn.updateBlockStatus(m.chat, 'block'); // Blocks the user without sending a message
+            console.log(`User ${m.sender} from Morocco (212) blocked for private contact.`);
         }
+        return true; // Return true to stop further processing for this message
     }
 
-    return false; }
+    const botSettings = global.db.data.settings[this.user.jid] || {};
+
+    if (botSettings.antiPrivate && !isOwner && !isROwner) {
+        await conn.updateBlockStatus(m.chat, 'block'); // Blocks the user without sending a message
+        console.log(`User ${m.sender} blocked for private contact.`);
+    }
+
+    return false;
+}
