@@ -1,10 +1,9 @@
 let handler = async (m, { conn, text, usedPrefix, command }) => {
-    // Validar que se ha proporcionado un enlace
-    if (!text) {
-        return conn.reply(m.chat, `*Uso correcto:* ${usedPrefix}${command} https://whatsapp.com/channel/0029Va6InNBFCCoM9xzKFG3G`, m);
+  if (!text) {
+        return conn.reply(m.chat, `*Uso correcto:* ${usedPrefix}${command} https://whatsapp.com/channel/0029Vb8kvXUBfxnzYWsbS81I`, m);
     }
 
-    // Validar el formato del enlace del canal
+    
     const channelRegex = /https:\/\/whatsapp\.com\/channel\/([0-9A-Za-z]+)/i;
     const match = text.match(channelRegex);
 
@@ -15,10 +14,9 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     const channelId = match[1];
 
     try {
-        // Obtener metadatos del canal usando la API de WhatsApp
+        
         const info = await conn.newsletterMetadata("invite", channelId);
 
-        // Formatear la fecha de creación
         const creationDate = new Date(info.creation_time * 1000);
         const formattedDate = creationDate.toLocaleDateString("es-ES", {
             year: 'numeric',
@@ -26,7 +24,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
             day: 'numeric'
         });
 
-        // Construir el mensaje de respuesta con la información del canal
+   
         let responseText = `
 *╭┈┈┈「 🌿 Información del Canal 🌿 」┈┈┈╮*
 *┆*
@@ -43,9 +41,9 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 *╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈╯*
         `.trim();
 
-        // Enviar el mensaje con la información
+       
         await conn.reply(m.chat, responseText, m);
-        m.react("✅"); // Reaccionar al mensaje indicando éxito
+        m.react("✅");
 
     } catch (error) {
         console.error("Error al obtener información del canal:", error);
@@ -53,7 +51,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     }
 };
 
-handler.command = ["infocanal", "channelinfo", "canalinfo"];
+handler.command = ["inspeccionar", "channelinfo", "canalinfo"];
 handler.help = ["infocanal <link>"];
 handler.tags = ["tools"];
 
