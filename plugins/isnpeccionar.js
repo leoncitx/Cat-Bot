@@ -14,6 +14,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     if (matchChannel) {
         const channelId = matchChannel[1];
         try {
+            // Assuming conn.newsletterMetadata is the correct function for channel info
             const info = await conn.newsletterMetadata("invite", channelId);
 
             const creationDate = new Date(info.creation_time * 1000);
@@ -47,10 +48,8 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     } else if (matchGroup) {
         const groupInviteCode = matchGroup[2];
         try {
-            // This is the crucial part: call your API to get real group info
-            const groupInfo = await conn.groupInviteCode(groupInviteCode); // Assuming this function exists and works
-            // If your API has a different function to get group metadata from an invite code, use that one.
-            // Example: const groupInfo = await conn.groupMetadata(groupInviteCode); if groupInviteCode is the actual group ID
+            // Use conn.groupMetadata with the invite code to get group info
+            const groupInfo = await conn.groupMetadata(groupInviteCode); 
 
             let responseText = `
 *╭┈┈┈「 💬 Información del Grupo 💬 」┈┈┈╮*
@@ -58,31 +57,31 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 *┆ 📝 Nombre:* ${groupInfo.subject || 'No disponible'}
 *┆ 🆔 ID:* ${groupInfo.id || 'No disponible'}
 *┆ 👥 Miembros:* ${groupInfo.size || 0}
-*┆ 👑 Creador/Administrador:* ${groupInfo.owner || 'No disponible'}
+*┆ 👑 Creador/Administrador:* ${groupInfo.owner ? `@${groupInfo.owner.split('@')[0]}` : 'No disponible'}
 *┆*
 *┆ 📄 Descripción:* ${groupInfo.desc || "Sin descripción disponible."}
 *┆*
 *╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈╯*
             `.trim();
-            await conn.reply(m.chat, responseText, m);
+            await conn.reply(m.chat, responseText, m, { mentions: groupInfo.owner ? [groupInfo.owner] : [] });
             m.react("✅");
         } catch (error) {
             console.error("Error al obtener información del grupo:", error);
-            await conn.reply(m.chat, `*Error al procesar la solicitud del grupo:* No se pudo obtener la información. Detalle: ${error.message}`, m);
+            await conn.reply(m.chat, `*Error al procesar la solicitud del grupo:* No se pudo obtener la información. Asegúrate de que el enlace sea válido y el bot esté en el grupo o tenga acceso para ver su metadata. Detalle: ${error.message}`, m);
         }
     } else if (matchCommunity) {
         const communityId = matchCommunity[1];
-        try { // Corrected syntax here
-            // This is the crucial part: call your API to get real community info
-            const communityInfo = await conn.communityMetadata(communityId); // Assuming this function exists and works
+        try { 
+            // Assuming conn.communityMetadata is the correct function for community info
+            // Note: This might require your 'conn' library to support community metadata retrieval.
+            const communityInfo = await conn.communityMetadata(communityId); 
 
             let responseText = `
 *╭┈┈┈「 🏘️ Información de la Comunidad 🏘️ 」┈┈┈╮*
 *┆*
 *┆ 📝 Nombre:* ${communityInfo.name || 'No disponible'}
 *┆ 🆔 ID:* ${communityInfo.id || 'No disponible'}
-*┆ 👥 Miembros:* ${communityInfo.members || 0}
-*┆*
+*┆ 👥 Miembros:* ${communityInfo.members?.length || 0}
 *┆ 📄 Descripción:* ${communityInfo.description || "Sin descripción disponible."}
 *┆*
 *╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈╯*
