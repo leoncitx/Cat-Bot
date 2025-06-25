@@ -1,152 +1,103 @@
-/**
- * @ 🍀 Descargador de MP3 de YT (Alternativo)
- * @ 🍀 Fuente: https://whatsapp.com/channel/0029VbBDTFd6mYPDtnetTK1f
- * @ 🍀 Scrape: https://whatsapp.com/channel/0029VakezCJDp2Q68C61RH2C/3588
- */
-
 import axios from 'axios';
 
-// Función de ayuda para extraer el ID del video de YouTube
-function extractVideoId(url) {
-    const match = url.match(/(?:v=|\/)([0-9A-Za-z_-]{11})/);
-    return match ? match[1] : null;
-}
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-/**
- * Descarga videos de YouTube como MP3 usando múltiples fuentes de API.
- * @param {string} url - La URL del video de YouTube.
- * @returns {Promise<object>} Un objeto que contiene el enlace de descarga, título, miniatura y otros detalles.
- * @throws {Error} Si la URL no es válida o la descarga falla.
- */
-export async function ytmp3(url) {
-    if (!url) throw new Error('¡Por favor, proporciona una URL de YouTube!');
-    const videoId = extractVideoId(url);
-    const thumbnail = videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : null;
+const fetchDownloadUrl = async (videoUrl) => {
+  const apis = [
+    'https://api.vreden.my.id/api/ytmp3?url=',
+    'https://mahiru-shiina.vercel.app/download/ytmp3?url=',
+    'https://api.siputzx.my.id/api/d/ytmp3?url='
+  ];
 
-    // --- Intento 1: Usando la API de y2mate.com ---
+  for (let api of apis) {
     try {
-        const y2mateApiUrl = `https://www.y2mate.com/mates/analyzeV2/ajax`;
-        const y2matePayload = new URLSearchParams();
-        y2matePayload.append('query', url);
-        y2matePayload.append('vt', 'mp3'); // Solicitando formato MP3
+      const fullUrl = `${api}${encodeURIComponent(videoUrl)}`;
+      const { data } = await axios.get(fullUrl, { timeout: 10000 });
 
-        const y2mateRes = await axios.post(y2mateApiUrl, y2matePayload.toString(), {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                'Referer': 'https://www.y2mate.com/'
-            }
-        });
+      let result = data?.result || data?.data;
 
-        const y2mateData = y2mateRes.data;
+      // Adaptación para la estructura de Vreden
+      const audioUrl = result?.download?.url || result?.dl_url || result?.download || result?.dl;
+      const title = result?.metadata?.title || result?.title || "audio";
 
-        if (y2mateData && y2mateData.status === 'success' && y2mateData.downloads && y2mateData.downloads.mp3) {
-            const audioData = Object.values(y2mateData.downloads.mp3).sort((a, b) => {
-                // Priorizar la calidad de audio más alta si está disponible
-                const qualityA = parseFloat(a.quality.replace('kbps', '')) || 0;
-                const qualityB = parseFloat(b.quality.replace('kbps', '')) || 0;
-                return qualityB - qualityA;
-            })[0]; // Obtener el MP3 de mayor calidad
-
-            if (audioData && audioData.url) {
-                return {
-                    link: audioData.url,
-                    title: y2mateData.title || 'Título Desconocido',
-                    thumbnail,
-                    filesize: audioData.size || 'N/A',
-                    quality: audioData.quality || 'N/A',
-                    success: true
-                };
-            }
-        }
-    } catch (e) {
-        console.warn('Fallo con la API de y2mate:', e.message);
+      if (audioUrl) {
+        return {
+          url: audioUrl.trim(),
+          title
+        };
+      }
+    } catch (error) {
+      console.error(`Error con API: ${api}`, error.message);
+      await wait(5000);
     }
+  }
 
-    // --- Intento 2: Usando la API de xfetch (una herramienta de scraping más general) ---
-    try {
-        // Reemplaza YOUR_XFETCH_API_KEY con tu clave API real de xfetch si tienes una.
-        const xfetchApiUrl = `https://api.xfarr.com/api/ytmp3?url=${encodeURIComponent(url)}&apikey=YOUR_XFETCH_API_KEY`; 
-        
-        // Nota: xfetch es una API de pago o con límite de velocidad. Puede que necesites registrarte para obtener una clave.
-        // Si no tienes una clave API de xfetch, puedes eliminar esta sección o reemplazarla con otra API gratuita.
-
-        const xfetchRes = await axios.get(xfetchApiUrl);
-        const xfetchData = xfetchRes.data;
-
-        if (xfetchData && xfetchData.status && xfetchData.result && xfetchData.result.url) {
-            return {
-                link: xfetchData.result.url,
-                title: xfetchData.result.title || 'Título Desconocido',
-                thumbnail: xfetchData.result.thumb || thumbnail,
-                filesize: xfetchData.result.filesize || 'N/A',
-                duration: xfetchData.result.duration || 'N/A',
-                success: true
-            };
-        }
-    } catch (e) {
-        console.warn('Fallo con la API de xfetch:', e.message);
-        // Si xfetch falla, podría ser debido a problemas con la clave API o límites de velocidad.
-    }
-
-    throw new Error('No se pudo descargar el MP3 de ninguna fuente disponible.');
-}
-
-// --- Integración con el Bot de WhatsApp (asumiendo que esta parte permanece similar) ---
-let yeon = async (m, { conn, text, usedPrefix, command }) => {
-    if (!text) {
-        await conn.sendMessage(m.chat, {
-            react: { text: '❌', key: m.key }
-        });
-        return conn.sendMessage(m.chat, {
-            text: `🎧 *Senpai*, ¡por favor, introduce la URL de YouTube que quieres convertir a audio!
-Ejemplo: *${usedPrefix + command}* https://www.youtube.com/watch?v=dQw4w9WgXcQ`
-        });
-    }
-
-    try {
-        await conn.sendMessage(m.chat, {
-            react: { text: '⏳', key: m.key }
-        });
-
-        const result = await ytmp3(text);
-
-        await conn.sendMessage(m.chat, {
-            audio: { url: result.link },
-            fileName: (result.title || 'audio').replace(/[^\w\-\.]/g, '_') + '.mp3',
-            mimetype: 'audio/mpeg',
-            ptt: false,
-            contextInfo: {
-                externalAdReply: {
-                    title: result.title,
-                    body: 'Duración: ' + (result.duration || 'Desconocida'),
-                    thumbnailUrl: result.thumbnail,
-                    sourceUrl: text,
-                    mediaType: 1,
-                    renderLargerThumbnail: false
-                }
-            }
-        }, { quoted: m });
-
-        await conn.sendMessage(m.chat, {
-            react: { text: '✅', key: m.key }
-        });
-
-    } catch (e) {
-        console.error('Error:', e.message);
-        await conn.sendMessage(m.chat, {
-            react: { text: '❌', key: m.key }
-        });
-        await conn.sendMessage(m.chat, {
-            text: `⚠️ *¡Ups, algo salió mal, Senpai!*
-Esta función está experimentando problemas, por favor, intenta de nuevo más tarde 😅`
-        });
-    }
+  return null;
 };
 
-yeon.help = ['ytmp3 <url>'];
-yeon.tags = ['downloader'];
-yeon.command = /^ytmp3$/i;
-yeon.register = true;
-yeon.limit = true;
-export default yeon;
+const sendAudioWithRetry = async (conn, chat, audioUrl, videoTitle, maxRetries = 2) => {
+  let attempt = 0;
+  let thumbnailBuffer;
+  try {
+    const response = await axios.get('https://files.catbox.moe/l81ahk.jpg', { responseType: 'arraybuffer' });
+    thumbnailBuffer = Buffer.from(response.data, 'binary');
+  } catch (error) {
+    console.error("Error al obtener thumbnail:", error.message);
+  }
+
+  while (attempt < maxRetries) {
+    try {
+      await conn.sendMessage(
+        chat,
+        {
+          audio: { url: audioUrl },
+          mimetype: 'audio/mpeg',
+          contextInfo: {
+            externalAdReply: {
+              title: videoTitle,
+              body: "Barboza ",
+              previewType: 'PHOTO',
+              thumbnail: thumbnailBuffer,
+              mediaType: 1,
+              renderLargerThumbnail: false,
+              showAdAttribution: true,
+              sourceUrl: 'https://Ella.Nunca.Te-Amo.Pe'
+            }
+          }
+        }
+      );
+      return;
+    } catch (error) {
+      console.error(`Error al enviar audio, intento ${attempt + 1}:`, error.message);
+      if (attempt < maxRetries - 1) await wait(12000);
+    }
+    attempt++;
+  }
+};
+
+let handler = async (m, { conn, text }) => {
+  if (!text?.trim() || (!text.includes('youtube.com') && !text.includes('youtu.be'))) {
+    await conn.reply(m.chat, `❗ *Debes Ingresar Un Enlace De YouTube Válido.*`, m);
+    return;
+  }
+
+  const reactionMessage = await conn.reply(m.chat, `🔍 *Procesando El Enlace 😉...*`, m);
+  await conn.sendMessage(m.chat, { react: { text: '🎶', key: reactionMessage.key } });
+
+  try {
+    const downloadData = await fetchDownloadUrl(text);
+    if (!downloadData || !downloadData.url) throw new Error("No Se Pudo Obtener La Descarga.");
+
+    await conn.sendMessage(m.chat, { react: { text: '🟢', key: reactionMessage.key } });
+    await sendAudioWithRetry(conn, m.chat, downloadData.url, downloadData.title);
+  } catch (error) {
+    console.error("❌ Error:", error);
+    await conn.reply(m.chat, `⚠️ *Error:* ${error.message || "Desconocido"}`, m);
+  }
+};
+
+handler.help = ['ytmp3 <url de youtube>'];
+handler.tags = ['descargas'];
+handler.command = /^ytmp3$/i;
+
+export default handler;
