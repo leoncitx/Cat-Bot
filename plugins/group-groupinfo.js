@@ -47,7 +47,7 @@ ${groupMetadata.desc?.toString() || 'Sin descripción definida.'}
 
 handler.help = ['infogp'];
 handler.tags = ['group'];
-handler.command = ['infogrupo', 'groupinfo', 'infogp'];
+handler.command = ['infogrupo','infogp'];
 handler.group = true;
 
 export default handler;
