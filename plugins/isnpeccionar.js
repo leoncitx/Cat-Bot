@@ -4,8 +4,8 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     }
 
     const channelRegex = /https:\/\/whatsapp\.com\/channel\/([0-9A-Za-z]+)/i;
-    const groupRegex = /(https:\/\/chat\.whatsapp\.com\/)([0-9A-Za-z]{22})/i; 
-    const communityRegex = /https:\/\/whatsapp\.com\/community\/([0-9A-Za-z]+)/i; 
+    const groupRegex = /(https:\/\/chat\.whatsapp\.com\/)([0-9A-Za-z]{22})/i;
+    const communityRegex = /https:\/\/whatsapp\.com\/community\/([0-9A-Za-z]+)/i;
 
     let matchChannel = text.match(channelRegex);
     let matchGroup = text.match(groupRegex);
@@ -14,7 +14,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     if (matchChannel) {
         const channelId = matchChannel[1];
         try {
-            const info = await conn.newsletterMetadata("invite", channelId); 
+            const info = await conn.newsletterMetadata("invite", channelId);
 
             const creationDate = new Date(info.creation_time * 1000);
             const formattedDate = creationDate.toLocaleDateString("es-ES", {
@@ -45,17 +45,12 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
             await conn.reply(m.chat, `*Error al procesar la solicitud del canal:* No se pudo obtener la información. Detalle: ${error.message}`, m);
         }
     } else if (matchGroup) {
-        const groupInviteCode = matchGroup[2]; 
+        const groupInviteCode = matchGroup[2];
         try {
-            // Reemplaza esta línea con la llamada real a tu API para obtener información del grupo.
-            // Ejemplo: const groupInfo = await conn.groupMetadata(groupInviteCode);
-            let groupInfo = { // Esto es un EJEMPLO, reemplázalo con datos reales de tu API
-                id: "ID del Grupo Desconocido",
-                subject: "Nombre del Grupo",
-                size: 0, 
-                owner: "Propietario del Grupo",
-                desc: "Descripción del Grupo",
-            };
+            // This is the crucial part: call your API to get real group info
+            const groupInfo = await conn.groupInviteCode(groupInviteCode); // Assuming this function exists and works
+            // If your API has a different function to get group metadata from an invite code, use that one.
+            // Example: const groupInfo = await conn.groupMetadata(groupInviteCode); if groupInviteCode is the actual group ID
 
             let responseText = `
 *╭┈┈┈「 💬 Información del Grupo 💬 」┈┈┈╮*
@@ -77,14 +72,9 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
         }
     } else if (matchCommunity) {
         const communityId = matchCommunity[1];
-        try }
-             const communityInfo = await conn.communityMetadata(communityId);
-            let communityInfo = { // Esto es un EJEMPLO, reemplázalo con datos reales de tu API
-                id: "ID de la Comunidad Desconocido",
-                name: "Nombre de la Comunidad",
-                members: 0, 
-                description: "Descripción de la Comunidad",
-            };
+        try { // Corrected syntax here
+            // This is the crucial part: call your API to get real community info
+            const communityInfo = await conn.communityMetadata(communityId); // Assuming this function exists and works
 
             let responseText = `
 *╭┈┈┈「 🏘️ Información de la Comunidad 🏘️ 」┈┈┈╮*
@@ -108,8 +98,8 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     }
 };
 
-handler.command = ["inspeccionar", "channelinfo", "canalinfo", "groupinfo", "comunidadinfo"]; 
-handler.help = ["infocanal <link>", "infogrupo <link>", "infocomunidad <link>"]; 
+handler.command = ["inspeccionar", "channelinfo", "canalinfo", "groupinfo", "comunidadinfo"];
+handler.help = ["infocanal <link>", "infogrupo <link>", "infocomunidad <link>"];
 handler.tags = ["tools"];
 
 export default handler;
