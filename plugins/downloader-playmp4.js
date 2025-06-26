@@ -28,7 +28,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 
     const video = searchData.data[0];
 
-    let info = `╭─⬣「 * Barboza* 」⬣
+    let info = `╭─⬣「 *Barboza* 」⬣
 │  ≡◦🎵 *Título:* ${video.title}
 │  ≡◦📺 *Canal:* ${video.author.name}
 │  ≡◦⏱️ *Duración:* ${video.duration}
