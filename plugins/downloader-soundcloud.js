@@ -28,7 +28,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 
     const video = searchData.data[0];
 
-    let info = `╭─⬣「 *🐉𝐌𝐄𝐋𝐈𝐎𝐃𝐀𝐒 𝐕𝟐* 」⬣
+    let info = `╭─⬣「 *Barboza* 」⬣
 │  ≡◦🎵 *Título:* ${video.title}
 │  ≡◦📺 *Canal:* ${video.author.name}
 │  ≡◦⏱️ *Duración:* ${video.duration}
@@ -48,7 +48,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 
     if (!downloadData?.result?.download?.url) {
       await m.react('🔴');
-      return m.reply(`╭─⬣「 *🐉𝐌𝐄𝐋𝐈𝐎𝐃𝐀𝐒 𝐕𝟐* 」⬣
+      return m.reply(`╭─⬣「 *Barboza* 」⬣
 │  ❌ *Error al descargar*
 │  ➤ No se pudo obtener el audio del video.
 ╰`);
@@ -64,7 +64,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
   } catch (error) {
     console.error(error);
     await m.react('🔴');
-    m.reply(`╭─⬣「 *🐉𝐌𝐄𝐋𝐈𝐎𝐃𝐀𝐒 𝐕𝟐* 」⬣
+    m.reply(`╭─⬣「 *Barboza * 」⬣
 │  ❌ *Error Interno*
 │  ➤ ${error.message}
 ╰`);
