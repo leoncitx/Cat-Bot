@@ -1,257 +1,45 @@
+
 import axios from 'axios';
-import FormData from 'form-data';
-import yts from 'yt-search';
 
-let handler = async (m, { conn, args, text }) => {
-  if (!args[0]) throw m.reply(`✧ Ejemplo: ${usedPrefix}${command} Joji - Ew`);
-  
-await conn.sendMessage(m.chat, { react: { text: '🕒', key: m.key }})
-  
-   let results = await yts(text);
-   let tes = results.videos[0]
-    
-const mp3Result = await youtubeScraper.youtubeMp3(tes.url);
-if (mp3Result.success) {
-  console.log("Title:", mp3Result.data.title);
-  console.log("Download URL:", mp3Result.data.downloadUrl);
+let handler = async (m, { conn, args, usedPrefix, command}) => {
+  if (!args[0]) throw `✧ Ejemplo de uso:\n${usedPrefix + command} https://www.youtube.com/watch?v=dQw4w9WgXcQ`;
 
-const caption = `
-      *💮 PLAY AUDIO 💮*
- 
-  ✧ : \`titulo;\` ${tes.title || 'no encontrado'}
-  ✧ : \`artista;\` ${tes.author.name || 'no encontrado'}
-  ✧ : \`duracion;\` ${tes.duration || 'no encontrado'}
-  ✧ : \`tipo;\` ${mp3Result.data.type || 'no encontrado'}
- 
-> ${wm}
-> Pedido de @${m.sender.split('@')[0]}
-> url: ${tes.url}`;
+  await conn.sendMessage(m.chat, { react: { text: '🎶', key: m.key}});
 
-await m.reply(caption)
-await conn.sendMessage(m.chat, {
-      audio: { url: mp3Result.data.downloadUrl },
-      mimetype: "audio/mp4",
-      fileName: tes.title,
-      mentions: [m.sender]
-    }, { quoted: m });
-await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key }})
-} else {
-  console.error("Error:", mp3Result.error);
-  await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key }})
+  try {
+    const { data} = await axios.get(`https://www.apis-anomaki.zone.id/downloader/yta?url=${encodeURIComponent(args[0])}`);
+
+    if (!data?.result?.link) throw '❌ No se pudo obtener el audio.';
+
+    const caption = `
+*🌸 AUDIO DESCARGADO 🌸*
+
+▢ 🎵 *Título:* ${data.result.title || 'desconocido'}
+▢ ⏱️ *Duración:* ${data.result.duration || 'desconocida'}
+▢ 📎 *Tipo:* ${data.result.ext || 'mp3'}
+
+Pedido por: @${m.sender.split('@')[0]}
+URL: ${args[0]}
+`.trim();
+
+    await conn.sendMessage(m.chat, {
+      audio: { url: data.result.link},
+      mimetype: 'audio/mp4',
+      fileName: `${data.result.title || 'audio'}.mp3`,
+      ptt: false,
+}, { quoted: m});
+
+    await m.reply(caption, null, { mentions: [m.sender]});
+    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key}});
+
+} catch (err) {
+    console.error(err);
+    await m.reply('🚫 Ocurrió un error al intentar descargar el audio.');
 }
-}
-handler.help = ['play *<consulta>*'];
-handler.tags = ['downloader'];
-handler.command = ["play","song","musica"];
-
-export default handler
-
-
-class Success {
-  constructor(data) {
-    this.success = true;
-    this.data = data;
-  }
-}
-
-class ErrorResponse {
-  constructor(error) {
-    this.success = false;
-    this.error = error;
-  }
-}
-
-const youtubeScraper = {
-  youtubeMp3: async (url) => {
-    try {
-      if (!url || !url.includes('youtube.com') && !url.includes('youtu.be')) {
-        return new ErrorResponse({
-          message: "¡URL de YouTube no válida!"
-        });
-      }
-
-      const ds = new FormData();
-      ds.append("url", url);
-      
-      const { data } = await axios.post(
-        "https://www.youtubemp3.ltd/convert",
-        ds,
-        {
-          headers: {
-            ...ds.getHeaders(),
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          },
-          timeout: 45000
-        }
-      );
-      
-      if (!data || !data.link) {
-        return new ErrorResponse({
-          message: "No se pudo obtener el enlace de descarga"
-        });
-      }
-      
-      return new Success({
-        title: data.filename || "Título desconocido",
-        downloadUrl: data.link,
-        type: "mp3"
-      });
-      
-    } catch (error) {
-      if (error.code === 'ECONNABORTED') {
-        return new ErrorResponse({
-          message: "Tiempo de espera de la solicitud agotado, inténtelo de nuevo más tarde"
-        });
-      }
-      
-      return new ErrorResponse({
-        message: error.response?.data?.message || error.message || "Gagal convert YouTube ke MP3"
-      });
-    }
-  },
-
-  ytdl: async (url, quality = "720") => {
-    try {
-      if (!url || !url.includes('youtube.com') && !url.includes('youtu.be')) {
-        return new ErrorResponse({
-          message: "¡URL de YouTube no válida!"
-        });
-      }
-
-      const validQuality = {
-        "480": 480,
-        "1080": 1080,
-        "720": 720,
-        "360": 360,
-        "audio": "mp3",
-      };
-      
-      if (!Object.keys(validQuality).includes(quality)) {
-        return new ErrorResponse({
-          message: "¡Calidad no válida!",
-          availableQuality: Object.keys(validQuality)
-        });
-      }
-      
-      const qualitys = validQuality[quality];
-      
-      const { data: firstRequest } = await axios.get(
-        `https://p.oceansaver.in/ajax/download.php?button=1&start=1&end=1&format=${qualitys}&iframe_source=https://allinonetools.com/&url=${encodeURIComponent(url)}`,
-        { 
-          timeout: 30000,
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          }
-        }
-      );
-      
-      if (!firstRequest || !firstRequest.progress_url) {
-        return new ErrorResponse({
-          message: "No se pudo iniciar el proceso de descarga"
-        });
-      }
-      
-      const { progress_url } = firstRequest;
-      let metadata = {
-        image: firstRequest.info?.image || "",
-        title: firstRequest.info?.title || "Título desconocido",
-        downloadUrl: "",
-        quality: quality,
-        type: quality === "audio" ? "mp3" : "mp4"
-      };
-      
-      let datas;
-      let attempts = 0;
-      const maxAttempts = 40;
-      
-      console.log("Procesando descarga, por favor espere...");
-      
-      do {
-        if (attempts >= maxAttempts) {
-          return new ErrorResponse({
-            message: "Timeout: El proceso de descarga tarda demasiado, inténtalo de nuevo."
-          });
-        }
-        
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        
-        try {
-          const { data } = await axios.get(progress_url, { 
-            timeout: 15000,
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            }
-          });
-          datas = data;
-          
-          if (datas.progress && datas.progress < 100) {
-            console.log(`Progeso: ${datas.progress}%`);
-          }
-          
-        } catch (pollError) {
-          console.log(`El intento de sondeo ${attempts + 1} falló, se está reintentando...`);
-        }
-        
-        attempts++;
-      } while (!datas?.download_url);
-      
-      if (!datas.download_url) {
-        return new ErrorResponse({
-          message: "No se pudo obtener la URL de descarga"
-        });
-      }
-      
-      metadata.downloadUrl = datas.download_url;
-      console.log("¡Ya está listo para descargar!");
-      
-      return new Success(metadata);
-      
-    } catch (error) {
-      if (error.code === 'ECONNABORTED') {
-        return new ErrorResponse({
-          message: "Tiempo de espera de la solicitud agotado, inténtelo de nuevo más tarde"
-        });
-      }
-      
-      return new ErrorResponse({
-        message: error.response?.data?.message || error.message || "No se pudo descargar el vídeo"
-      });
-    }
-  },
-
-  // Utility function untuk validasi URL YouTube
-  isValidYouTubeUrl: (url) => {
-    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
-    return youtubeRegex.test(url);
-  },
-
-  // Utility function untuk extract video ID
-  extractVideoId: (url) => {
-    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-    const match = url.match(regex);
-    return match ? match[1] : null;
-  }
 };
 
-// Ejemplo de uso:
-/*
-// MP3 Download
-const mp3Result = await youtubeScraper.youtubeMp3("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-if (mp3Result.success) {
-  console.log("Title:", mp3Result.data.title);
-  console.log("Download URL:", mp3Result.data.downloadUrl);
-} else {
-  console.error("Error:", mp3Result.error);
-}
+handler.help = ['play'].map(v => v + ' <url>');
+handler.tags = ['downloader'];
+handler.command = /^play$/i;
 
-// Video Download
-const videoResult = await youtubeScraper.ytdl("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "720");
-if (videoResult.success) {
-  console.log("Title:", videoResult.data.title);
-  console.log("Thumbnail:", videoResult.data.image);
-  console.log("Download URL:", videoResult.data.downloadUrl);
-  console.log("Quality:", videoResult.data.quality);
-} else {
-  console.error("Error:", videoResult.error);
-}
-*/
+export default handler;
