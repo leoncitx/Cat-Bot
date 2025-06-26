@@ -1,56 +1,30 @@
-import fs from 'fs';
-import path from 'path';
+let subbotPrefixes = {}  // Prefijos por instancia en memoria
 
-const handler = async (m, { conn, text, usedPrefix }) => {
-  // Reacción de carga
-  await conn.sendMessage(m.chat, {
-    react: { text: "⚙️", key: m.key }
-  });
+let handler = async (m, { conn, text, args}) => {
+  const jid = conn.user?.id?.split(':')[0] + '@s.whatsapp.net'
 
-  const fromMe = m.key.fromMe;
-  if (!fromMe) {
-    return await conn.sendMessage(m.chat, {
-      text: "⛔ Solo el *dueño del subbot* puede usar este comando."
-    }, { quoted: m });
-  }
+  if (!m.key.fromMe) {
+    return m.reply('🔒 Este comando solo puede usarlo el *propietario del subbot* (mensajes enviados desde el propio bot).')
+}
 
-  // Validación del texto ingresado
-  if (!text || text.length > 2) {
-    return await conn.sendMessage(m.chat, {
-      text: `⚠️ Usa el comando con el prefijo que desees (máx. 2 caracteres).\n\n✅ Ejemplo:\n${usedPrefix}setprefix 🩸`,
-    }, { quoted: m });
-  }
+  const prefix = text?.trim()
+  if (!prefix || prefix.length> 2) {
+    return m.reply(`❌ Prefijo inválido.\n\n✅ Ejemplo:.setprefijo ⚡`)
+}
 
-  // Obtener ID limpio del subbot
-  const rawID = conn.user?.id || "";
-  const subbotID = rawID.split(":")[0] + "@s.whatsapp.net";
+  subbotPrefixes[jid] = prefix
 
-  // Ruta del archivo de prefijos
-  const filePath = path.resolve('./prefixes.json');
-  let data = {};
-  if (fs.existsSync(filePath)) {
-    try {
-      data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-    } catch {
-      data = {};
-    }
-  }
+  m.reply(`
+✅ *Prefijo actualizado localmente para este subbot.*
+📌 Nuevo prefijo: *${prefix}*
+🚫 No afecta al prefijo del bot principal.
+`)
+}
 
-  // Guardar prefijo
-  data[subbotID] = text;
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+handler.command = ['setprefijo']
+handler.owner = true
+handler.register = false
 
-  return await conn.sendMessage(m.chat, {
-    text: `
-╭─❒ 「 *✅ PREFIJO ACTUALIZADO* 」
-│ Nuevo prefijo: *${text}*
-│ Ejemplos válidos: 🩸👎🏻🫴🏻🤬🩸😘
-╰❒
-`.trim()
-  }, { quoted: m });
-};
+export const getSubbotPrefix = (jid) => subbotPrefixes[jid] || '.'
 
-handler.command = ['setprefix'];
-handler.owner = true;
-
-export default handler;
+export default handler
