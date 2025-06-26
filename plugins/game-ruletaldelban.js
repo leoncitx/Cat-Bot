@@ -1,64 +1,50 @@
 let handler = async (m, { conn, groupMetadata }) => {
-    // Comprobar si el bot tiene restricciones habilitadas
+    // Verificar si el bot tiene restricciones
     let bot = global.db.data.settings[conn.user.jid] || {};
-    if (!bot.restrict) {
-        return m.reply(`⚠️ Este comando solo puede ser utilizado por el propietario.`);
-    }
+    if (!bot.restrict) return m.reply(`⚠️ Solo el propietario puede usar este comando.`);
 
-    // Comprobar si el comando se usa en un grupo
-    if (!m.isGroup) {
-        return m.reply(`⚠️ Este comando solo puede ser utilizado en grupos.`);
-    }
+    // Verificar si el mensaje es en un grupo
+    if (!m.isGroup) return m.reply(`⚠️ Este comando solo se puede usar en grupos.`);
 
-    // Número de teléfono del creador del bot (reemplazar con el número real si es diferente)
-    const botCreatorNumber = '584246582666'; 
+    // Número de teléfono del creador del bot
+    const botCreatorNumber = '584246582666'; // Formato correcto del ID del número
 
-    // Función para comprobar si un participante es administrador, superadministrador, propietario del grupo o el creador del bot
+    // Función para verificar si un usuario es administrador, moderador o el creador del bot
     const isAdminOrCreator = (participant) => {
-        return participant.admin === 'admin' || participant.admin === 'superadmin' || participant.id === groupMetadata.owner || participant.id.includes(botCreatorNumber);
+        return participant.admin === 'admin' || participant.admin === 'superadmin' || participant.id === groupMetadata.owner || participant.id === botCreatorNumber;
     };
 
-    // Filtrar participantes: excluir el bot mismo, administradores, superadministradores, el propietario del grupo y el creador del bot
-    let candidates = groupMetadata.participants
+    // Filtrar participantes (no incluir al bot y a los administradores, moderadores y creador del bot)
+    let psmap = groupMetadata.participants
         .filter(v => v.id !== conn.user.jid && !isAdminOrCreator(v))
         .map(v => v.id);
 
-    // Comprobar si hay candidatos elegibles para la eliminación
-    if (candidates.length === 0) {
-        return m.reply(`⚠️ No se encontraron candidatos para la ruleta, o todos son administradores/moderadores/creador del bot.`);
-    }
+    // Verificar si hay candidatos
+    if (psmap.length === 0) return m.reply(`⚠️ No se encontraron candidatos para la ruleta o todos son administradores/moderadores/creador del bot.`);
 
-    // Determinar cuántos usuarios eliminar (máximo 10, o menos si no hay suficientes candidatos)
-    const numToRemove = Math.min(10, candidates.length);
+    // Elegir un usuario al azar
+    let user = psmap[Math.floor(Math.random() * psmap.length)];
 
-    // Seleccionar usuarios aleatorios para eliminar
-    const usersToRemove = [];
-    for (let i = 0; i < numToRemove; i++) {
-        const randomIndex = Math.floor(Math.random() * candidates.length);
-        usersToRemove.push(candidates[randomIndex]);
-        candidates.splice(randomIndex, 1); // Eliminar el usuario seleccionado de la lista para evitar duplicados
-    }
-
-    // Formatear menciones para el mensaje
+    // Formatear menciones
     let format = a => '@' + a.split('@')[0];
 
-    // Notificar a los usuarios elegidos y proceder con su eliminación
-    const mentionsText = usersToRemove.map(user => `*${format(user)}*`).join(', ');
+    // Notificar al usuario elegido y proceder con la eliminación
     await conn.sendMessage(m.chat, {
-        text: `*☠️ Los siguientes usuarios han sido elegidos por la ruleta de la muerte: ${mentionsText}*`,
-        mentions: usersToRemove
+        text: `*${format(user)} ☠️ Has sido elegido por la ruleta de la muerte*`,
+        mentions: [user]
     });
 
-    // Esperar 2 segundos antes de eliminar a los usuarios
+    // Esperar 2 segundos antes de eliminar al usuario
     await delay(2000);
-    await conn.groupParticipantsUpdate(m.chat, usersToRemove, 'remove');
+    await conn.groupParticipantsUpdate(m.chat, [user], 'remove');
 };
 
-handler.command = /^(ruletaban)$/i; // Comando para activar la función
-handler.group = true; // El comando solo puede ser usado en grupos
-handler.tags = ['game']; // Categorizar el comando
+handler.command = /^(ruletaban)$/i;
+handler.group = true;
+handler.tags = ['game'];
+handler.admin = true;
+handler.botAdmin = true;
 
 export default handler;
 
-// Función de retardo simple
 const delay = time => new Promise(res => setTimeout(res, time));
