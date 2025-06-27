@@ -2,7 +2,7 @@ import fetch from 'node-fetch'
 import { Sticker } from 'wa-sticker-formatter'
 
 let handler = async (m, { conn, text, command }) => {
-  if (!text) return m.reply(`Ejemplo: .${command} Waguri`)
+  if (!text) return m.reply(`Ejemplo: .${command} Barboza`) 
 
   try {
     const searchRes = await fetch(`https://zenzxz.dpdns.org/search/stickerlysearch?query=${encodeURIComponent(text)}`)
@@ -25,9 +25,9 @@ let handler = async (m, { conn, text, command }) => {
     const packName = detailJson.data.name
     const authorName = detailJson.data.author?.name || 'unknown'
 
-    m.reply(`encontre ${detailJson.data.stickers.length} stiker/s`)
+    m.reply(`Encontré ${detailJson.data.stickers.length} sticker/s`)
 
-    let maxSend = 10
+    let maxSend = 5
     for (let i = 0; i < Math.min(detailJson.data.stickers.length, maxSend); i++) {
       const img = detailJson.data.stickers[i]
       let sticker = new Sticker(img.imageUrl, {
