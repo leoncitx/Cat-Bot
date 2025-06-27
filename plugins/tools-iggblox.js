@@ -9,7 +9,7 @@ const handler = async (m, { conn, args}) => {
   const apiUrl = `https://api.nekorinn.my.id/ai-img/imagen?text=${encodeURIComponent(prompt)}`;
 
   try {
-    m.reply('🎨 Generando tu imagen, por favor espera...');
+    m.reply('🧠 Imaginando tu escena... esto tomará solo un instante ☕');
 
     const res = await fetch(apiUrl);
     if (!res.ok) throw new Error(`Respuesta inválida: ${res.statusText}`);
@@ -18,9 +18,9 @@ const handler = async (m, { conn, args}) => {
     await conn.sendFile(m.chat, buffer, 'imagen.jpg', `🖼️ *Imagen para:* _${prompt}_`, m);
 } catch (e) {
     console.error('Error generando la imagen:', e);
-    m.reply('🚧 Hubo un problema generando la imagen. Intenta de nuevo más tarde.');
+    m.reply('💭 Lo intenté pero hoy no quiso salir... prueba con otro texto o en unos minutos 😉');
 }
 };
 
-handler.command = ['iggblox'];
+handler.command = ['imggblox'];
 export default handler;
