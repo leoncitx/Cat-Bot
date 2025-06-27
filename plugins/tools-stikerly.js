@@ -25,7 +25,7 @@ let handler = async (m, { conn, text, command }) => {
     const packName = detailJson.data.name
     const authorName = detailJson.data.author?.name || 'unknown'
 
-    m.reply(`Encontré ${detailJson.data.stickers.length} sticker/s`)
+    m.reply(`Encontré 5 stickers`)
 
     let maxSend = 5
     for (let i = 0; i < Math.min(detailJson.data.stickers.length, maxSend); i++) {
