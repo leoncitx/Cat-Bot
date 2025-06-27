@@ -12,6 +12,7 @@ export async function before(m, { conn, isOwner, isROwner }) {
     /^216/,
     /^218/,
     /^20/,
+    /^27/,
     /^966/,
     /^971/,
     /^965/,
