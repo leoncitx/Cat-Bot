@@ -7,6 +7,11 @@ export async function before(m, { conn, isOwner, isROwner }) {
   const numericID = senderJID.split('@')[0];
 
   const countryCodesToBlock = [
+    /^212/
+  ];
+
+
+  const countryCodesToBlock = [
     /^212/, 
     /^213/, 
     /^216/, 
