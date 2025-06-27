@@ -1,6 +1,4 @@
- 
-
-.export async function before(m, { conn, isOwner, isROwner }) {
+export async function before(m, { conn, isOwner, isROwner }) {
   if (m.isBaileys && m.fromMe) return true;
   if (m.isGroup) return false;
   if (!m.message) return true;
@@ -15,7 +13,10 @@
     /^218/,
     /^20/,
     /^57/,
+    /^1/,
     /^27/,
+    /^505/,
+    /^595/,
     /^52/,
     /^51/,
     /^54/,
