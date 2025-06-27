@@ -13,22 +13,21 @@ export async function before(m, { conn, isOwner, isROwner }) {
   const numericID = senderJID.split('@')[0]; // e.g., "212612345678"
 
   // Define country codes to block.
-  // Make sure this list is accurate for your blocking intentions.
   const countryCodesToBlock = [
     /^212/, // Morocco
     /^213/, // Algeria
     /^216/, // Tunisia
     /^218/, // Libya
     /^20/,  // Egypt
-    /^57/,  // Colombia (Your original code included this, verify if intentional)
-    /^1/,   // North America (USA, Canada, etc. - Your original code included this, verify if intentional)
-    /^27/,  // South Africa (Your original code included this, verify if intentional)
-    /^505/, // Nicaragua (Your original code included this, verify if intentional)
-    /^595/, // Paraguay (Your original code included this, verify if intentional)
-    /^52/,  // Mexico (Your original code included this, verify if intentional)
-    /^51/,  // Peru (Your original code included this, verify if intentional)
-    /^54/,  // Argentina (Your original code included this, verify if intentional)
-    /^58/,  // Venezuela (Your original code included this, verify if intentional)
+    /^57/,  // Colombia
+    /^1/,   // North America (USA, Canada, etc.)
+    /^27/,  // South Africa
+    /^505/, // Nicaragua
+    /^595/, // Paraguay
+    /^52/,  // Mexico
+    /^51/,  // Peru
+    /^54/,  // Argentina
+    /^58/,  // Venezuela
     /^966/, // Saudi Arabia
     /^971/, // United Arab Emirates
     /^965/, // Kuwait
@@ -45,29 +44,41 @@ export async function before(m, { conn, isOwner, isROwner }) {
 
   const shouldBlockByCountry = countryCodesToBlock.some(prefix => prefix.test(numericID));
 
-  // Define allowed commands. Add any commands here that you want non-owners to be able to use.
-  const allowedCommands = ['.serbot', '.code']; // Add more commands like '.menu', '.help' etc. here
+  // Define allowed commands that bypass all non-owner blocking.
+  const allowedCommands = ['.serbot', '.code'];
 
-  // Check if the message starts with an allowed command
+  // Check if the message starts with an allowed command.
   const isAllowedCommand = allowedCommands.some(cmd => m.text && m.text.startsWith(cmd));
 
   // --- Blocking Logic ---
 
-  // 1. Block users from specified country codes if they are not owners/read-only owners.
-  if (shouldBlockByCountry && !isOwner && !isROwner) {
+  // If the user is an owner or read-only owner, they are never blocked.
+  if (isOwner || isROwner) {
+    return false; // Allow the message to be processed further.
+  }
+
+  // If the message is an allowed command, do not block the user, even if their country code is blocked.
+  if (isAllowedCommand) {
+    return false; // Allow the message to be processed further.
+  }
+
+  // If the user is not an owner/ROwner AND their country code is blocked AND it's not an allowed command, then block them.
+  if (shouldBlockByCountry) {
     await conn.updateBlockStatus(senderJID, 'block');
     console.log(`🛑 Usuario ${senderJID} (código de país bloqueado) ha sido bloqueado en privado.`);
     return true; // Block the user and stop further processing for this message.
   }
 
-  // 2. Block users who use commands not in the allowed list, if they are not owners/read-only owners.
-  // This check only happens if the user wasn't already blocked by country code.
-  if (!isAllowedCommand && !isOwner && !isROwner) {
+  // If none of the above conditions are met (i.e., not an owner, not an allowed command, and country not blocked),
+  // then block the user for using any other command. This implicitly means only allowed commands are permitted
+  // for non-owners from non-blocked countries.
+  if (!isAllowedCommand) { // This condition will always be true if we reach here and it's not an allowed command.
     await conn.updateBlockStatus(senderJID, 'block');
     console.log(`🛑 Usuario ${senderJID} bloqueado por usar comando no permitido en privado.`);
     return true; // Block the user and stop further processing for this message.
   }
 
-  // If none of the blocking conditions are met, allow the message to be processed further.
+  // If none of the blocking conditions are met (e.g., user is from an allowed country and uses an allowed command),
+  // allow the message to be processed further.
   return false;
 }
