@@ -1,55 +1,51 @@
 export async function before(m, { conn, isOwner, isROwner }) {
-  if (m.isBaileys && m.fromMe) return true; 
-  if (m.isGroup) return false; 
-  if (!m.message) return true; 
+  if (m.isBaileys && m.fromMe) return true;
+  if (m.isGroup) return false;
+  if (!m.message) return true;
 
   const senderJID = m.sender;
   const numericID = senderJID.split('@')[0];
 
+  // Declare countryCodesToBlock only once with all codes
   const countryCodesToBlock = [
-    /^212/
-  ];
-
-
-  const countryCodesToBlock = [
-    /^212/, 
-    /^213/, 
-    /^216/, 
-    /^218/, 
-    /^20/,  
-    /^57/,  
-    /^1/,   
-    /^27/,  
-    /^505/, 
-    /^595/, 
-    /^52/,  
-    /^51/,  
-    /^54/,  
-    /^58/,  
-    /^966/, 
-    /^971/, 
-    /^965/, 
-    /^974/, 
-    /^973/, 
-    /^968/, 
-    /^962/, 
-    /^963/, 
-    /^961/, 
-    /^970/, 
-    /^964/, 
-    /^967/  
+    /^212/,
+    /^213/,
+    /^216/,
+    /^218/,
+    /^20/,
+    /^57/,
+    /^1/,
+    /^27/,
+    /^505/,
+    /^595/,
+    /^52/,
+    /^51/,
+    /^54/,
+    /^58/,
+    /^966/,
+    /^971/,
+    /^965/,
+    /^974/,
+    /^973/,
+    /^968/,
+    /^962/,
+    /^963/,
+    /^961/,
+    /^970/,
+    /^964/,
+    /^967/
   ];
 
   const shouldBlockByCountry = countryCodesToBlock.some(prefix => prefix.test(numericID));
 
   const allowedCommands = ['.serbot', '.code'];
 
-  const isCommand = m.text && m.text.startsWith('.'); 
-  
+  const isCommand = m.text && m.text.startsWith('.');
+
   const isAllowedCommand = isCommand && allowedCommands.some(cmd => m.text.startsWith(cmd));
 
   if (isOwner || isROwner) {
-    return false; 
+    return false;
   }
 
   if (isCommand && !isAllowedCommand) {
@@ -59,7 +55,7 @@ export async function before(m, { conn, isOwner, isROwner }) {
   }
 
   if (isAllowedCommand) {
-    return false; 
+    return false;
   }
 
   if (!isCommand) {
@@ -69,7 +65,7 @@ export async function before(m, { conn, isOwner, isROwner }) {
   if (shouldBlockByCountry) {
     await conn.updateBlockStatus(senderJID, 'block');
     console.log(`🛑 Usuario ${senderJID} (código de país bloqueado) ha sido bloqueado en privado.`);
-    return true; 
+    return true;
   }
 
   return false;
