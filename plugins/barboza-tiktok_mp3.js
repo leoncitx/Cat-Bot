@@ -5,20 +5,39 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
     return m.reply(`🎩 Ingrese una URL de TikTok\n*Ejemplo:* ${usedPrefix + command} https://vm.tiktok.com/ZMh3KL31o/`);
   }
 
+  const tiktokUrl = args[0];
+
+  if (!tiktokUrl.match(/tiktok\.com\//i)) {
+    return m.reply('❌ La URL proporcionada no parece ser una URL de TikTok válida.');
+  }
+
   try {
     m.react('🕑'); 
 
-    let api = `https://eliasar-yt-api.vercel.app/api/search/tiktok?query=${args[0]}`;
+    let api = `https://eliasar-yt-api.vercel.app/api/search/tiktok?query=${encodeURIComponent(tiktokUrl)}`;
     let response = await fetch(api);
+
+    if (!response.ok) {
+      console.error(`API respondió con estado: ${response.status} ${response.statusText}`);
+      try {
+        const errorJson = await response.json();
+        console.error('Detalles del error de la API:', errorJson);
+        return m.reply(`❌ La API de TikTok devolvió un error: ${errorJson.message || 'Error desconocido'}`);
+      } catch (parseError) {
+        return m.reply(`❌ La API de TikTok devolvió un error (Estado: ${response.status}). Intenta de nuevo más tarde.`);
+      }
+    }
+
     let json = await response.json();
-    let res = json.results;
+    
+    let res = json.results; 
+
+    if (!res || !res.audio) {
+      return m.reply('❌ No se encontró el audio para esta URL de TikTok. La API no devolvió el campo de audio esperado.');
+    }
 
     let aud = res.audio;
     let title = res.title || 'Audio de TikTok'; 
-
-    if (!aud) {
-      return m.reply('❌ No se encontró el audio para esta URL de TikTok.');
-    }
 
     await conn.sendMessage(m.chat, {
       audio: { url: aud },
@@ -30,8 +49,8 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
     m.react('✅'); 
 
   } catch (e) {
-    console.error('Error fetching TikTok audio:', e); 
-    m.reply(`❌ Ocurrió un error al obtener el audio de TikTok. Intente de nuevo más tarde.`);
+    console.error('Error al obtener el audio de TikTok:', e); 
+    m.reply(`❌ Ocurrió un error al obtener el audio de TikTok: ${e.message}. Intenta de nuevo más tarde.`);
     m.react('✖️'); 
   }
 }
