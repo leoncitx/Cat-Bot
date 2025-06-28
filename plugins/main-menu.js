@@ -65,7 +65,6 @@ let handler = async (m, { conn, usedPrefix: _p }) => { // Corrected parameter he
       anime: "🎭",
       info: "ℹ️",
       search: "🔎",
-      game: "🎮",
       diversión: "🎉",
       subbots: "🤖",
       rpg: "🌀",
@@ -80,7 +79,6 @@ let handler = async (m, { conn, usedPrefix: _p }) => { // Corrected parameter he
       nsfw: "🔞",
       "base de datos": "📀",
       audios: "🔊",
-      avanzado: "🗝️",
       "free fire": "🔥",
       otros: "🪪"
     };
