@@ -14,7 +14,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
     let chat = global.db?.data?.chats?.[m.chat];
     if (!chat) return true;
 
-    const botName = "🔥 Barboza Bot 🔥";
+    const botName = "sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀";
     const user = `@${m.messageStubParameters[0].split("@")[0]}`;
     const groupName = groupMetadata.subject;
     const groupDesc = groupMetadata.desc || "🌎 Sin descripción";
