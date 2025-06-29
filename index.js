@@ -28,12 +28,12 @@ function verify() {
 }
 verify();
 
-say('Barboza - Bot', {
+say('sᥲsᥙkᥱ ᑲ᥆𝗍', {
   font: 'chrome',
   align: 'center',
   colors: ['white']
 });
-say(`Developed By • Barboza Ai`, {
+say(`Developed By • sᥲsᥙkᥱ ᑲ᥆𝗍 mძ`, {
   font: 'console',
   align: 'center',
   colors: ['magenta']
