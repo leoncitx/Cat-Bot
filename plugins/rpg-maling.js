@@ -10,10 +10,10 @@ let handler = async (m, { conn }) => {
     if (!user.kardus) user.kardus = 0;
     if (!user.malingBan) user.malingBan = false;
     if (!user.item) user.item = {};
+    if (!user.hutang) user.hutang = 0; 
 
     let now = new Date().getTime();
 
-    // Comprobar si el usuario está en estado de malingBan
     if (user.malingBan) {
         return conn.reply(m.chat, `🚫 Fallaste en el robo anterior y debes esperar ${msToTime(banDuration)} antes de intentarlo de nuevo.`, m);
     }
@@ -25,9 +25,10 @@ let handler = async (m, { conn }) => {
 
     let randomEvent = Math.random();
 
-    if (randomEvent < 0.25) { // 25% de fallo + ban
+    if (randomEvent < 0.25) {
         let fine = Math.floor(user.money * 0.1);
-        user.hutang = Math.max(user.money + fine, 0); // Esto parece un error, debería ser user.money - fine o user.hutang += fine
+        user.money = Math.max(0, user.money - fine);
+
         user.lastmaling = now;
         user.malingBan = true;
 
@@ -38,7 +39,7 @@ let handler = async (m, { conn }) => {
         return conn.reply(m.chat, `🚨 ¡Fuiste atrapado por la policía mientras robabas!\n💸 Multa: *${fine}*\n⏳ No podrás robar durante *${msToTime(banDuration)}*.`, m);
     }
 
-    if (randomEvent < 0.5) { // 25% de pérdida de cajas
+    if (randomEvent < 0.5) {
         if (user.kardus > 0) {
             let lostItems = Math.floor(user.kardus * 0.3);
             user.kardus -= lostItems;
@@ -46,12 +47,10 @@ let handler = async (m, { conn }) => {
         }
     }
 
-    // Robo exitoso
     let money = Math.floor((Math.random() * 50000) + 5000);
     let exp = Math.floor((Math.random() * 1000) + 100);
     let kardus = Math.floor((Math.random() * 1000) + 50);
 
-    // Reducir la ganancia en un 15%
     money = Math.floor(money * 0.85);
     exp = Math.floor(exp * 0.85);
     kardus = Math.floor(kardus * 0.85);
