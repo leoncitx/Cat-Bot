@@ -1,9 +1,9 @@
 import fetch from 'node-fetch'
 
 export async function before(m, { conn }) {
-let name = `🎖️ ᥒᥙᥱ᥎᥆ ᥴᥲᥒᥲᥣ | ᥴ᥆mᥙᥒі𝗍ᥡ sіgᥙᥱ ᥴᥲᥒᥲᥣ ⭐`
-let imagenes = ["https://files.catbox.moe/ltq7ph.jpg",
-"https://files.catbox.moe/ltq7ph.jpg",
+let name = `ᥴһᥲᥒᥒᥱᥣ-sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀`
+let imagenes = ["https://files.catbox.moe/6dewf4.jpg",
+"https://files.catbox.moe/6dewf4.jpg",
 "https://files.catbox.moe/ltq7ph.jpg",
 "https://files.catbox.moe/ltq7ph.jpg",]
 
