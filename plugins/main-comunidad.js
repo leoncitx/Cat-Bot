@@ -7,7 +7,7 @@ const handler = async (m, { conn }) => {
 ──────── ⚔ ────────  
 
 *Bot barboza*  
-• ,👥➤ **Grupo de WhatsApp de la comunidad de Bot Barboza Ai**  
+• ,👥➤ **Grupo de WhatsApp de la comunidad de sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀**  
    Únete para compartir y resolver dudas con otros usuarios. 
   ➤https://whatsapp.com/channel/0029Vaua0ZD3gvWjQaIpSy18
 
