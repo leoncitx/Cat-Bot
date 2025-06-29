@@ -1,7 +1,7 @@
 
 ╭───〔 🌐  ÚNETE A LA COMUNIDAD 〕───╮
 │
-│ 🤖 *¿Qué es Barboza MD?*
+│ 🤖 *¿sᥲsᥙkᥱ ᑲ᥆𝗍 mძ?*
 │ Un bot inteligente para WhatsApp diseñado para
 │ *hacer tu vida más sencilla* y automatizar tus tareas.
 │
@@ -32,4 +32,4 @@
 │ 🔔 Sigue el proyecto y mantente al día:
 │ 📢 [`Canal de actualizaciones`](https://whatsapp.com/channel/0029Vb8kvXUBfxnzYWsbS81I)
 │
-╰────────────⊰ *Barboza-MD ⊱────────────╯
+╰────────────⊰ sᥲsᥙkᥱ ᑲ᥆𝗍 mძ ⊱────────────╯
