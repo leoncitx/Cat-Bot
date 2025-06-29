@@ -1,140 +1,103 @@
-/**
-  @ 🍀 Descargador de MP3 de YT
-  @ 🍀 Fuente: https://whatsapp.com/channel/0029VbBDTFd6mYPDtnetTK1f
-  @ 🍀 Scrape: https://whatsapp.com/channel/0029VakezCJDp2Q68C61RH2C/3588
-**/
-
 import axios from 'axios';
-import * as cheerio from 'cheerio';
 
-function extractVideoId(url) {
-    const match = url.match(/(?:v=|\/)([0-9A-Za-z_-]{11})/);
-    return match ? match[1] : null;
-}
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export async function ytmp3(url) {
-    if (!url) throw new Error('¡Ingresa la URL de YouTube!');
-    const videoId = extractVideoId(url);
-    const thumbnail = videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : null;
+const fetchDownloadUrl = async (videoUrl) => {
+  const apis = [
+    'https://api.vreden.my.id/api/ytmp3?url=',
+    'https://mahiru-shiina.vercel.app/download/ytmp3?url=',
+    'https://api.siputzx.my.id/api/d/ytmp3?url='
+  ];
 
+  for (let api of apis) {
     try {
-        const form = new URLSearchParams();
-        form.append('q', url);
-        form.append('type', 'mp3');
+      const fullUrl = `${api}${encodeURIComponent(videoUrl)}`;
+      const { data } = await axios.get(fullUrl, { timeout: 10000 });
 
-        const res = await axios.post('https://yt1s.click/search', form.toString(), {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Origin': 'https://yt1s.click',
-                'Referer': 'https://yt1s.click/',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-            }
-        });
+      let result = data?.result || data?.data;
 
-        const $ = cheerio.load(res.data);
-        const link = $('a[href*="download"]').attr('href');
+      // Adaptación para la estructura de Vreden
+      const audioUrl = result?.download?.url || result?.dl_url || result?.download || result?.dl;
+      const title = result?.metadata?.title || result?.title || "audio";
 
-        if (link) {
-            return {
-                link,
-                title: $('title').text().trim() || 'Título desconocido',
-                thumbnail,
-                success: true
-            };
-        }
-    } catch (e) {
-        console.warn('Fallo en YT1S:', e.message);
-    }
-
-    try {
-        if (!videoId) throw new Error('ID de video no válido');
-        const payload = {
-            fileType: 'MP3',
-            id: videoId
-        };
-
-        const res = await axios.post('https://ht.flvto.online/converter', payload, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Origin': 'https://ht.flvto.online',
-                'Referer': `https://ht.flvto.online/widget?url=https://www.youtube.com/watch?v=${videoId}`,
-                'User-Agent': 'Mozilla/5.0 (Linux; Android 13)',
-            }
-        });
-
-        const data = res?.data;
-        if (!data || typeof data !== 'object' || data.status !== 'ok' || !data.link) {
-            throw new Error(data.msg || 'Estado fallido');
-        }
-
+      if (audioUrl) {
         return {
-            link: data.link,
-            title: data.title || 'Título desconocido',
-            thumbnail,
-            filesize: data.filesize || 'No disponible',
-            duration: data.duration || 'No disponible',
-            success: true
+          url: audioUrl.trim(),
+          title
         };
-
-    } catch (e) {
-        throw new Error(`Fallo al usar otro servicio: ${e.message}`);
+      }
+    } catch (error) {
+      console.error(`Error con API: ${api}`, error.message);
+      await wait(5000);
     }
-}
+  }
 
-let yeon = async (m, { conn, text, usedPrefix, command }) => {
-    if (!text) {
-        await conn.sendMessage(m.chat, {
-            react: { text: '❌', key: m.key }
-        });
-        return conn.sendMessage(m.chat, {
-            text: `🎧 *Senpai*, ¡ingresa la URL de YouTube que quieres convertir a audio!
-Ejemplo: *${usedPrefix + command}* https://youtube.com/watch?v=CVvJp3d8xGQ`
-        });
-    }
-
-    try {
-        await conn.sendMessage(m.chat, {
-            react: { text: '⏳', key: m.key }
-        });
-
-        const result = await ytmp3(text);
-
-        await conn.sendMessage(m.chat, {
-            audio: { url: result.link },
-            fileName: result.title.replace(/[^\w\-\.]/g, '_') + '.mp3',
-            mimetype: 'audio/mpeg',
-            ptt: false,
-            contextInfo: {
-                externalAdReply: {
-                    title: result.title,
-                    body: 'Duración: ' + (result.duration || 'Desconocida'),
-                    thumbnailUrl: result.thumbnail,
-                    sourceUrl: text,
-                    mediaType: 1,
-                    renderLargerThumbnail: false
-                }
-            }
-        }, { quoted: m });
-
-        await conn.sendMessage(m.chat, {
-            react: { text: '✅', key: m.key }
-        });
-
-    } catch (e) {
-        console.error('Error:', e.message);
-        await conn.sendMessage(m.chat, {
-            react: { text: '❌', key: m.key }
-        });
-        await conn.sendMessage(m.chat, {
-            text: `⚠️ *¡Ups, ha ocurrido un error, Senpai!*
-Esta función está experimentando problemas, inténtalo de nuevo más tarde 😅`
-        });
-    }
+  return null;
 };
 
-yeon.help = ['ytmp3 <url>'];
-yeon.tags = ['descargador'];
-yeon.command = /^ytmp3$/i;
-yeon.register = true;
-yeon.limit = true;
-export default yeon;
+const sendAudioWithRetry = async (conn, chat, audioUrl, videoTitle, maxRetries = 2) => {
+  let attempt = 0;
+  let thumbnailBuffer;
+  try {
+    const response = await axios.get('https://files.catbox.moe/l81ahk.jpg', { responseType: 'arraybuffer' });
+    thumbnailBuffer = Buffer.from(response.data, 'binary');
+  } catch (error) {
+    console.error("Error al obtener thumbnail:", error.message);
+  }
+
+  while (attempt < maxRetries) {
+    try {
+      await conn.sendMessage(
+        chat,
+        {
+          audio: { url: audioUrl },
+          mimetype: 'audio/mpeg',
+          contextInfo: {
+            externalAdReply: {
+              title: videoTitle,
+              body: "Miku ",
+              previewType: 'PHOTO',
+              thumbnail: thumbnailBuffer,
+              mediaType: 1,
+              renderLargerThumbnail: false,
+              showAdAttribution: true,
+              sourceUrl: 'https://Ella.Nunca.Te-Amo.Pe'
+            }
+          }
+        }
+      );
+      return;
+    } catch (error) {
+      console.error(`Error al enviar audio, intento ${attempt + 1}:`, error.message);
+      if (attempt < maxRetries - 1) await wait(12000);
+    }
+    attempt++;
+  }
+};
+
+let handler = async (m, { conn, text }) => {
+  if (!text?.trim() || (!text.includes('youtube.com') && !text.includes('youtu.be'))) {
+    await conn.reply(m.chat, `❗ *Debes Ingresar Un Enlace De YouTube Válido.*`, m);
+    return;
+  }
+
+  const reactionMessage = await conn.reply(m.chat, `🔍 *Procesando El Enlace 😉...*`, m);
+  await conn.sendMessage(m.chat, { react: { text: '🎶', key: reactionMessage.key } });
+
+  try {
+    const downloadData = await fetchDownloadUrl(text);
+    if (!downloadData || !downloadData.url) throw new Error("No Se Pudo Obtener La Descarga.");
+
+    await conn.sendMessage(m.chat, { react: { text: '🟢', key: reactionMessage.key } });
+    await sendAudioWithRetry(conn, m.chat, downloadData.url, downloadData.title);
+  } catch (error) {
+    console.error("❌ Error:", error);
+    await conn.reply(m.chat, `⚠️ *Error:* ${error.message || "Desconocido"}`, m);
+  }
+};
+
+handler.help = ['ytmp3 <url de youtube>'];
+handler.tags = ['descargas'];
+handler.command = /^ytmp3$/i;
+
+export default handler;
