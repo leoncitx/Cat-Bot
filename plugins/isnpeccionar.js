@@ -46,9 +46,9 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
         }
     } 
     else if (matchGroup) {
-        const fullGroupLink = matchGroup[0]; 
+        const inviteCode = matchGroup[2]; 
         try {
-            const groupInfo = await conn.groupMetadata(fullGroupLink); 
+            const groupInfo = await conn.groupMetadata(inviteCode); 
 
             let responseText = `
 *╭┈┈┈「 💬 Información del Grupo 💬 」┈┈┈╮*
