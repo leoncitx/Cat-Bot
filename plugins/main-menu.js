@@ -10,7 +10,7 @@ const clockString = ms => {
 const imagen = "https://files.catbox.moe/ltq7ph.jpg";
 
 const menuHeader = `
-╭─❒ 「 *📍 BARBOZA MD* 」
+╭─❒ 「 sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀 」
 │ 👤 *Nombre:* %name
 │ 🎖 *Nivel:* %level | *XP:* %exp/%max
 │ 🔓 *Límite:* %limit | *Modo:* %mode
