@@ -1,6 +1,4 @@
 export async function before(m, { conn, isOwner, isROwner}) {
-  const antiPrivacyActive = true;
-
   if (m.isBaileys && m.fromMe) return true;
   if (m.isGroup ||!m.message) return false;
 
@@ -18,7 +16,8 @@ export async function before(m, { conn, isOwner, isROwner}) {
   const isCommand = m.text && m.text.startsWith('.');
   const isAllowedCommand = isCommand && allowedCommands.some(cmd => m.text.startsWith(cmd));
 
-  const mainBotJIDs = [
+  // ✅ Lista de hasta 5 bots principales
+    const mainBotJIDs = [
     '5219921140671@s.whatsapp.net',
     '5491126852241@s.whatsapp.net',
     '573244008977@s.whatsapp.net',
@@ -30,23 +29,24 @@ export async function before(m, { conn, isOwner, isROwner}) {
 
   if (isOwner || isROwner) return false;
 
-  if (!isMainBot || !antiPrivacyActive) {
+  if (!isMainBot) {
+    // Si es un subbot, no bloquea comandos no permitidos
     return false;
-  }
+}
 
   const shouldBlockByCountry = countryCodesToBlock.some(prefix => prefix.test(numericID));
 
   if (isCommand &&!isAllowedCommand) {
     await conn.updateBlockStatus(senderJID, 'block');
-    console.log(`🛑 Usuario ${senderJID} bloqueado por comando no permitido en privado (Anti-Privacidad Activa).`);
+    console.log(`🛑 Usuario ${senderJID} bloqueado por comando no permitido en privado.`);
     return true;
-  }
+}
 
   if (shouldBlockByCountry) {
     await conn.updateBlockStatus(senderJID, 'block');
-    console.log(`🛑 Usuario ${senderJID} (por código de país bloqueado) ha sido bloqueado en privado (Anti-Privacidad Activa).`);
+    console.log(`🛑 Usuario ${senderJID} (por código de país bloqueado) ha sido bloqueado en privado.`);
     return true;
-  }
+}
 
   return false;
 }
