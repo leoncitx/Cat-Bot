@@ -4,8 +4,8 @@ export async function before(m, { conn }) {
 let name = `ᥴһᥲᥒᥒᥱᥣ-sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀`
 let imagenes = ["https://files.catbox.moe/6dewf4.jpg",
 "https://files.catbox.moe/6dewf4.jpg",
-"https://files.catbox.moe/ltq7ph.jpg",
-"https://files.catbox.moe/ltq7ph.jpg",]
+"https://files.catbox.moe/6dewf4.jpg",
+"https://files.catbox.moe/6dewf4.jpg",]
 
 let icono = imagenes[Math.floor(Math.random() * imagenes.length)]
 
