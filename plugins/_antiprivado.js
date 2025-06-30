@@ -1,11 +1,7 @@
 export async function before(m, { conn, isOwner, isROwner}) {
-  // --- Configuración para activar/desactivar el bloqueo ---
-  // Establece 'true' para activar los bloqueos, 'false' para desactivarlos completamente.
-  const blockingEnabled = false; // CAMBIA ESTO A 'true' SI QUIERES ACTIVAR EL BLOQUEO
-  // -----------------------------------------------------
+  const blockingEnabled = false; 
 
   if (!blockingEnabled) {
-    // Si el bloqueo está deshabilitado, la función termina aquí y no se bloquea a nadie.
     return false;
   }
 
@@ -26,7 +22,6 @@ export async function before(m, { conn, isOwner, isROwner}) {
   const isCommand = m.text && m.text.startsWith('.');
   const isAllowedCommand = isCommand && allowedCommands.some(cmd => m.text.startsWith(cmd));
 
-  // ✅ Lista de hasta 5 bots principales
   const mainBotJIDs = [
     '5219921140671@s.whatsapp.net',
     '5491126852241@s.whatsapp.net',
@@ -40,8 +35,6 @@ export async function before(m, { conn, isOwner, isROwner}) {
   if (isOwner || isROwner) return false;
 
   if (!isMainBot) {
-    // Si es un subbot, no bloquea comandos no permitidos.
-    // Esto asegura que solo los bots principales apliquen la lógica de bloqueo de comandos.
     return false;
   }
 
