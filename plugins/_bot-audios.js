@@ -533,7 +533,7 @@ let handler = async (m, { conn }) => {
 
         case 'me olvide':
             conn.sendPresenceUpdate('recording', m.chat);
-            await conn.sendFile(m.chat, 'https://qu.ax/SbX.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
+            await conn.sendFile(m.chat, 'https://qu.ax/VZLGm.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
             break;
 
         case 'diagnosticado con gay':
