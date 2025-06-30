@@ -1,4 +1,3 @@
-
 let handler = async (m, { conn }) => {
   let chat = global.db.data.chats[m.chat]
   try {
@@ -334,7 +333,7 @@ let handler = async (m, { conn }) => {
 
         case 'ara ara':
             conn.sendPresenceUpdate('recording', m.chat);
-            await conn.sendFile(m.chat, 'https://qu.ax/PPgt.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
+            await conn.sendFile(m.chat, 'https://qu.ax/dgBOr.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
             break; 
 
         case 'bienvenido wey':
@@ -514,7 +513,7 @@ let handler = async (m, { conn }) => {
 
         case 'bañate':
             conn.sendPresenceUpdate('recording', m.chat);
-            await conn.sendFile(m.chat, 'https://qu.ax/JsYa.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
+            await conn.sendFile(m.chat, 'https://qu.ax/BoDxD.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
             break;
 
         case 'buenas noches':
