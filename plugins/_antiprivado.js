@@ -1,10 +1,12 @@
 export async function before(m, { conn, isOwner, isROwner}) {
-  const blockingEnabled = false; 
+  // Para que el bloqueo funcione, esta línea debe ser 'true'.
+  const blockingEnabled = true;
 
   if (!blockingEnabled) {
     return false;
   }
 
+  // Ignora mensajes del propio bot o de grupos.
   if (m.isBaileys && m.fromMe) return true;
   if (m.isGroup || !m.message) return false;
 
@@ -32,25 +34,29 @@ export async function before(m, { conn, isOwner, isROwner}) {
 
   const isMainBot = mainBotJIDs.includes(conn.user?.jid);
 
+  // Los dueños del bot nunca serán bloqueados.
   if (isOwner || isROwner) return false;
 
+  // Solo los bots principales aplicarán esta lógica de bloqueo.
   if (!isMainBot) {
     return false;
   }
 
   const shouldBlockByCountry = countryCodesToBlock.some(prefix => prefix.test(numericID));
 
+  // Bloquea si es un comando y NO es uno de los comandos permitidos.
   if (isCommand && !isAllowedCommand) {
     await conn.updateBlockStatus(senderJID, 'block');
     console.log(`🛑 Usuario ${senderJID} bloqueado por comando no permitido en privado.`);
-    return true;
+    return true; // Importante: retorna true para que el bot no procese el mensaje.
   }
 
+  // Bloquea si el código de país está en la lista de bloqueo.
   if (shouldBlockByCountry) {
     await conn.updateBlockStatus(senderJID, 'block');
     console.log(`🛑 Usuario ${senderJID} (por código de país bloqueado) ha sido bloqueado en privado.`);
-    return true;
+    return true; // Importante: retorna true para que el bot no procese el mensaje.
   }
 
-  return false;
+  return false; // Permite que el mensaje sea procesado si no se cumplen las condiciones de bloqueo.
 }
