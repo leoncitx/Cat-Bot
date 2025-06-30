@@ -14,6 +14,5 @@ const handler = async (m, {conn, args, text}) => {
 handler.help = ['setname <text>'];
 handler.tags = ['grupo'];
 handler.command = /^(setname)$/i;
-handler.group = true;
 handler.admin = true;
 export default handler;
