@@ -1,9 +1,8 @@
-
 let handler = async (m, { conn, isRowner }) => {
     let _muptime;
     let totalreg = Object.keys(global.db.data.users).length;
     let totalchats = Object.keys(global.db.data.chats).length;
-    let pp = 'https://qu.ax/Mvhfa.jpg'; // Usamos la URL de la imagen aquí
+    let pp = 'https://files.catbox.moe/6dewf4.jpg'; // Usamos la URL de la imagen aquí
 
     if (process.send) {
         process.send('uptime');
