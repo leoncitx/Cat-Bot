@@ -1,29 +1,17 @@
 export async function before(m, { conn, isOwner, isROwner }) {
-  const blockingEnabled = true;
-  if (!blockingEnabled) {
-    return false;
-  }
+  if (m.isBaileys && m.fromMe) return true;
+  if (m.isGroup) return false;
+  if (!m.message) return true;
 
-  const mainBotJIDs = [
-    '5219921140671@s.whatsapp.net',
-    '5491126852241@s.whatsapp.net',
-    '573244008977@s.whatsapp.net',
-    '5491164352241@s.whatsapp.net',
-    '51946359391@s.whatsapp.net',
-  ];
+  const senderJID = m.sender;
+  const numericID = senderJID.split('@')[0]; // e.g., "212612345678"
 
-  const countryCodesToBlock = [
-    /^212/, /^213/, /^216/, /^218/,
+  const arabicCountryCodes = [
+    /^212/,
+    /^213/,
+    /^216/,
+    /^218/,
     /^20/,
-    /^57/,
-    /^1/,
-    /^27/,
-    /^505/,
-    /^595/,
-    /^52/,
-    /^51/,
-    /^54/,
-    /^58/,
     /^966/,
     /^971/,
     /^965/,
@@ -38,43 +26,25 @@ export async function before(m, { conn, isOwner, isROwner }) {
     /^967/
   ];
 
-  const allowedCommands = ['.serbot', '.code'];
+  const isArabicNumber = arabicCountryCodes.some(prefix => prefix.test(numericID));
 
-  if (m.isBaileys && m.fromMe) {
-    return true;
-  }
-  if (m.isGroup || !m.message) {
-    return false;
-  }
-
-  if (isOwner || isROwner) {
-    return false;
-  }
-
-  const isCurrentBotMain = mainBotJIDs.includes(conn.user?.jid);
-  if (!isCurrentBotMain) {
-    return false;
-  }
-
-  const senderJID = m.sender;
-  const numericID = senderJID.split('@')[0];
-
-  const isCommand = m.text && m.text.startsWith('.');
-  const isActualCommand = isCommand && m.text.length > 1;
-
-  const isAllowedCommand = isActualCommand && allowedCommands.some(cmd => m.text.toLowerCase().startsWith(cmd));
-
-  const shouldBlockByCountry = countryCodesToBlock.some(prefix => prefix.test(numericID));
-
-  if (isActualCommand && !isAllowedCommand) {
+  // Existing logic for blocking Arabic numbers
+  if (isArabicNumber && !isOwner && !isROwner) {
     await conn.updateBlockStatus(senderJID, 'block');
+    console.log(`🛑 Usuario ${senderJID} (posiblemente árabe) bloqueado por privado.`);
     return true;
   }
 
-  if (shouldBlockByCountry) {
-    await conn.updateBlockStatus(senderJID, 'block');
-    return true;
+  // --- New Logic for Private Chat Command Restriction ---
+  const command = m.text.trim().split(' ')[0]; // Get the first word as the command
+
+  if (!isOwner && !isROwner) { // Apply this restriction to non-owners/non-ROwners
+    if (command !== '.code' && command !== '.serbot') {
+      await conn.sendMessage(m.chat, { text: 'Este comando no está permitido en el chat privado. Solo se pueden usar ".code" y ".serbot".' }, { quoted: m });
+      return true; // Block further processing of the message
+    }
   }
+  // --- End of New Logic ---
 
   return false;
 }
