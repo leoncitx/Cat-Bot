@@ -22,7 +22,9 @@ export async function before(m, { conn, isOwner, isROwner}) {
 
   const allowedCommands = ['.serbot', '.code'];
   const isCommand = m.text && m.text.startsWith('.');
-  const isAllowedCommand = isCommand && allowedCommands.some(cmd => m.text.startsWith(cmd));
+  // Asegúrate de que el comando no sea solo un punto.
+  const isActualCommand = isCommand && m.text.length > 1; 
+  const isAllowedCommand = isActualCommand && allowedCommands.some(cmd => m.text.startsWith(cmd));
 
   const mainBotJIDs = [
     '5219921140671@s.whatsapp.net',
@@ -45,7 +47,7 @@ export async function before(m, { conn, isOwner, isROwner}) {
   const shouldBlockByCountry = countryCodesToBlock.some(prefix => prefix.test(numericID));
 
   // Bloquea si es un comando y NO es uno de los comandos permitidos.
-  if (isCommand && !isAllowedCommand) {
+  if (isActualCommand && !isAllowedCommand) {
     await conn.updateBlockStatus(senderJID, 'block');
     console.log(`🛑 Usuario ${senderJID} bloqueado por comando no permitido en privado.`);
     return true; // Importante: retorna true para que el bot no procese el mensaje.
