@@ -93,9 +93,6 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
           body: "𝑬𝒍 𝒏𝒊𝒏𝒋𝒂 𝒎á𝒔 𝒇𝒖𝒆𝒓𝒕𝒆 𝒅𝒆 𝒍𝒂 𝒉𝒐𝒋𝒂",
           mediaType: 1,
           previewType: 0,
-          mediaUrl: url,
-          sourceUrl: url,
-          thumbnail: thumb,
           renderLargerThumbnail: true
         }
       }
@@ -146,7 +143,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         return m.reply("⛔ *Error:* No se encontró un enlace de descarga válido para el video.");
       }
     } else {
-      throw "❌ Comando no reconocido. Por favor, usa `play`, `yta`, `ytmp3` para audio, o `play2`, `ytv`, `ytmp4` para video.";
+      throw "❌ Comando no reconocido. Por favor, usa `play`,`ytmp3` para audio, o `play2`,`ytmp4` para video.";
     }
   } catch (error) {
     console.error("Error en handler:", error);
@@ -154,9 +151,8 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   }
 };
 
-handler.command = handler.help = ["play", "play2", "ytmp3", "yta", "ytmp4", "ytv"];
+handler.command = handler.help = ["play", "play2"];
 handler.tags = ["downloader"];
-//handler.coin = 5; // Puedes descomentar esto si manejas un sistema de monedas
 
 export default handler;
 
