@@ -41,17 +41,15 @@ const getUserGreeting = (userNumber) => {
 
   if (countryInfo) {
     try {
-
       const formatter = new Intl.DateTimeFormat('en-US', {
         timeZone: countryInfo.timeZone,
         hour: 'numeric',
-        hour12: false
+        hour12: false 
       });
       const hour = parseInt(formatter.format(now));
       return `${getGreeting(hour)} @${userNumber.split('@')[0]}, (${countryInfo.country})`;
     } catch (e) {
       console.error(`Error getting local time for ${userNumber}: ${e.message}`);
-
       return `${getGreeting(now.getHours())} @${userNumber.split('@')[0]}, (${countryInfo.country})`;
     }
   }
@@ -61,7 +59,7 @@ const getUserGreeting = (userNumber) => {
 const fetchVideoInfo = async (query) => {
   try {
     const res = await yts(query);
-    return res?.all?.[0] || null;
+    return res?.all?.[0] || null; 
   } catch (error) {
     console.error("Error fetching video info from yt-search:", error);
     return null;
@@ -73,16 +71,15 @@ const getDownloadLinks = (url) => ({
   video: `https://api.sylphy.xyz/download/ytmp4?url=${encodeURIComponent(url)}&apikey=${API_KEY}`,
 });
 
-const handler = async (m, { conn, text, command}) => {
+const handler = async (m, { conn, text, command }) => {
   if (!text) {
     return m.reply("✨ Ingresa el nombre de un video o una URL de YouTube.");
   }
+
   await m.react("🔎");
 
-  const userNumber = m.sender.split('@')[0];
-  const saludo = getUserGreeting(m.sender); // Pass the full m.sender to getUserGreeting
+  const saludo = getUserGreeting(m.sender);
   const intro = `${saludo}, ¿cómo estás? 🎧 Tu pedido será procesado...`;
-
 
   await conn.sendMessage(m.chat, { text: intro, mentions: [m.sender] }, { quoted: m });
 
@@ -102,48 +99,49 @@ const handler = async (m, { conn, text, command}) => {
 `;
 
   try {
-
     const thumbnailBuffer = await (await fetch(video.thumbnail)).buffer();
     await conn.sendFile(m.chat, thumbnailBuffer, "thumb.jpg", caption, m);
   } catch (e) {
     console.error("Error sending thumbnail:", e);
-
     await m.reply(caption);
   }
 
-  const { audio, video: videoLink} = getDownloadLinks(video.url);
+  const { audio, video: videoLink } = getDownloadLinks(video.url);
 
   try {
     if (command === "play") {
       const audioRes = await fetch(audio);
-      if (!audioRes.ok) { // Check if the response was successful (status 200-299)
-        throw new Error(`Failed to fetch audio: ${audioRes.statusText}`);
+      if (!audioRes.ok) {
+        throw new Error(`Failed to fetch audio: ${audioRes.status} ${audioRes.statusText}`);
       }
       const audioData = await audioRes.json();
+
       if (!audioData.status || !audioData.res?.downloadURL) {
         return m.reply("😢 No pude obtener el audio o el enlace de descarga.");
       }
       await conn.sendFile(m.chat, audioData.res.downloadURL, `${audioData.res.title}.mp3`, "", m);
     } else if (["play2", "playvid"].includes(command)) {
       const videoRes = await fetch(videoLink);
-      if (!videoRes.ok) { 
-        throw new Error(`Failed to fetch video: ${videoRes.statusText}`);
+      if (!videoRes.ok) {
+        throw new Error(`Failed to fetch video: ${videoRes.status} ${videoRes.statusText}`);
       }
       const videoData = await videoRes.json();
+
       if (!videoData.status || !videoData.res?.url) {
         return m.reply("😢 No pude obtener el video o el enlace de descarga.");
       }
+
       const head = await fetch(videoData.res.url, { method: "HEAD" });
       const contentLength = head.headers.get("content-length");
       const sizeMB = contentLength ? parseInt(contentLength, 10) / (1024 * 1024) : 0;
-      const asDoc = sizeMB >= LIMIT_MB;
+      const asDoc = sizeMB >= LIMIT_MB; 
 
       await conn.sendFile(m.chat, videoData.res.url, `${videoData.res.title}.mp4`, "", m, null, {
         asDocument: asDoc,
         mimetype: "video/mp4",
       });
     }
-    await m.react("✅");
+    await m.react("✅"); 
   } catch (err) {
     console.error("Error during download process:", err);
     m.reply("💥 Ocurrió un error al procesar tu solicitud: " + err.message);
