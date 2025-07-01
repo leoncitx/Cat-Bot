@@ -7,7 +7,7 @@ const clockString = ms => {
   return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
 };
 
-let video = "https://files.catbox.moe/rv1p2e.mp4";
+let imagen = "https://files.catbox.moe/rv1p2e.mp4";
 
 const menuHeader = `
 ╭─❒ 「 sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀 」
@@ -20,10 +20,8 @@ const menuHeader = `
 ╰❒
 `.trim();
 
-// Divisor de sección
 const sectionDivider = '╰─────────────────╯';
 
-// Pie de página del menú
 const menuFooter = `
 ╭─❒ 「 *📌 INFO FINAL* 」
 │ ⚠️ *Usa los comandos con el prefijo correspondiente.*
@@ -32,7 +30,7 @@ const menuFooter = `
 ╰❒
 `.trim();
 
-let handler = async (m, { conn, usedPrefix: _p }) => { // Corrected parameter here
+let handler = async (m, { conn, usedPrefix: _p }) => {
   try {
     const user = global.db?.data?.users?.[m.sender] || { level: 1, exp: 0, limit: 5 };
     const { exp, level, limit } = user;
@@ -45,7 +43,9 @@ let handler = async (m, { conn, usedPrefix: _p }) => { // Corrected parameter he
     let name = "Usuario";
     try {
       name = await conn.getName(m.sender);
-    } catch {}
+    } catch (e) {
+      console.error("Error getting user name:", e);
+    }
 
     let categorizedCommands = {};
 
@@ -110,7 +110,7 @@ let handler = async (m, { conn, usedPrefix: _p }) => { // Corrected parameter he
 
   } catch (e) {
     console.error(e);
-    conn.reply(m.chat, '⚠️ Ocurrió un error al generar el menú. Por favor, inténtalo de nuevo más tarde o contacta al soporte.', m); // Removed rcanal here
+    conn.reply(m.chat, '⚠️ Ocurrió un error al generar el menú. Por favor, inténtalo de nuevo más tarde o contacta al soporte.', m);
   }
 };
 handler.command = ['menu', 'help', 'menú'];
