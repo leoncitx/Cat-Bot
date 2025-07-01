@@ -7,7 +7,7 @@ const clockString = ms => {
   return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
 };
 
-const video = "https://files.catbox.moe/rv1p2e.mp4";
+let video = "https://files.catbox.moe/rv1p2e.mp4";
 
 const menuHeader = `
 ╭─❒ 「 sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀 」
