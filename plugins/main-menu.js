@@ -7,7 +7,7 @@ const clockString = ms => {
   return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
 };
 
-let imagen = "https://files.catbox.moe/c98335.mp4";
+let imagen = "https://files.catbox.moe/c98335.mp4"; // Aquí está tu video
 
 const menuHeader = `
 ╭─❒ 「 sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀 」
@@ -102,9 +102,9 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
 
     const fullMenu = `${finalHeader}\n\n${menuBody}\n\n${menuFooter}`;
 
-    // --- CHANGE IS HERE ---
+    // Aquí está el cambio clave: se envía como 'video'
     await conn.sendMessage(m.chat, {
-      video: { url: imagen }, // Changed from image to video
+      video: { url: imagen }, // Esto enviará el archivo como un video para que se reproduzca solo.
       caption: fullMenu,
       mentions: [m.sender]
     }, { quoted: m });
