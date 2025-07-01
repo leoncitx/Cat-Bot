@@ -7,7 +7,7 @@ const clockString = ms => {
   return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
 };
 
-let imagen = "https://files.catbox.moe/rv1p2e.mp4";
+let imagen = "https://files.catbox.moe/rv1p2e.mp4"; // This is a video URL
 
 const menuHeader = `
 ╭─❒ 「 sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀 」
@@ -102,8 +102,9 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
 
     const fullMenu = `${finalHeader}\n\n${menuBody}\n\n${menuFooter}`;
 
+    // --- CHANGE IS HERE ---
     await conn.sendMessage(m.chat, {
-      image: { url: imagen },
+      video: { url: imagen }, // Changed from image to video
       caption: fullMenu,
       mentions: [m.sender]
     }, { quoted: m });
