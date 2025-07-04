@@ -7,7 +7,7 @@ const clockString = ms => {
   return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
 };
 
-let imagen = "https://files.catbox.moe/c98335.mp4"; // Aquí está tu video
+let imagen = "https://files.catbox.moe/c98335.mp4";
 
 const menuHeader = `
 ╭─❒ 「 sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀 」
@@ -44,7 +44,7 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
     try {
       name = await conn.getName(m.sender);
     } catch (e) {
-      console.error("Error getting user name:", e);
+      console.error("Error al obtener el nombre del usuario:", e);
     }
 
     let categorizedCommands = {};
@@ -102,15 +102,19 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
 
     const fullMenu = `${finalHeader}\n\n${menuBody}\n\n${menuFooter}`;
 
-    // Aquí está el cambio clave: se envía como 'video'
-    await conn.sendMessage(m.chat, {
-      video: { url: imagen }, // Esto enviará el archivo como un video para que se reproduzca solo.
-      caption: fullMenu,
-      mentions: [m.sender]
-    }, { quoted: m });
+    try {
+      await conn.sendMessage(m.chat, {
+        video: { url: imagen },
+        caption: fullMenu,
+        mentions: [m.sender]
+      }, { quoted: m });
+    } catch (videoError) {
+      console.error("Error al enviar el video del menú, enviando como texto:", videoError);
+      await conn.reply(m.chat, fullMenu, m);
+    }
 
   } catch (e) {
-    console.error(e);
+    console.error("Error general al generar el menú:", e);
     conn.reply(m.chat, '⚠️ Ocurrió un error al generar el menú. Por favor, inténtalo de nuevo más tarde o contacta al soporte.', m);
   }
 };
