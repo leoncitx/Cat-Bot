@@ -1,168 +1,231 @@
-import fetch from "node-fetch";
-import yts from "yt-search";
-import axios from "axios";
+import yts from 'yt-search';
+import fs from 'fs';
+import axios from 'axios';
 
-const formatAudio = ["mp3", "m4a", "webm", "acc", "flac", "opus", "ogg", "wav"];
-const formatVideo = ["360", "480", "720", "1080", "1440", "4k"];
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const ddownr = {
-  download: async (url, format) => {
-    if (!formatAudio.includes(format) && !formatVideo.includes(format)) {
-      throw new Error("⚠ Formato no soportado. Elige uno de la lista disponible.");
-    }
+const MAX_RETRIES = 2;
+const TIMEOUT_MS = 10000;
+const RETRY_DELAY_MS = 12000;
 
-    const config = {
-      method: "GET",
-      url: `https://p.oceansaver.in/ajax/download.php?format=${format}&url=${encodeURIComponent(url)}&api=dfcb6d76f2f6a9894gjkege8a4ab232222`,
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, como Gecko) Chrome/91.0.4472.124 Safari/537.36"
-      }
-    };
+const countryCodes = {
+  '+54': { country: 'Argentina', timeZone: 'America/Argentina/Buenos_Aires' },
+  '+591': { country: 'Bolivia', timeZone: 'America/La_Paz' },
+  '+56': { country: 'Chile', timeZone: 'America/Santiago' },
+  '+57': { country: 'Colombia', timeZone: 'America/Bogota' },
+  '+506': { country: 'Costa Rica', timeZone: 'America/Costa_Rica' },
+  '+53': { country: 'Cuba', timeZone: 'America/Havana' },
+  '+593': { country: 'Ecuador', timeZone: 'America/Guayaquil' },
+  '+503': { country: 'El Salvador', timeZone: 'America/El_Salvador' },
+  '+34': { country: 'España', timeZone: 'Europe/Madrid' },
+  '+502': { country: 'Guatemala', timeZone: 'America/Guatemala' },
+  '+504': { country: 'Honduras', timeZone: 'America/Tegucigalpa' },
+  '+52': { country: 'México', timeZone: 'America/Mexico_City' },
+  '+505': { country: 'Nicaragua', timeZone: 'America/Managua' },
+  '+507': { country: 'Panamá', timeZone: 'America/Panama' },
+  '+595': { country: 'Paraguay', timeZone: 'America/Asuncion' },
+  '+51': { country: 'Perú', timeZone: 'America/Lima' },
+  '+1': { country: 'Puerto Rico', timeZone: 'America/Puerto_Rico' },
+  '+1-809': { country: 'República Dominicana', timeZone: 'America/Santo_Domingo' },
+  '+1-829': { country: 'República Dominicana', timeZone: 'America/Santo_Domingo' },
+  '+1-849': { country: 'República Dominicana', timeZone: 'America/Santo_Domingo' },
+  '+598': { country: 'Uruguay', timeZone: 'America/Montevideo' },
+  '+58': { country: 'Venezuela', timeZone: 'America/Caracas' }
+};
 
+const getGreeting = (hour) => {
+  return hour < 12 ? 'Buenos días 🌅' : hour < 18 ? 'Buenas tardes 🌄' : 'Buenas noches 🌃';
+};
+
+const getUserGreeting = (userNumber, limaTime) => {
+  const phoneCode = userNumber.startsWith('+') ? userNumber.split('@')[0].split('-')[0] : null;
+  const countryInfo = phoneCode ? countryCodes[phoneCode] : null;
+
+  if (countryInfo) {
     try {
-      const response = await axios.request(config);
-      if (response.data?.success) {
-        const { id, title, info } = response.data;
-        const downloadUrl = await ddownr.cekProgress(id);
-        return { id, title, image: info.image, downloadUrl };
-      } else {
-        throw new Error("⛔ No se pudieron obtener los detalles del video.");
-      }
-    } catch (error) {
-      console.error("❌ Error en ddownr.download:", error);
-      throw error;
+      const localTime = new Date(limaTime.toLocaleString('en-US', { timeZone: countryInfo.timeZone }));
+      const localHour = localTime.getHours();
+      return `${getGreeting(localHour)} @${userNumber}, (${countryInfo.country})`;
+    } catch {
+      return `${getGreeting(limaTime.getHours())} @${userNumber}, (${countryInfo.country})`;
     }
-  },
+  }
+  return `${getGreeting(limaTime.getHours())} @${userNumber}`;
+};
 
-  cekProgress: async (id) => {
-    const config = {
-      method: "GET",
-      url: `https://p.oceansaver.in/ajax/progress.php?id=${id}`,
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, como Gecko) Chrome/91.0.4472.124 Safari/537.36"
-      }
-    };
-
-    try {
-      while (true) {
-        const response = await axios.request(config);
-        if (response.data?.success && response.data.progress === 1000) {
-          return response.data.download_url;
-        }
-        await new Promise(resolve => setTimeout(resolve, 5000));
-      }
-    } catch (error) {
-      console.error("❌ Error en ddownr.cekProgress:", error);
-      throw error;
-    }
+const isUserBlocked = (userId) => {
+  try {
+    const blockedUsers = JSON.parse(fs.readFileSync('./bloqueados.json', 'utf8'));
+    return blockedUsers.includes(userId);
+  } catch {
+    return false;
   }
 };
 
+const getDownloadUrl = async (videoUrl) => {
+  const apis = [{ url: 'https://api.vreden.my.id/api/ytmp3?url=', type: 'vreden' }];
+
+  for (const api of apis) {
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      try {
+        const response = await axios.get(`${api.url}${encodeURIComponent(videoUrl)}`, { timeout: TIMEOUT_MS });
+        if (
+          response.data?.status === 200 &&
+          response.data?.result?.download?.url &&
+          response.data?.result?.download?.status === true
+        ) {
+          return {
+            url: response.data.result.download.url.trim(),
+            title: response.data.result.metadata.title
+          };
+        }
+      } catch {
+        if (attempt < MAX_RETRIES - 1) await wait(RETRY_DELAY_MS);
+      }
+    }
+  }
+  return null;
+};
+
+const sendAudioNormal = async (conn, chat, audioUrl, videoTitle) => {
+  let thumbnailBuffer = null;
+  try {
+    const response = await axios.get('https://files.catbox.moe/ltq7ph.jpg', { responseType: 'arraybuffer' });
+    thumbnailBuffer = Buffer.from(response.data, 'binary');
+  } catch {}
+
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      await conn.sendMessage(
+        chat,
+        {
+          audio: { url: audioUrl },
+          mimetype: 'audio/mpeg',
+          contextInfo: {
+            externalAdReply: {
+              title: videoTitle,
+              body: 'Barboza Music',
+              previewType: 'PHOTO',
+              thumbnail: thumbnailBuffer || null,
+              mediaType: 1,
+              renderLargerThumbnail: false,
+              showAdAttribution: true,
+            }
+          }
+        },
+        { quoted: null }
+      );
+      return true;
+    } catch {
+      if (attempt < MAX_RETRIES - 1) await wait(RETRY_DELAY_MS);
+    }
+  }
+  return false;
+};
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
-    await m.react('🌀')
-  try {
-    if (!text.trim()) {
-      return conn.reply(m.chat, "⚡ *Sasuke Bot MD* | Ingresa el nombre o enlace de la canción/video que deseas buscar.", m, rcanal);
-    }
+  const userId = m.sender;
+  if (isUserBlocked(userId)) {
+    return conn.reply(m.chat, '🚫 Lo siento, estás en la lista de usuarios bloqueados.', m);
+  }
 
-    const search = await yts(text);
-    if (!search.all.length) {
-      return m.reply("❌ No se encontraron resultados para tu búsqueda. Intenta con algo diferente.");
-    }
+  if (!text || !text.trim()) {
+    let thumbnailBuffer = null;
+    try {
+      const response = await axios.get('https://files.catbox.moe/ltq7ph.jpg', { responseType: 'arraybuffer' });
+      thumbnailBuffer = Buffer.from(response.data, 'binary');
+    } catch {}
 
-    const videoInfo = search.all[0];
-    const { title, thumbnail, timestamp, views, ago, url } = videoInfo;
-    const vistas = formatViews(views);
-    const thumb = (await conn.getFile(thumbnail))?.data;
-
-    const infoMessage = `
-╔════〘 *SASUKE BOT MD 🌀* 〙════╗
-║ *✦ Título:* ${title}
-║ *✦ Duración:* ${timestamp}
-║ *✦ Vistas:* ${vistas}
-║ *✦ Canal:* ${(videoInfo.author?.name) || "Desconocido"}
-║ *✦ Publicado:* ${ago}
-║ *✦ Enlace:* ${url}
-╚════════════════════════╝`;
-
-    const JT = {
-      contextInfo: {
-        externalAdReply: {
-          title: "🌀 𝐒𝐚𝐬𝐮𝐤𝐞 𝐁𝐨𝐭 𝐌𝐃 🌀",
-          body: "𝑬𝒍 𝒏𝒊𝒏𝒋𝒂 𝒎á𝒔 𝒇𝒖𝒆𝒓𝒕𝒆 𝒅𝒆 𝒍𝒂 𝒉𝒐𝒋𝒂",
-          mediaType: 1,
-          previewType: 0,
-          mediaUrl: url,
-          sourceUrl: url,
-          thumbnail: thumb,
-          renderLargerThumbnail: true
-        }
-      }
-    };
-        await m.react('🔥')
-    await conn.reply(m.chat, infoMessage, fkontak, JT);
-
-    if (["play", "yta", "ytmp3"].includes(command)) {
-      const api = await ddownr.download(url, "mp3");
-      if (api.downloadUrl) {
-          await conn.sendMessage(m.chat, { audio: { url: api.downloadUrl }, mimetype: "audio/mpeg", fileName: `${title}.mp3` }, { quoted: m });
-      } else {
-          return m.reply("⛔ No se pudo obtener el enlace de descarga para el audio.");
-      }
-
-    } else if (["play2", "ytv", "ytmp4"].includes(command)) {
-      const sources = [
-        `https://api.siputzx.my.id/api/d/ytmp4?url=${url}`,
-        `https://api.zenkey.my.id/api/download/ytmp4?apikey=zenkey&url=${url}`,
-        `https://axeel.my.id/api/download/video?url=${encodeURIComponent(url)}`,
-        `https://delirius-apiofc.vercel.app/download/ytmp4?url=${url}`
-      ];
-
-      let success = false;
-      for (let source of sources) {
-        try {
-          const res = await fetch(source);
-          const { data, result, downloads } = await res.json();
-          let downloadUrl = data?.dl || result?.download?.url || downloads?.url || data?.download?.url;
-
-          if (downloadUrl) {
-            success = true;
-            await conn.sendMessage(m.chat, {
-              video: { url: downloadUrl },
-              fileName: `${title}.mp4`,
-              mimetype: "video/mp4",
-              caption: "🌪️ Aquí tienes tu video descargado por *Sasuke Bot MD* 🌪️",
-              thumbnail: thumb
-            }, { quoted: fkontak });
-            break;
+    return conn.reply(
+      m.chat,
+      `Uso: ${usedPrefix + command} <nombre de la canción>\n> Ejemplo: ${usedPrefix + command} Mi Vida Eres Tu`,
+      m,
+      {
+        contextInfo: {
+          externalAdReply: {
+            title: 'Barboza Music',
+            previewType: 'PHOTO',
+            thumbnail: thumbnailBuffer || null,
+            mediaType: 1,
+            renderLargerThumbnail: false,
+            showAdAttribution: true,
+            sourceUrl: 'Ella Nunca Te Quizo'
           }
-        } catch (e) {
-          console.error(`⚠ Error con la fuente ${source}:`, e.message);
         }
       }
+    );
+  }
 
-      if (!success) {
-        return m.reply("⛔ *Error:* No se encontró un enlace de descarga válido para el video.");
+  const limaTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Lima' }));
+  const userNumber = m.sender.split('@')[0];
+  const reactionMessage = await conn.reply(
+    m.chat,
+    `${getUserGreeting(userNumber, limaTime)},\nEstoy buscando la música solicitada...`,
+    m,
+    { mentions: [m.sender] }
+  );
+
+  await conn.sendMessage(m.chat, { react: { text: '📀', key: reactionMessage.key } }, { quoted: m });
+
+  try {
+    const searchResults = await yts(text.trim());
+    if (!searchResults?.videos?.length) throw new Error('No se encontraron resultados en YouTube.');
+
+    const videoInfo = searchResults.videos[0];
+    const { title, timestamp: duration, views, ago, url: videoUrl } = videoInfo;
+
+    let thumbnailBuffer = null;
+    try {
+      const response = await axios.get(videoInfo.image, { responseType: 'arraybuffer' });
+      thumbnailBuffer = Buffer.from(response.data, 'binary');
+    } catch {}
+
+    const description = `╭─⬣「 *Barboza-Ai* 」⬣
+│  ≡◦ 🎵 Título ∙ ${title}
+│  ≡◦ ⏱ Duración ∙ ${duration || 'Desconocida'}
+│  ≡◦ 👀 Vistas ∙ ${views.toLocaleString()}
+│  ≡◦ 📅 Publicado ∙ ${ago || 'Desconocido'}
+│  ≡◦ 🔗 URL ∙ ${videoUrl}
+╰─⬣
+> © Powered By Barboza™`;
+
+    await conn.reply(
+      m.chat,
+      description,
+      m,
+      {
+        contextInfo: {
+          externalAdReply: {
+            title: title,
+            body: 'Barboza Music',
+            previewType: 'PHOTO',
+            thumbnail: thumbnailBuffer || null,
+            mediaType: 1,
+            renderLargerThumbnail: false,
+            showAdAttribution: true,
+          }
+        }
       }
-    } else {
-      throw "❌ Comando no reconocido. Por favor, usa `play`, `yta`, `ytmp3` para audio, o `play2`, `ytv`, `ytmp4` para video.";
+    );
+
+    const downloadData = await getDownloadUrl(videoUrl);
+    if (!downloadData || !downloadData.url) {
+      await conn.sendMessage(m.chat, { react: { text: '🔴', key: reactionMessage.key } }, { quoted: m });
+      throw new Error('No se pudo descargar la música desde ninguna API.');
     }
+
+    await conn.sendMessage(m.chat, { react: { text: '🟢', key: reactionMessage.key } }, { quoted: m });
+    const success = await sendAudioNormal(conn, m.chat, downloadData.url, downloadData.title || title);
+    if (!success) throw new Error('No se pudo enviar el audio.');
+
   } catch (error) {
-    console.error("Error en handler:", error);
-    return m.reply(`⚠ Ocurrió un error inesperado: ${error.message}`);
+    await conn.sendMessage(m.chat, { react: { text: '🔴', key: reactionMessage.key } }, { quoted: m });
+    return conn.reply(m.chat, `🚨 *Error:* ${error.message || 'Error desconocido'}`, m);
   }
 };
 
-handler.command = handler.help = ["play", "play2", "ytmp3", "yta", "ytmp4", "ytv"];
-handler.tags = ["downloader"];
-//handler.coin = 5; // Puedes descomentar esto si manejas un sistema de monedas
+handler.command = /^play$/i;
+handler.help = ['play <texto>'];
+handler.tags = ['descargas'];
 
 export default handler;
-
-function formatViews(views) {
-  if (typeof views !== "number") return "Desconocido";
-  return views >= 1000
-    ? (views / 1000).toFixed(1) + "k (" + views.toLocaleString() + ")"
-    : views.toString();
-}
