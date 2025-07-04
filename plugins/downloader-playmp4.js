@@ -1,36 +1,37 @@
 import axios from 'axios'
 
 let handler = async (m, { conn, text, command, usedPrefix }) => {
-  const emoji = '🎧'
+  const emoji = '🎬'
   const error = '❌'
   const done = '✅'
 
   if (!text) {
-    return m.reply(`╭─〔 *🔍 BÚSQUEDA REQUERIDA* 〕
+    return m.reply(`╭─〔 *📽️ INGRESA UN TÍTULO* 〕
 │
-├ ✦ *Ejemplo:* ${usedPrefix + command} DJ Malam Pagi
-├ ✦ Escribe el nombre de una canción
+├ ✦ *Ejemplo:* ${usedPrefix + command} Arcangel La jumpa
+├ ✦ Debes escribir el nombre del video
 │
 ╰──────────────⬣`)
   }
 
   try {
-    const res = await axios.get(`https://api.vreden.my.id/api/ytplaymp3?query=${encodeURIComponent(text)}`)
-    const data = res.data
+    // Llamar a la API de búsqueda de video
+    const response = await axios.get(`https://api.vreden.my.id/api/ytplayvideo?query=${encodeURIComponent(text)}`)
+    const data = response.data
 
-    if (!data?.result?.download?.url) {
-      throw '⚠️ No se encontró un resultado válido.'
-    }
+    if (!data?.result?.url) throw '⚠️ No se pudo obtener el video.'
 
     const info = data.result.metadata
-    const dl = data.result.download
+    const videoUrl = data.result.url
+    const title = info.title
 
+    // Mostrar info del video
     await conn.sendMessage(m.chat, {
       image: { url: info.thumbnail },
-      caption: `╭─〔 *🎶 AUDIO ENCONTRADO* 〕
+      caption: `╭─〔 *🎞️ VIDEO ENCONTRADO* 〕
 │
-├ 🎵 *Título:* ${info.title}
-├ 🧑‍🎤 *Autor:* ${info.author.name}
+├ 📹 *Título:* ${title}
+├ 🧑‍💻 *Autor:* ${info.author.name}
 ├ ⏱️ *Duración:* ${info.duration.timestamp}
 ├ 📊 *Vistas:* ${info.views.toLocaleString()}
 ├ 🔗 *Link:* ${info.url}
@@ -38,21 +39,21 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
 ╰──────────────⬣`
     }, { quoted: m })
 
+    // Enviar el video
     await conn.sendMessage(m.chat, {
-      audio: { url: dl.url },
-      fileName: dl.filename,
-      mimetype: 'audio/mpeg',
-      ptt: false
+      video: { url: videoUrl },
+      caption: `⟡ *${title}*\n> Enviado por MediaHub`,
+      mimetype: 'video/mp4'
     }, { quoted: m })
 
   } catch (e) {
     console.error(e)
-    return m.reply(`${error} No se pudo procesar tu solicitud.`)
+    m.reply(`${error} Ocurrió un error al intentar obtener el video.`)
   }
 }
 
-handler.command = ['play5']
-handler.help = ['play5 <nombre>']
+handler.command = ['play2']
+handler.help = ['play2 <nombre>']
 handler.tags = ['descargas']
 
 export default handler
