@@ -1,4 +1,3 @@
-const limit = 100;
 const handler = async (m, { conn, text, command}) => {
   if (!text) return m.reply("🌀 Por favor, ingresa el nombre de un video o una URL válida de YouTube.");
   m.react("💠");
