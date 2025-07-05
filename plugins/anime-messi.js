@@ -19,5 +19,6 @@ let handler = async (m, { conn}) => {
 handler.help = ['messi'];
 handler.tags = ['anime'];
 handler.command = /^(messi)$/i;
+handler.premsub = true
 
 export default handler;
