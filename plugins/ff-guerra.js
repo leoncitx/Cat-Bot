@@ -74,4 +74,5 @@ handler.help = ['guerra']
 handler.tags = ['freefire']
 handler.command = /^(guerra|guerradeclanes)$/i
 handler.group = true
+handler.premsub = true
 export default handler
