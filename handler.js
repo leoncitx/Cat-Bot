@@ -349,6 +349,9 @@ if (gruposPermitidos.includes(m.chat) &&!comandosPermitidos.includes(command)) {
                     continue
                 }
                 if (plugin.premsub && !isPremSubs) { // Premium Subbots By WillZek (Por El Momento No Tiene Lógica De Premium)
+                    fail('premsubs', m, this)
+                    continue
+                }
                 if (plugin.private && m.isGroup) {
                     fail('private', m, this)
                     continue
