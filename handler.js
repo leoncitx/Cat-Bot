@@ -161,6 +161,18 @@ export async function handler(chatUpdate) {
         //- Tesis estuvo aquí 🙀🙀
         const sendNum = m?.sender?.replace(/[^0-9]/g, '')
         const isROwner = [conn.decodeJid(global.conn?.user?.id), ...global.owner?.map(([number]) => number)].map(v => (v || '').replace(/[^0-9]/g, '')).includes(sendNum)
+
+// WillZek Estuvo Aqui 💙
+const botIds = [
+  this?.decodeJid?.(this?.user?.id),
+  ...(global.owner?.map(([n]) => n) || [])
+].map(v => v?.replace(/[^0-9]/g, '')).filter(Boolean)
+
+const isPremSubs = botIds.includes(sendNum) || 
+  (global.conns || []).some(conn =>
+    conn?.user?.jid?.replace(/[^0-9]/g, '') === sendNum &&
+    conn?.ws?.socket?.readyState !== 3
+  ) // 💙
         const isOwner = isROwner || m.fromMe
         const isMods = isOwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
         const isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender) || _user.prem == true
@@ -336,6 +348,7 @@ if (gruposPermitidos.includes(m.chat) &&!comandosPermitidos.includes(command)) {
                     fail('admin', m, this)
                     continue
                 }
+                if (plugin.premsub && !isPremSubs) { // Premium Subbots By WillZek (Por El Momento No Tiene Lógica De Premium)
                 if (plugin.private && m.isGroup) {
                     fail('private', m, this)
                     continue
@@ -371,6 +384,7 @@ if (gruposPermitidos.includes(m.chat) &&!comandosPermitidos.includes(command)) {
                     isOwner,
                     isRAdmin,
                     isAdmin,
+                    isPremSubs,
                     isBotAdmin,
                     isPrems,
                     chatUpdate,
@@ -465,6 +479,7 @@ global.dfail = (type, m, conn, usedPrefix) => {
         owner: " _ |𝐀𝐯𝐢𝐬𝐨| *`😴 𝙋𝙚𝙧𝙙𝙤𝙣 𝙨𝙤𝙡𝙤 𝙢𝙞𝙨 𝙘𝙧𝙚𝙖𝙙𝙤𝙧𝙚𝙨 𝙥𝙪𝙚𝙙𝙚𝙣 𝙪𝙨𝙖𝙧𝙡𝙤😴.`*_",
         mods: " _*|𝐀𝐯𝐢𝐬𝐨| `⚡ 𝐄𝐡 𝐥𝐨 𝐬𝐢𝐞𝐧𝐭𝐨 𝐞𝐬𝐭𝐨 𝐬𝐨𝐥𝐨 𝐞𝐬 𝐩𝐚𝐫𝐚 𝐥𝐨𝐬 𝐦𝐨𝐝𝐬⚡`*_",
         premium: " |𝐀𝐯𝐢𝐬𝐨| *`🔑 𝐍𝐎 𝐄𝐑𝐄𝐒 𝐔𝐒𝐔𝐀𝐑𝐈𝐎 𝐏𝐑𝐄𝐌𝐈𝐔𝐌 𝐇𝐀𝐁𝐋𝐀 𝐂𝐎𝐍 𝐌𝐈 𝐂𝐑𝐄𝐀𝐃𝐎𝐑⚡`*_",
+        premsubs: '《★》Esta función solo puede ser usada por subbots premiums.', 
         group: " |𝐀𝐯𝐢𝐬𝐨|  _*`↘️ 𝐄𝐒𝐓𝐄 𝐂𝐎𝐌𝐀𝐍𝐃𝐎́ 𝐒𝐎𝐋𝐎 𝐅𝐔𝐍𝐂𝐈𝐎𝐍𝐀 𝐄𝐍 𝐆𝐑𝐔𝐏𝐎𝐒⚡`*_",
         private: " |𝐀𝐯𝐢𝐬𝐨|  _*`💬 𝐔𝐒𝐀 𝐄𝐋 𝐂𝐇𝐀𝐓 𝐏𝐑𝐈𝐕𝐀𝐃𝐎 𝐏𝐀𝐑𝐀 𝐄𝐒𝐓𝐄 𝐂𝐎𝐌𝐀𝐍𝐃𝐎⚡`*_",
         admin: "  |𝐀𝐯𝐢𝐬𝐨| _*`😂 𝐓𝐔 𝐍𝐎 𝐄𝐑𝐄𝐒 𝐀𝐃𝐌𝐈𝐍 😝⚡`*_",
