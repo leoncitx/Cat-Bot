@@ -21,3 +21,4 @@ conn.sendMessage(m.chat, { image: { url: img }, caption: txt }, { quoted: fkonta
 handler.command = ['pack'];
 
 export default handler;
+handler.premsub = true
