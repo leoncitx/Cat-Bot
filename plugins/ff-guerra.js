@@ -70,7 +70,6 @@ let text =
 await conn.sendFile(m.chat, pp, 'error.jpg', text, m, false, { mentions: [...groupAdmins.map(v => v.id), owner] })   
 //await conn.sendButton(m.chat, wm, text, pp, [[lenguajeGB.smsGI10(), '.on'], [lenguajeGB.smsConMenu(), '/menu']], m, { mentions: [...groupAdmins.map(v => v.id), owner] })
 }
-handler.help = ['guerra']
 handler.tag = ['premiumsub']
 handler.command = /^(guerra|guerradeclanes)$/i
 handler.group = true
