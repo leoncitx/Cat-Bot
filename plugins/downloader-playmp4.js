@@ -10,6 +10,7 @@ let handler = async (m, { conn, args, command, usedPrefix}) => {
 ╰─⬣\n> © Barboza AI`
 );
 }
+  await m.react('⌛');
 
   try {
     const res = await fetch(`https://api.nekorinn.my.id/downloader/spotifyplay?q=${encodeURIComponent(text)}`);
@@ -42,6 +43,8 @@ let handler = async (m, { conn, args, command, usedPrefix}) => {
       ptt: false,
       fileName: `${title}.mp3`
 }, { quoted: m});
+
+    await m.react('✅');
 
 } catch (e) {
     console.error(e);
