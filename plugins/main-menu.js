@@ -77,6 +77,7 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
       sticker: "🎨",
       imagen: "🖼️",
       logo: "🖌️",
+      premium: "🎖️",
       configuración: "⚙️",
       premium: "💎",
       descargas: "📥",
