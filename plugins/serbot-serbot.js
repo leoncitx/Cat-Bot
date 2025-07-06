@@ -27,8 +27,8 @@ let crm3 = "Sinfo-Donar.js";
 let crm4 = " _autoresponder.js info-bot.js";
 let drm1 = "";
 let drm2 = "";
-let rtx = "*Convertirse en sub bot✨ / JadiBot*\n\n*ðŸŒ¼ Utilice otro celular para escanear este codigo QR o escanea el codigo mediante una PC para convertirte en Sub Bot*\n\n`1` Â» Haga clic en los tres puntos en la esquina superior derecha\n\n`2` Â» Toca dispositivos vinculados\n\n`3` Â» Escanee este codigo QR para iniciar sesiÃ³n\n\nðŸŒ¼ *Este cÃ³digo QR expira en 45 segundos*";
-let rtx2 = "*Convertirse en sub bot✨ / JadiBot*\n\n*ðŸŒ¼ Usa este CÃ³digo para convertirte en un Sub Bot*\n\n`1` Â» Haga clic en los tres puntos en la esquina superior derecha\n\n`2` Â» Toca dispositivos vinculados\n\n`3` Â» Selecciona Vincular con el nÃºmero de telÃ©fono\n\n`4` Â» Escriba el CÃ³digo\n\nðŸŒ¼ *Este cÃ³digo solo funciona en en el nÃºmero que lo solicitÃ³*";
+let rtx = "*¡Bienvenido a la conexión Sub Bot! ✨🌀*\n\n*Para unirte, ¡escanea este código QR con otro dispositivo o PC! 📱💻*\n\n`1` » Toca los *tres puntos* en la esquina superior derecha.\n`2` » Selecciona *'Dispositivos vinculados'*.\n`3` » ¡Escanea este QR y listo para iniciar sesión! 🎉\n\n*⚠️ Este código QR caduca en 45 segundos. ¡Conéctate rápido!*";
+let rtx2 = "*¡Conexión Sub Bot por Código! ✨🌀*\n\n*Usa este código único para convertirte en un Sub Bot. ¡Es rápido y seguro! 🚀*\n\n`1` » Toca los *tres puntos* en la esquina superior derecha.\n`2` » Selecciona *'Dispositivos vinculados'*.\n`3` » Elige *'Vincular con el número de teléfono'*.\n`4` » ¡Introduce el *código* que te proporcionaremos a continuación! 👇\n\n*🔒 Este código solo funciona para ti. ¡No lo compartas!*";
 
 if (global.conns instanceof Array) {
 } else {
@@ -266,7 +266,7 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
         if (qr && !isCode) {
           qrMessage = await user.sendMessage(msg.chat, {
             image: await qrcode.toBuffer(qr, { scale: 8 }),
-            caption: rtx + "\n" + secret.toString("utf-8"),
+            caption: rtx, // Usa el nuevo mensaje con diseño
             contextInfo: {
               forwardingScore: 999,
               isForwarded: true,
@@ -282,7 +282,7 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
         if (qr && isCode) {
 
           code = await user.sendMessage(msg.chat, {
-            text: rtx2 + "\n" + secret.toString("utf-8"),
+            text: rtx2, // Usa el nuevo mensaje con diseño
             contextInfo: {
               forwardingScore: 999,
               isForwarded: true,
@@ -300,7 +300,7 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
 
 
           pairingCode = await user.sendMessage(msg.chat, {
-            text: pairingCode, 
+            text: `*Tu código de emparejamiento es:* \`\`\`${pairingCode}\`\`\`\n\n*¡Ingrésalo para completar la conexión!* ✨`, // Formato para el código
             contextInfo: {
               forwardingScore: 999,
               isForwarded: true,
