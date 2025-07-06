@@ -38,7 +38,7 @@ if (global.conns instanceof Array) {
 const MAX_SUBBOTS = 9999;
 
 async function loadSubbots() {
-  const serbotFolders = fs.readdirSync('./' + jadi);
+  const serbotFolders = fs.readdirSync('./' + global.jadi); // Changed to global.jadi assuming it's defined elsewhere
   let totalC = 0;
 
   for (const folder of serbotFolders) {
@@ -47,7 +47,7 @@ async function loadSubbots() {
       break;
     }
 
-    const folderPath = `./${jadi}/${folder}`;
+    const folderPath = `./${global.jadi}/${folder}`; // Changed to global.jadi
     if (!fs.statSync(folderPath).isDirectory()) continue;
 
     const { state, saveCreds } = await useMultiFileAuthState(folderPath);
@@ -104,6 +104,7 @@ async function loadSubbots() {
             conn.ws.close();
             conn.ev.removeAllListeners();
             conn = makeWASocket(connectionOptions);
+            let handler = await import("../handler.js"); // Import handler here
             conn.handler = handler.handler.bind(conn);
             conn.connectionUpdate = connectionUpdate.bind(conn);
             conn.credsUpdate = saveCreds.bind(conn, true);
@@ -168,11 +169,11 @@ loadSubbots().catch(console.error);
 
 let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
   if (!global.db.data.settings[conn.user.jid].jadibotmd) {
-    return conn.reply(msg.chat, "*ðŸŒ¼ Este Comando estÃ¡ deshabilitado por mi creador.*", msg, rcanal);
+    return conn.reply(msg.chat, "*ðŸŒ¼ Este Comando estÃ¡ deshabilitado por mi creador.*", msg, global.rcanal); // Changed rcanal to global.rcanal
   }
 
   if (global.conns.length >= MAX_SUBBOTS) {
-    return conn.reply(msg.chat, `*â€ Lo siento, se ha alcanzado el lÃ­mite de ${MAX_SUBBOTS} subbots. Por favor, intenta mÃ¡s tarde.*`, msg, rcanal);
+    return conn.reply(msg.chat, `*â€ Lo siento, se ha alcanzado el lÃ­mite de ${MAX_SUBBOTS} subbots. Por favor, intenta mÃ¡s tarde.*`, msg, global.rcanal); // Changed rcanal to global.rcanal
   }
 
   let user = conn;
@@ -191,21 +192,21 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
     }
   }
 
-  if (!fs.existsSync("./" + jadi + "/" + userName)) {
-    fs.mkdirSync("./" + jadi + "/" + userName, { recursive: true });
+  if (!fs.existsSync("./" + global.jadi + "/" + userName)) { // Changed to global.jadi
+    fs.mkdirSync("./" + global.jadi + "/" + userName, { recursive: true }); // Changed to global.jadi
   }
 
   if (args[0] && args[0] != undefined) {
-    fs.writeFileSync("./" + jadi + "/" + userName + "/creds.json", JSON.stringify(JSON.parse(Buffer.from(args[0], "base64").toString("utf-8")), null, "\t"));
+    fs.writeFileSync("./" + global.jadi + "/" + userName + "/creds.json", JSON.stringify(JSON.parse(Buffer.from(args[0], "base64").toString("utf-8")), null, "\t")); // Changed to global.jadi
   } else {
     "";
   }
 
-  if (fs.existsSync("./" + jadi + "/" + userName + "/creds.json")) {
-    let creds = JSON.parse(fs.readFileSync("./" + jadi + "/" + userName + "/creds.json"));
+  if (fs.existsSync("./" + global.jadi + "/" + userName + "/creds.json")) { // Changed to global.jadi
+    let creds = JSON.parse(fs.readFileSync("./" + global.jadi + "/" + userName + "/creds.json")); // Changed to global.jadi
     if (creds) {
       if (creds.registered === false) {
-        fs.unlinkSync("./" + jadi + "/" + userName + "/creds.json");
+        fs.unlinkSync("./" + global.jadi + "/" + userName + "/creds.json"); // Changed to global.jadi
       }
     }
   }
@@ -218,12 +219,12 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
       let userJid = msg.mentionedJid && msg.mentionedJid[0] ? msg.mentionedJid[0] : msg.fromMe ? user.user.jid : msg.sender;
       let userName = "" + userJid.split`@`[0];
 
-      if (!fs.existsSync("./" + jadi + "/" + userName)) {
-        fs.mkdirSync("./" + jadi + "/" + userName, { recursive: true });
+      if (!fs.existsSync("./" + global.jadi + "/" + userName)) { // Changed to global.jadi
+        fs.mkdirSync("./" + global.jadi + "/" + userName, { recursive: true }); // Changed to global.jadi
       }
 
       if (args[0]) {
-        fs.writeFileSync("./" + jadi + "/" + userName + "/creds.json", JSON.stringify(JSON.parse(Buffer.from(args[0], "base64").toString("utf-8")), null, "\t"));
+        fs.writeFileSync("./" + global.jadi + "/" + userName + "/creds.json", JSON.stringify(JSON.parse(Buffer.from(args[0], "base64").toString("utf-8")), null, "\t")); // Changed to global.jadi
       } else {
         "";
       }
@@ -231,7 +232,7 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
       let { version, isLatest } = await fetchLatestBaileysVersion();
       const msgRetry = msgRetry => {};
       const cache = new nodeCache();
-      const { state, saveState, saveCreds } = await useMultiFileAuthState("./" + jadi + "/" + userName);
+      const { state, saveState, saveCreds } = await useMultiFileAuthState("./" + global.jadi + "/" + userName); // Changed to global.jadi
 
       const config = {
         printQRInTerminal: false,
@@ -247,7 +248,7 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
         browser: isCode ? ["Ubuntu", "Chrome", "110.0.5585.95"] : ["${botname} (Sub Bot)", "Chrome", "2.0.0"],
         defaultQueryTimeoutMs: undefined,
         getMessage: async msgId => {
-          if (store) {}
+          if (global.store) {} // Changed to global.store
           return {
             conversation: "${botname}Bot-MD"
           };
@@ -266,13 +267,13 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
         if (qr && !isCode) {
           qrMessage = await user.sendMessage(msg.chat, {
             image: await qrcode.toBuffer(qr, { scale: 8 }),
-            caption: rtx, // Usa el nuevo mensaje con diseño
+            caption: rtx,
             contextInfo: {
               forwardingScore: 999,
               isForwarded: true,
               forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363419364337473@newsletter', 
-                newsletterName: 'sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀', 
+                newsletterJid: '120363419364337473@newsletter',
+                newsletterName: 'sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀',
                 serverMessageId: -1
               }
             }
@@ -280,33 +281,30 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
           return;
         }
         if (qr && isCode) {
-
           code = await user.sendMessage(msg.chat, {
-            text: rtx2, // Usa el nuevo mensaje con diseño
+            text: rtx2,
             contextInfo: {
               forwardingScore: 999,
               isForwarded: true,
               forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363419364337473@newsletter', 
+                newsletterJid: '120363419364337473@newsletter',
                 newsletterName: 'sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀',
                 serverMessageId: -1
               }
             }
           }, { quoted: msg });
 
-
           await sleep(3000);
           pairingCode = await subBot.requestPairingCode(msg.sender.split`@`[0]);
 
-
           pairingCode = await user.sendMessage(msg.chat, {
-            text: `*Tu código de emparejamiento es:* \`\`\`${pairingCode}\`\`\`\n\n*¡Ingrésalo para completar la conexión!* ✨`, // Formato para el código
+            text: `\`\`\`${pairingCode}\`\`\``, // Only the code, no extra text
             contextInfo: {
               forwardingScore: 999,
               isForwarded: true,
               forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363419364337473@newsletter', 
-                newsletterName: 'sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀', 
+                newsletterJid: '120363419364337473@newsletter',
+                newsletterName: 'sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀',
                 serverMessageId: -1
               }
             }
@@ -335,14 +333,14 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
         if (connection === "close") {
           console.log(disconnectCode);
           if (disconnectCode == 405) {
-            await fs.unlinkSync("./" + jadi + "/" + userName + "/creds.json");
+            await fs.unlinkSync("./" + global.jadi + "/" + userName + "/creds.json"); // Changed to global.jadi
             return await msg.reply("â€ Reenvia nuevamente el comando.");
           }
           if (disconnectCode === DisconnectReason.restartRequired) {
             initSubBot();
             return console.log("\nðŸŒ¼ Tiempo de conexiÃ³n agotado, reconectando...");
           } else if (disconnectCode === DisconnectReason.loggedOut) {
-            fs.rmdirSync(`./${jadi}/${userName}`, { recursive: true });
+            fs.rmdirSync(`./${global.jadi}/${userName}`, { recursive: true }); // Changed to global.jadi
             return msg.reply("ðŸŒ¼ *ConexiÃ³n perdida...*");
           } else if (disconnectCode == 428) {
             await closeConnection(false);
@@ -361,7 +359,7 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
         }
 
         if (global.db.data == null) {
-          loadDatabase();
+          global.loadDatabase(); // Changed to global.loadDatabase()
         }
 
         if (connection == "open") {
@@ -417,7 +415,7 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
           subBot.ev.off("creds.update", subBot.credsUpdate);
         }
         const currentTime = new Date();
-        const lastEventTime = new Date(subBot.ev * 1000);
+        const lastEventTime = new Date(subBot.ev * 1000); // Assuming subBot.ev might be a timestamp
         if (currentTime.getTime() - lastEventTime.getTime() <= 300000) {
           console.log("Leyendo mensaje entrante:", subBot.ev);
           Object.keys(subBot.chats).forEach(chatId => {
@@ -455,8 +453,8 @@ export default handler;
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
-            }
+}
 async function joinChannels(conn) {
-await conn.newsletterFollow("120363414007802886@newsletter")
-conn.newsletterFollow("120363419364337473@newsletter")
+  await conn.newsletterFollow("120363414007802886@newsletter")
+  conn.newsletterFollow("120363419364337473@newsletter")
 }
