@@ -7,6 +7,7 @@ let handler = async (m, { conn }) => {
     let name = conn.getName(who);
     let pp = await conn.profilePictureUrl(who, 'image').catch(_ => './logo.jpg');
     conn.sendFile(m.chat, pp, 'profile.jpg', `Aquí está la foto de perfil de ${name}`, m);
+    m.react('✅');
 }
 
 handler.help = ['pfp @user'];
