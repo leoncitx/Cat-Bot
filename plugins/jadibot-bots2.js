@@ -1,6 +1,3 @@
-import ws from 'ws'
-import { getSubbotConfig } from '../lib/postgres.js'
-
 const handler = async (m, { conn }) => {
     const mainId = globalThis.conn?.user?.id?.split('@')[0].split(':')[0]
     const activos = (globalThis.conns || []).filter(sock => {
