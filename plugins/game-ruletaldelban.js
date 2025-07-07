@@ -42,4 +42,3 @@ handler.botAdmin = true;
 export default handler;
 
 const delay = time => new Promise(res => setTimeout(res, time));
-             
