@@ -1,11 +1,11 @@
+
 let handler = async (m, { conn, groupMetadata}) => {
     let bot = global.db.data.settings[conn.user.jid] || {};
     if (!bot.restrict) return m.reply(`⚠️ Solo el propietario puede usar este comando.`);
     if (!m.isGroup) return m.reply(`⚠️ Este comando solo funciona en grupos.`);
 
-    const botCreatorNumber = '584246582666'; // Número del creador del bot
+    const botCreatorNumber = '584246582666';
 
-    // Verifica si un usuario es admin, superadmin o el creador
     const isAdminOrCreator = (participant) => {
         return participant.admin === 'admin' ||
                participant.admin === 'superadmin' ||
@@ -13,33 +13,24 @@ let handler = async (m, { conn, groupMetadata}) => {
                participant.id === botCreatorNumber;
 };
 
-    // Filtra usuarios elegibles (excluyendo al bot y admins)
+    // Filtrar usuarios elegibles (no bot, no admins, no creador)
     let elegibles = groupMetadata.participants
 .filter(v => v.id!== conn.user.jid &&!isAdminOrCreator(v))
 .map(v => v.id);
 
     if (elegibles.length === 0) return m.reply(`⚠️ No hay usuarios elegibles para expulsar.`);
 
-    // Mezclar y agrupar de 50 en 50
-    let shuffled = elegibles.sort(() => 0.5 - Math.random());
-    let eliminaciones = [];
+    // Elegir solo uno al azar
+    let elegido = elegibles[Math.floor(Math.random() * elegibles.length)];
+    let formato = id => '@' + id.split('@')[0];
 
-    while (shuffled.length> 0) {
-        eliminaciones.push(shuffled.splice(0, 50));
-}
-
-    let format = id => '@' + id.split('@')[0];
-
-    for (let grupo of eliminaciones) {
-        let texto = grupo.map(u => `☠️ ${format(u)} fue condenado por la ruleta de la muerte`).join('\n');
-        await conn.sendMessage(m.chat, {
-            text: `*La ruleta de la muerte ejecuta su juicio...*\n${texto}`,
-            mentions: grupo
+    await conn.sendMessage(m.chat, {
+        text: `☠️ *${formato(elegido)} ha sido seleccionado por la ruleta de la muerte...*`,
+        mentions: [elegido]
 });
 
-        await delay(2000);
-        await conn.groupParticipantsUpdate(m.chat, grupo, 'remove');
-}
+    await delay(2000);
+    await conn.groupParticipantsUpdate(m.chat, [elegido], 'remove');
 };
 
 handler.command = /^(ruletamortal|ruletadeath)$/i;
