@@ -1,7 +1,7 @@
 let handler = async (m, { conn, groupMetadata}) => {
     let bot = global.db.data.settings[conn.user.jid] || {};
     if (!bot.restrict) return m.reply(`⚠️ Solo el propietario puede usar este comando.`);
-    if (!m.isGroup) return m.reply(`⚠️ Este comando solo se puede usar en grupos.`);
+    if (!m.isGroup) return m.reply(`🥕 Este comando solo se puede usar en grupos.`);
 
     const botCreatorNumber = '584246582666';
 
