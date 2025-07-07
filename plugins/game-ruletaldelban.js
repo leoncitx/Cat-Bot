@@ -1,52 +1,50 @@
-import db from '../lib/database.js'
-let handler = m => m
-handler.before = async function (m, {conn, isAdmin, isBotAdmin} ) {
-if (!m.isGroup) return !1
-let chat = global.db.data.chats[m.chat]
-if (isBotAdmin && chat.antifake) {
-if (m.sender.startsWith('6' || '6')) {
-global.db.data.users[m.sender].block = true
+let handler = async (m, { conn, groupMetadata }) => {
+    // Verificar si el bot tiene restricciones
+    let bot = global.db.data.settings[conn.user.jid] || {};
+    if (!bot.restrict) return m.reply(`⚠️ Solo el propietario puede usar este comando.`);
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('90' || '90')) {
-global.db.data.users[m.sender].block = true
+    // Verificar si el mensaje es en un grupo
+    if (!m.isGroup) return m.reply(`⚠️ Este comando solo se puede usar en grupos.`);
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('212' || '212')) {
-global.db.data.users[m.sender].block = true
+    // Número de teléfono del creador del bot
+    const botCreatorNumber = '584246582666'; // Formato correcto del ID del número
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('92' || '92')) {
-global.db.data.users[m.sender].block = true
+    // Función para verificar si un usuario es administrador, moderador o el creador del bot
+    const isAdminOrCreator = (participant) => {
+        return participant.admin === 'admin' || participant.admin === 'superadmin' || participant.id === groupMetadata.owner || participant.id === botCreatorNumber;
+    };
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('93' || '93')) {
-global.db.data.users[m.sender].block = true
+    // Filtrar participantes (no incluir al bot y a los administradores, moderadores y creador del bot)
+    let psmap = groupMetadata.participants
+        .filter(v => v.id !== conn.user.jid && !isAdminOrCreator(v))
+        .map(v => v.id);
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('94' || '94')) {
-global.db.data.users[m.sender].block = true
+    // Verificar si hay candidatos
+    if (psmap.length === 0) return m.reply(`⚠️ No se encontraron candidatos para la ruleta o todos son administradores/moderadores/creador del bot.`);
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('7' || '7')) {
-global.db.data.users[m.sender].block = true
+    // Elegir un usuario al azar
+    let user = psmap[Math.floor(Math.random() * psmap.length)];
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('49' || '49')) {
-global.db.data.users[m.sender].block = true
+    // Formatear menciones
+    let format = a => '@' + a.split('@')[0];
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('2' || '2')) {
-global.db.data.users[m.sender].block = true
+    // Notificar al usuario elegido y proceder con la eliminación
+    await conn.sendMessage(m.chat, {
+        text: `*${format(user)} ☠️ Has sido elegido por la ruleta de la muerte*`,
+        mentions: [user]
+    });
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('91' || '91')) {
-global.db.data.users[m.sender].block = true
+    // Esperar 2 segundos antes de eliminar al usuario
+    await delay(2000);
+    await conn.groupParticipantsUpdate(m.chat, [user], 'remove');
+};
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('48' || '48')) {
-global.db.data.users[m.sender].block = true
+handler.command = /^(ruletadelban)$/i;
+handler.group = true;
+handler.tags = ['game'];
+handler.admin = true;
+handler.botAdmin = true;
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')} 
-}}
-export default handler
+export default handler;
+
+const delay = time => new Promise(res => setTimeout(res, time));
