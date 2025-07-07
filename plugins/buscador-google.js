@@ -1,34 +1,75 @@
-/* Imagen Search By WillZek 
-- Free Codes Titan 
-- https://whatsapp.com/channel/0029ValMlRS6buMFL9d0iQ0S
-*/
-
 import fetch from 'node-fetch';
 
-let handler = async(m, { conn, text, usedPrefix, command }) => {
+let handler = async (m, { text }) => {
+  if (!text) {
+    m.reply(`Por favor, proporciona el termino de búsqueda que deseas realizar a *Google*.`);
+    return;
+  }
 
-if (!text) return m.reply('🍭 Ingrese Un Texto Para Buscar Una Imagen');
+  const apiUrl = `https://delirius-apiofc.vercel.app/search/googlesearch?query=${encodeURIComponent(text)}`;
 
-try {
-let api = `https://api.dorratz.com/v3/ai-image?prompt=${text}`;
-let response = await fetch(api);
-let json = await response.json();
-let res = json.data;
+  try {
+    const response = await fetch(apiUrl);
+    const result = await response.json();
 
-m.react('🕑');
-let txt = `> *Resultado De: ${text}*`;
-let img = res.image_link;
-let link = img;
+    if (!result.status) {
+      m.reply('Error al realizar la búsqueda.');
+      return;
+    }
 
-await conn.sendMessage(m.chat, { image: { url: link }, caption: txt }, {quoted: fkontak});   
-m.react('✅');
+    let replyMessage = `${emoji2} Resultados de la búsqueda:\n\n`;
+    result.data.slice(0, 1).forEach((item, index) => {
+      replyMessage += `☁️ *${index + 1}. ${item.title}*\n`;
+      replyMessage += `📰 *${item.description}*\n`;
+      replyMessage += `🔗 URL: ${item.url}`;
+    });
 
-} catch (e) {
-m.reply(`Error: ${e.message}`);
-m.react('✖️');
- }
-}
+m.react('✅')
 
-handler.command = ['imagen', 'image'];
+    m.reply(replyMessage);
+  } catch (error) {
+    console.error(`${msm} Error al realizar la solicitud a la API:`, error);
+    m.reply(`${msm} Ocurrió un error al obtener los resultados.`);
+  }
+};
+
+handler.command = ['google'];
+
+export default handler; fetch from 'node-fetch';
+
+let handler = async (m, { text }) => {
+  if (!text) {
+    m.reply(`${emoji} Por favor, proporciona el termino de búsqueda que deseas realizar a *Google*.`);
+    return;
+  }
+
+  const apiUrl = `https://delirius-apiofc.vercel.app/search/googlesearch?query=${encodeURIComponent(text)}`;
+
+  try {
+    const response = await fetch(apiUrl);
+    const result = await response.json();
+
+    if (!result.status) {
+      m.reply('Error al realizar la búsqueda.');
+      return;
+    }
+
+    let replyMessage = `${emoji2} Resultados de la búsqueda:\n\n`;
+    result.data.slice(0, 1).forEach((item, index) => {
+      replyMessage += `☁️ *${index + 1}. ${item.title}*\n`;
+      replyMessage += `📰 *${item.description}*\n`;
+      replyMessage += `🔗 URL: ${item.url}`;
+    });
+
+m.react('✅')
+
+    m.reply(replyMessage);
+  } catch (error) {
+    console.error(`${msm} Error al realizar la solicitud a la API:`, error);
+    m.reply(`${msm} Ocurrió un error al obtener los resultados.`);
+  }
+};
+
+handler.command = ['google'];
 
 export default handler;
