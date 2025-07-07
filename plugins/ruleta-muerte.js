@@ -47,10 +47,7 @@ let handler = async (m, { conn, groupMetadata }) => {
         mentions: [elegido] // Ensure the selected user is mentioned.
     });
 
-    // Wait for 2 seconds before kicking the user.
-    await delay(2000);
-
-    // Attempt to remove the participant from the group.
+    // Attempt to remove the participant from the group immediately.
     try {
         await conn.groupParticipantsUpdate(m.chat, [elegido], 'remove');
         // You might want to add a success message here.
@@ -70,5 +67,5 @@ handler.botAdmin = true; // Bot must be an admin in the group.
 
 export default handler;
 
-// Utility function for delay.
-const delay = ms => new Promise(res => setTimeout(res, ms));
+// The utility function for delay is no longer needed if you remove its call.
+// const delay = ms => new Promise(res => setTimeout(res, ms));
