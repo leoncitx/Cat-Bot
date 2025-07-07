@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 
 // Mensajes predefinidos para reutilización
 const mssg = {
-    noLink: (platform) => `❗️ *Por favor, proporciona un enlace de ${platform}*.`,
+    noLink: (platform) => `🥕 *Por favor, proporciona un enlace de ${platform}*.`,
     invalidLink: (platform) => `❗️ El enlace proporcionado no es válido de ${platform}. Por favor verifica el enlace.`,
     error: '❗️ Ocurrió un error al intentar procesar la descarga 🧐.',
     fileNotFound: '❗️ No se pudo encontrar el archivo en Mediafire. Asegúrate de que el enlace sea correcto.',
