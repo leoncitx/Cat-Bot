@@ -1,50 +1,56 @@
-import { areJidsSameUser } from '@whiskeysockets/baileys';
+import { areJidsSameUser, jidNormalizedUser } from '@whiskeysockets/baileys';
 
-export async function before(m, { participants, conn }) {
-    // Si no es un grupo, no hacemos nada.
-    if (!m.isGroup) return false;
+const JIDS_BOTS_PERMITIDOS = [
+    '573244008977@s.whatsapp.net',
+    '5491164352241@s.whatsapp.net',
+    '5219921140671@s.whatsapp.net',
+    '5219512757330@s.whatsapp.net',
+    '51946359391@s.whatsapp.net' 
+];
 
-    // Obtenemos la configuración del chat, si no está activado antiBot2, salimos.
-    let chat = global.db.data.chats[m.chat] || {};
-    if (!chat.antiBot2) return false;
+export async function participantsUpdate(conn, update) {
+    const { id: groupId, participants, action } = update; 
 
-    try {
-        // Verificamos que conn.user y conn.user.jid estén definidos para evitar errores.
-        if (!conn.user || !conn.user.jid) {
-            console.error('Error: conn.user o conn.user.jid no definido en _antibot2.js');
-            return true; // Indicamos que el plugin manejó el evento.
+    if (action !== 'add' || !groupId.endsWith('@g.us')) {
+        return;
+    }
+
+    let chat = global.db.data.chats[groupId] || {};
+
+    if (!chat.antiOtherBots) {
+        return;
+    }
+
+    console.log(`[AntiOtherBots] Detectada nueva adición de participante(s) en el grupo: ${groupId}`);
+
+    for (const participantJid of participants) {
+        const normalizedParticipantJid = jidNormalizedUser(participantJid);
+
+        const isPermittedBot = JIDS_BOTS_PERMITIDOS.some(permittedJid =>
+            areJidsSameUser(normalizedParticipantJid, permittedJid)
+        );
+
+        if (!isPermittedBot) {
+            console.log(`⚠️ [AntiOtherBots] Bot no autorizado detectado uniéndose: ${normalizedParticipantJid.split('@')[0]} en el grupo ${groupId}.`);
+            try {
+                await conn.sendMessage(groupId, { 
+                    text: `🤖 ¡Alerta! Detecté un bot no autorizado (${normalizedParticipantJid.split('@')[0]}) uniéndose a este grupo. Lo expulsaré automáticamente para mantener el orden.`,
+                    mentions: [normalizedParticipantJid] 
+                });
+                
+                await conn.groupParticipantsUpdate(groupId, [normalizedParticipantJid], 'remove');
+                
+                console.log(`➡️ [AntiOtherBots] Bot ${normalizedParticipantJid.split('@')[0]} fue expulsado exitosamente del grupo: ${groupId}.`);
+            } catch (e) {
+                console.error(`❌ Error [AntiOtherBots] al intentar expulsar a ${normalizedParticipantJid.split('@')[0]} del grupo ${groupId}:`, e);
+                
+                await conn.sendMessage(groupId, { 
+                    text: `🚫 Atención: Intenté expulsar al bot no autorizado (${normalizedParticipantJid.split('@')[0]}) pero fallé, probablemente debido a que no tengo permisos de administrador en este grupo. Por favor, hazme administrador para que pueda proteger el grupo.`,
+                    mentions: [normalizedParticipantJid] 
+                });
+            }
+        } else {
+            
         }
-
-        // Obtenemos el JID del bot principal. Asumimos que está en global.conn.user?.jid.
-        let botJid = global.conn.user?.jid;
-        if (!botJid) {
-            console.error('Error: global.conn.user.jid no definido en _antibot2.js');
-            return true; // Indicamos que el plugin manejó el evento.
-        }
-
-        // Comparamos los JIDs para ver si este es el bot principal. Si lo es, no hace nada.
-        if (areJidsSameUser(botJid, conn.user.jid)) {
-            return false; // Es el bot principal, no es necesario que se salga.
-        }
-
-        // Verificamos si el bot principal ya está en el grupo.
-        let isBotPresent = participants.some(p => areJidsSameUser(botJid, p.id));
-        if (isBotPresent) {
-            // Si el bot principal está presente, este bot se saldrá del grupo después de 5 segundos.
-            setTimeout(async () => {
-                try {
-                    await conn.reply(m.chat, `《✧》En este grupo está el bot principal, por lo que me saldré para no hacer spam.`, m);
-                    await conn.groupLeave(m.chat);
-                } catch (e) {
-                    console.error('Error al intentar salir del grupo en _antibot2.js:', e);
-                }
-            }, 5000); // Espera 5 segundos antes de salir.
-            return true; // Indicamos que el plugin manejó el evento.
-        }
-
-        return false; // Si el bot principal no está, continúa con el procesamiento normal.
-    } catch (e) {
-        console.error('Error en _antibot2.js:', e);
-        return true; // Evita que un error detenga el bot.
     }
 }
