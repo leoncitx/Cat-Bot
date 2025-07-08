@@ -162,17 +162,6 @@ export async function handler(chatUpdate) {
         const sendNum = m?.sender?.replace(/[^0-9]/g, '')
         const isROwner = [conn.decodeJid(global.conn?.user?.id), ...global.owner?.map(([number]) => number)].map(v => (v || '').replace(/[^0-9]/g, '')).includes(sendNum)
 
-// WillZek Estuvo Aqui 💙
-const botIds = [
-  this?.decodeJid?.(this?.user?.id),
-  ...(global.owner?.map(([n]) => n) || [])
-].map(v => v?.replace(/[^0-9]/g, '')).filter(Boolean)
-
-const isPremSubs = botIds.includes(sendNum) || 
-  (global.conns || []).some(conn =>
-    conn?.user?.jid?.replace(/[^0-9]/g, '') === sendNum &&
-    conn?.ws?.socket?.readyState !== 3
-  ) // 💙
         const isOwner = isROwner || m.fromMe
         const isMods = isOwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
         const isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender) || _user.prem == true
