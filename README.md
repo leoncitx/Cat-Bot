@@ -33,3 +33,9 @@
 │ 📢 [`Canal de actualizaciones`](https://whatsapp.com/channel/0029Vb8kvXUBfxnzYWsbS81I)
 │
 ╰────────────⊰ sᥲsᥙkᥱ ᑲ᥆𝗍 mძ ⊱────────────╯
+### `Delux Host 👑`
+
+`Contacta`
+
+👑 [Sebas](https://Wa.me/5491166887146)
+👑 [Keni](https://Wa.me/5493865642938)
