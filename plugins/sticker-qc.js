@@ -1,50 +1,26 @@
-import { sticker } from '../lib/sticker.js';
-import axios from 'axios';
-
-const emoji = '🔥';
-const emoji2 = '🎖️';
+import { sticker } from '../lib/sticker.js'
+import axios from 'axios'
 
 const handler = async (m, { conn, args, usedPrefix, command }) => {
-    let text;
-    // Determine the text to be used for the quote
+    let text
     if (args.length >= 1) {
-        text = args.slice(0).join(" ");
+        text = args.slice(0).join(" ")
     } else if (m.quoted && m.quoted.text) {
-        text = m.quoted.text;
+        text = m.quoted.text
     } else {
-        return conn.reply(m.chat, `${emoji} Please provide text or quote a message to create a sticker!`, m);
+        return conn.reply(m.chat, `Por favor, ingresa un texto para crear el sticker.`, m)
     }
 
-    if (!text) {
-        return conn.reply(m.chat, `${emoji} Please provide text or quote a message to create a sticker!`, m);
-    }
+    if (!text) return conn.reply(m.chat, `Por favor, ingresa un texto para crear el sticker.`, m)
 
-    // Determine the mentioned user or sender
-    const who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender;
-    const mentionRegex = new RegExp(`@${who.split('@')[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*`, 'g');
-    
-    // Remove mention from the text for the quote
-    const mishi = text.replace(mentionRegex, '').trim();
+    const mentionedUser = m.quoted ? m.quoted.sender : m.sender
+    const pp = await conn.profilePictureUrl(mentionedUser).catch((_) => 'https://telegra.ph/file/24fa902ead26340f3df2c.png')
+    const nombre = await conn.getName(mentionedUser)
 
-    // Enforce character limit
-    if (mishi.length > 40) {
-        return conn.reply(m.chat, `${emoji2} The text cannot exceed 40 characters.`, m);
-    }
+    const mentionRegex = new RegExp(`@${mentionedUser.split('@')[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*`, 'g')
+    const mishi = text.replace(mentionRegex, '')
 
-    let pp;
-    let nombre;
-
-    try {
-        pp = await conn.profilePictureUrl(who);
-    } catch {
-        pp = 'https://telegra.ph/file/24fa902ead26340f3df2c.png'; // Default profile picture
-    }
-
-    try {
-        nombre = await conn.getName(who);
-    } catch {
-        nombre = 'Unknown'; // Default name
-    }
+    if (mishi.length > 30) return conn.reply(m.chat, `✧ El texto no puede tener más de 30 caracteres.`, m)
 
     const obj = {
         "type": "quote",
@@ -64,40 +40,23 @@ const handler = async (m, { conn, args, usedPrefix, command }) => {
             "text": mishi,
             "replyMessage": {}
         }]
-    };
-
-    try {
-        // !!! IMPORTANT: Replace 'https://bot.lyo.su/quote/generate' with a working API endpoint !!!
-        const json = await axios.post('https://api.example.com/generate-quote-sticker', obj, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        // Ensure the API response structure matches what you expect (e.g., json.data.result.image)
-        if (!json.data || !json.data.result || !json.data.result.image) {
-            return conn.reply(m.chat, `${emoji} Error: Could not generate sticker. The API response was unexpected.`, m);
-        }
-
-        const buffer = Buffer.from(json.data.result.image, 'base64');
-        let stiker = await sticker(buffer, false, global.botname, global.nombre);
-
-        if (stiker) {
-            return conn.sendFile(m.chat, stiker, 'quote_sticker.webp', '', m);
-        } else {
-            return conn.reply(m.chat, `${emoji} Failed to create sticker.`, m);
-        }
-
-    } catch (error) {
-        console.error('Error generating quote sticker:', error);
-        return conn.reply(m.chat, `${emoji} An error occurred while trying to generate the sticker. Please check the API endpoint or try again later.`, m);
     }
-};
 
-handler.help = ['qc'];
-handler.tags = ['sticker'];
-handler.group = true;
-handler.register = true;
-handler.command = ['qc'];
+    const json = await axios.post('https://bot.lyo.su/quote/generate', obj, { headers: { 'Content-Type': 'application/json' } })
+    const buffer = Buffer.from(json.data.result.image, 'base64')
 
-export default handler;
+    let userId = m.sender
+    let packstickers = global.db.data.users[userId] || {}
+    let texto1 = packstickers.text1 || global.packsticker
+    let texto2 = packstickers.text2 || global.packsticker2
+
+    let stiker = await sticker(buffer, false, texto1, texto2)
+    if (stiker) return conn.sendFile(m.chat, stiker, 'sticker.webp', '', m)
+}
+
+handler.help = ['qc']
+handler.tags = ['sticker']
+handler.group = true
+handler.command = ['qc']
+
+export default handler
