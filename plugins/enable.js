@@ -134,14 +134,14 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
       chat.antiLink = isEnable;
       break;
 
-    case 'antibot2':
+    case 'antibot':
       if (m.isGroup) {
         if (!(isAdmin || isOwner)) {
           global.dfail('admin', m, conn);
           throw false;
         }
       }
-      chat.antiBot2 = isEnable;
+      chat.antiBot = isEnable;
       break;
 
     case 'modoadmin':
