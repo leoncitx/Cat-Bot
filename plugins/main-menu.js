@@ -7,9 +7,9 @@ const clockString = ms => {
   return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
 };
 
-let img = 'https://qu.ax/Zphmw.jpg'; // Agregamos la URL de la imagen aquí
+let img = 'https://qu.ax/Zphmw.jpg'; 
 
-  let menuText = `
+let menuText = `
 ╭─❒ 「 sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀 」
 │ 👤 *Nombre:* %name
 │ 🎖 *Nivel:* %level | *XP:* %exp/%max
@@ -79,7 +79,6 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
       logo: "🖌️",
       premium: "🎖️",
       configuración: "⚙️",
-      premium: "💎",
       descargas: "📥",
       herramientas: "🛠️",
       nsfw: "🔞",
@@ -96,7 +95,8 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
       return `╭─「 ${emoji} *${title.toUpperCase()}* 」\n${commandEntries}\n${sectionDivider}`;
     }).join('\n\n');
 
-    const finalHeader = menuHeader
+    // Cambiado de 'menuHeader' a 'menuText' para la sustitución de variables
+    const finalHeader = menuText
       .replace('%name', userName)
       .replace('%level', level)
       .replace('%exp', exp - min)
@@ -109,13 +109,15 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
     const fullMenu = `${finalHeader}\n\n${menuBody}\n\n${menuFooter}`;
 
     try {
+      // Cambiado de 'video: { url: menuMediaUrl }' a 'image: { url: img }'
       await conn.sendMessage(m.chat, {
-        video: { url: menuMediaUrl },
+        image: { url: img },
         caption: fullMenu,
         mentions: [m.sender]
       }, { quoted: m });
-    } catch (videoError) {
-      console.error("Error al enviar el video del menú, enviando como texto:", videoError);
+    } catch (sendError) {
+      // Cambiado 'videoError' a 'sendError' y el mensaje de error para reflejar que se intenta enviar una imagen
+      console.error("Error al enviar la imagen del menú, enviando como texto:", sendError);
       await conn.reply(m.chat, fullMenu, m);
     }
 
