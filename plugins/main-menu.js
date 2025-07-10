@@ -7,7 +7,7 @@ const clockString = ms => {
   return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
 };
 
-let img = 'https://qu.ax/Zphmw.jpg'; 
+let img = 'https://files.catbox.moe/6dewf4.jpg'; 
 
 let menuText = `
 ╭─❒ 「 sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀 」
