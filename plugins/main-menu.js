@@ -7,9 +7,9 @@ const clockString = ms => {
   return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
 };
 
-const menuMediaUrl = 'https://qu.ax/Zphmw.jpg'; // Agregamos la URL de la imagen aquí
+let img = 'https://qu.ax/Zphmw.jpg'; // Agregamos la URL de la imagen aquí
 
-const menuHeader = `
+  let menuText = `
 ╭─❒ 「 sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀 」
 │ 👤 *Nombre:* %name
 │ 🎖 *Nivel:* %level | *XP:* %exp/%max
