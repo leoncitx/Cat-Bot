@@ -1,101 +1,92 @@
-const fs = require("fs").promises; // Usamos promesas para I/O asíncrono
-const path = require("path");
-const { downloadContentFromMessage } = require("@whiskeysockets/baileys");
+import fs from 'fs';  
+import path from 'path';  
+import fetch from "node-fetch";
+import crypto from "crypto";
+import { FormData, Blob } from "formdata-node";
+import { fileTypeFromBuffer } from "file-type";
 
-// -----------------------------------------------------------
-// Funciones auxiliares para gestión de datos
-// -----------------------------------------------------------
+// Define the missing variables
+const emoji = '🖼️'; 
+const emoji2 = '🚫'; 
+const msm = '⚠️'; 
 
-/**
- * Lee el archivo de configuración setmenu.json.
- * @returns {Promise<object>} El objeto de datos del menú.
- */
-const readMenuData = async () => {
-    const filePath = path.resolve("setmenu.json");
-    try {
-        const data = await fs.readFile(filePath, "utf8");
-        return JSON.parse(data);
-    } catch (error) {
-        // Si el archivo no existe o está vacío, devuelve un objeto vacío.
-        if (error.code === 'ENOENT' || error.name === 'SyntaxError') {
-            return {};
-        }
-        throw error;
+let handler = async (m, { conn, isRowner }) => {
+
+  if (!m.quoted || !/image/.test(m.quoted.mimetype)) return m.reply(`${emoji} Por favor, responde a una imagen con el comando *setbanner* para actualizar la foto del menu.`);
+
+  try {
+
+    const media = await m.quoted.download();
+    let link = await catbox(media);
+
+    if (!isImageValid(media)) {
+      return m.reply(`${emoji2} El archivo enviado no es una imagen válida.`);
     }
+
+    global.banner = `${link}`;  
+
+    await conn.sendFile(m.chat, media, 'banner.jpg', `${emoji} Banner actualizado.`, m);
+
+  } catch (error) {
+    console.error(error);
+    m.reply(`${msm} Hubo un error al intentar cambiar el banner.`);
+  }
 };
 
-/**
- * Guarda los datos actualizados en setmenu.json.
- * @param {object} data El objeto de datos a guardar.
- */
-const writeMenuData = async (data) => {
-    const filePath = path.resolve("setmenu.json");
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+
+const isImageValid = (buffer) => {
+  const magicBytes = buffer.slice(0, 4).toString('hex');
+
+
+  if (magicBytes === 'ffd8ffe0' || magicBytes === 'ffd8ffe1' || magicBytes === 'ffd8ffe2') {
+    return true;
+  }
+
+
+  if (magicBytes === '89504e47') {
+    return true;
+  }
+
+
+  if (magicBytes === '47494638') {
+    return true;
+  }
+
+  return false; 
 };
 
-// -----------------------------------------------------------
-// Handler principal del comando setmenu
-// -----------------------------------------------------------
+handler.help = ['setbanner'];
+handler.tags = ['tools'];
+handler.command = ['setbanner'];
+handler.rowner = true;
 
-const handler = async (msg, { conn, text }) => {
-    const chatJid = msg.key.remoteJid;
+export default handler;
 
-    try {
-        // 1. Verificación de permisos y origen del mensaje
-        // Para que solo el bot pueda usar el comando para su propio número.
-        if (!msg.key.fromMe) {
-            return await conn.sendMessage(chatJid, {
-                text: "❌ Este comando solo puede ser ejecutado por el *subbot*."
-            }, { quoted: msg });
-        }
+function formatBytes(bytes) {
+  if (bytes === 0) {
+    return "0 B";
+  }
+  const sizes = ["B", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`;
+}
 
-        // 2. Extracción de información del mensaje citado
-        const quotedMsg = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
-        const imageMsg = quotedMsg?.imageMessage;
+async function catbox(content) {
+  const { ext, mime } = (await fileTypeFromBuffer(content)) || {};
+  const blob = new Blob([content.toArrayBuffer()], { type: mime });
+  const formData = new FormData();
+  const randomBytes = crypto.randomBytes(5).toString("hex");
+  formData.append("reqtype", "fileupload");
+  formData.append("fileToUpload", blob, randomBytes + "." + ext);
 
-        // 3. Verificación de la entrada (Imagen citada y texto proporcionado)
-        if (!imageMsg || !text) {
-            return await conn.sendMessage(chatJid, {
-                text: `📌 *Uso correcto del comando:*\n\nResponde a una *imagen* con el comando *!setmenu* seguido del nombre del bot.\n\nEjemplo:\n*!setmenu MiBotNombre*`
-            }, { quoted: msg });
-        }
+  const response = await fetch("https://catbox.moe/user/api.php", {
+    method: "POST",
+    body: formData,
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36",
+    },
+  });
 
-        // 4. Descarga de la imagen citada
-        const stream = await downloadContentFromMessage(imageMsg, "image");
-        let buffer = Buffer.alloc(0);
-        for await (const chunk of stream) {
-            buffer = Buffer.concat([buffer, chunk]);
-        }
-        const base64Image = buffer.toString("base64");
-
-        // 5. Preparación de los datos y guardado
-        // Usamos el JID del bot como clave única.
-        const botId = conn.user.id.split(":")[0] + "@s.whatsapp.net";
-        
-        const menuData = await readMenuData();
-        menuData[botId] = {
-            nombre: text,
-            imagen: base64Image
-        };
-
-        await writeMenuData(menuData);
-
-        // 6. Confirmación de éxito
-        await conn.sendMessage(chatJid, {
-            text: `✅ Menú personalizado guardado:\n*Nombre:* ${text}\n*Imagen:* Aplicada correctamente.`
-        }, { quoted: msg });
-
-        await conn.sendMessage(chatJid, {
-            react: { text: "✅", key: msg.key }
-        });
-
-    } catch (e) {
-        console.error("❌ Error en setmenu:", e);
-        await conn.sendMessage(chatJid, {
-            text: "❌ Ocurrió un error al procesar la solicitud para guardar el menú personalizado."
-        }, { quoted: msg });
-    }
-};
-
-handler.command = ["setmenu"];
-module.exports = handler;
+  return await response.text();
+}
