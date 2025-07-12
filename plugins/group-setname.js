@@ -1,10 +1,15 @@
-let handler = async (m, { conn, text, isRowner }) => {
+let handler = async (m, { conn, text, isRowner}) => {
   if (!text) return m.reply(`Por favor, proporciona un nombre para el bot.\n> Ejemplo: #setname Nombre/Texto`);
 
   const names = text.split('/');
-  if (names.length !== 2) return m.reply(`Por favor, proporciona ambos nombres separados por una barra (/) en el formato: nombre1/nombre2.`);
+  if (names.length!== 2) return m.reply(`Por favor, proporciona ambos nombres separados por una barra (/) en el formato: nombre1/nombre2.`);
 
   global.botname = names[0].trim();
+
+  // Define aquí la etiqueta y el emoji2 si quieres que aparezcan
+  const etiqueta = 'MyBot'; // Puedes personalizar este texto
+  const emoji2 = '🤖';       // Elige el emoji que quieras
+
   const texto1bot = ` • Powered By ${etiqueta}`;
   global.textbot = `${names[1].trim()}${texto1bot}`;
 
@@ -14,6 +19,5 @@ let handler = async (m, { conn, text, isRowner }) => {
 handler.help = ['setname'];
 handler.tags = ['tools'];
 handler.command = ['setname'];
-
 
 export default handler;
