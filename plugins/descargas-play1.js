@@ -14,17 +14,16 @@ const handler = async (m, { conn, text, command }) => {
     const cap = `
 🌀═══════「 𝐘𝐎𝐔𝐓𝐔𝐁𝐄 𝐏𝐋𝐀𝐘 」═══════🌀
 
-📺  **Título:** ${video.title}
-🎙️  **Autor:** ${video.author.name}
-⏳  **Duración:** ${video.duration.timestamp}
-👁️  **Vistas:** ${video.views}
-🔗  **URL:** ${video.url}
+📺  *Título:* ${video.title}
+🎙️  *Autor:* ${video.author.name}
+⏳  *Duración:* ${video.duration.timestamp}
+👁️  *Vistas:* ${video.views}
+🔗  *URL:* ${video.url}
 
 🌀═══════「 𝐁𝐎𝐓 𝐌𝐔𝐒𝐈𝐂 」═══════🌀
 `;
     await conn.sendFile(m.chat, await (await fetch(video.thumbnail)).buffer(), "image.jpg", cap, m);
 
-    // Ahora se usa "play1" para el audio (MP3)
     if (command === "play1") {
       try {
     const api = await (await fetch(`https://api.sylphy.xyz/download/ytmp3?url=${video.url}&apikey=Sylphiette's`)).json()
@@ -50,7 +49,6 @@ const handler = async (m, { conn, text, command }) => {
     }
 }
 
-// Se han actualizado los comandos en el help y el command handler
 handler.help = ["play1", "play2"];
 handler.tags = ["download"];
 handler.command = ["play1", "play2", "playvid"];
