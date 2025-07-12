@@ -16,8 +16,6 @@ let handler = async (m, { conn, isRowner}) => {
       return m.reply(`⚠️ El archivo enviado no es una imagen válida.`);
 }
 
-    // Ruta válida dentro del proyecto
-    const filename = path.join(process.cwd(), 'src', 'banner.jpg');
 
     fs.writeFileSync(filename, Buffer.from(media)); // Asegura que sea un Buffer
 
