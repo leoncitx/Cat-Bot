@@ -32,7 +32,7 @@ const handler = async (m, { conn, text, command }) => {
         } catch (error) {
           return error.message
         }
-    } else if (command === "play2" || command === "playvid") {
+    } else if (command === "play3" || command === "playvid") {
     try {
       const api = await (await fetch(`https://api.sylphy.xyz/download/ytmp4?url=${video.url}&apikey=Sylphiette's`)).json()
       let dl = api.res.url
@@ -49,7 +49,7 @@ const handler = async (m, { conn, text, command }) => {
     }
 }
 
-handler.help = ["play1", "play2"];
+handler.help = ["play1", "play3"];
 handler.tags = ["download"];
-handler.command = ["play1", "play2", "playvid"];
+handler.command = ["play1", "play3", "playvid"];
 export default handler;
