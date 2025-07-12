@@ -27,7 +27,7 @@ const handler = async (m, { conn, text, command}) => {
   await conn.sendFile(m.chat, await (await fetch(video.thumbnail)).buffer(), "thumb.jpg", info, m);
 
   try {
-    if (command === "play") {
+    if (command === "play1") {
       const api = await (await fetch(`https://api.sylphy.xyz/download/ytmp3?url=${video.url}`)).json();
       const audioUrl = api?.res?.url;
       if (!audioUrl) throw new Error("🎧 El enlace de audio no está disponible.");
@@ -41,7 +41,7 @@ const handler = async (m, { conn, text, command}) => {
       await m.react("✅");
 }
 
-    if (command === "play2" || command === "playvid") {
+    if (command === "play3" || command === "playvid") {
       const api = await (await fetch(`https://api.sylphy.xyz/download/ytmp4?url=${video.url}`)).json();
       const videoUrl = api?.res?.url;
       if (!videoUrl) throw new Error("📹 El enlace de video no está disponible.");
