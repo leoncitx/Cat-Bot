@@ -16,13 +16,14 @@ let handler = async (m, { conn, isRowner}) => {
       return m.reply(`⚠️ El archivo enviado no es una imagen válida.`);
 }
 
-    const filename = path.join(global.__dirname || process.cwd(), './src/banner.jpg');
+    // Ruta válida dentro del proyecto
+    const filename = path.join(process.cwd(), 'src', 'banner.jpg');
 
-    fs.writeFileSync(filename, media); // Guarda la imagen localmente
+    fs.writeFileSync(filename, Buffer.from(media)); // Asegura que sea un Buffer
 
-    global.banner = filename; // Asigna la ruta del archivo como nuevo banner
+    global.banner = filename; // Se puede usar esta ruta en el render del menú
 
-    m.reply(`✅ La imagen del menú ha sido actualizada correctamente.`);
+    m.reply(`✅ Banner actualizado correctamente.\nNuevo archivo: banner.jpg`);
 
 } catch (error) {
     console.error('[ERROR EN setbanner]', error);
@@ -34,4 +35,4 @@ handler.help = ['setbanner'];
 handler.tags = ['tools'];
 handler.command = ['setbanner'];
 
-export default handler; 
+export default handler;
