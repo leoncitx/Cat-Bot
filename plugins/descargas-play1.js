@@ -1,70 +1,57 @@
-import fetch from "node-fetch";
 import yts from "yt-search";
-
 const limit = 100;
+const handler = async (m, { conn, text, command }) => {
+  if (!text) return m.reply("🌀 Ingresa el nombre de un video o una URL de YouTube.");
+    m.react("🌱")
+    let res = await yts(text);
+    if (!res || !res.all || res.all.length === 0) {
+      return m.reply("No se encontraron resultados para tu búsqueda.");
+    }
 
-const handler = async (m, { conn, text, command}) => {
-  if (!text) return m.reply("🔍 *Escribe el nombre del video o pega un enlace de YouTube.*");
+    let video = res.all[0];
+    let total = Number(video.duration.seconds) || 0;
 
-  m.react("🔄");
+    const cap = `
+🌀═══════「 𝐘𝐎𝐔𝐓𝐔𝐁𝐄 𝐏𝐋𝐀𝐘 」═══════🌀
 
-  const search = await yts(text);
-  if (!search?.all?.length) return m.reply("❌ *No se encontraron resultados.*");
+📺  **Título:** ${video.title}
+🎙️  **Autor:** ${video.author.name}
+⏳  **Duración:** ${video.duration.timestamp}
+👁️  **Vistas:** ${video.views}
+🔗  **URL:** ${video.url}
 
-  const video = search.all[0];
+🌀═══════「 𝐁𝐎𝐓 𝐌𝐔𝐒𝐈𝐂 」═══════🌀
+`;
+    await conn.sendFile(m.chat, await (await fetch(video.thumbnail)).buffer(), "image.jpg", cap, m);
 
-  const info = `
-╭━━━🎧 𝗬𝗢𝗨𝗧𝗨𝗕𝗘 𝗣𝗟𝗔𝗬 𝗕𝗢𝗧 🎬━━━╮
-┃ 📌 *Título:* ${video.title}
-┃ 🧑‍🎤 *Autor:* ${video.author.name}
-┃ ⏱️ *Duración:* ${video.duration.timestamp}
-┃ 👁️ *Vistas:* ${video.views.toLocaleString()}
-┃ 🌐 *Enlace:* ${video.url}
-╰━━━━━━━━━━━━━━━━━━━━━━╯
-🎶 Descargando contenido solicitado...
-  `.trim();
-
-  await conn.sendFile(m.chat, await (await fetch(video.thumbnail)).buffer(), "thumb.jpg", info, m);
-
-  try {
+    // Ahora se usa "play1" para el audio (MP3)
     if (command === "play1") {
-      const api = await (await fetch(`https://api.sylphy.xyz/download/ytmp3?url=${video.url}`)).json();
-      const audioUrl = api?.res?.url;
-      if (!audioUrl) throw new Error("🎧 El enlace de audio no está disponible.");
-
-      await conn.sendMessage(m.chat, {
-        audio: { url: audioUrl},
-        mimetype: "audio/mpeg",
-        fileName: `${video.title}.mp3`
-}, { quoted: m});
-
-      await m.react("✅");
+      try {
+    const api = await (await fetch(`https://api.sylphy.xyz/download/ytmp3?url=${video.url}&apikey=Sylphiette's`)).json()
+ await conn.sendFile(m.chat, api.res.url, video.title, "", m);
+            await m.react("✔️");
+        } catch (error) {
+          return error.message
+        }
+    } else if (command === "play2" || command === "playvid") {
+    try {
+      const api = await (await fetch(`https://api.sylphy.xyz/download/ytmp4?url=${video.url}&apikey=Sylphiette's`)).json()
+      let dl = api.res.url
+      const res = await fetch(dl);
+      const cont = res.headers.get('Content-Length');
+      const bytes = parseInt(cont, 10);
+      const sizemb = bytes / (1024 * 1024);
+      const doc = sizemb >= limit;
+ await conn.sendFile(m.chat, dl, video.title, "", m, null, { asDocument: doc, mimetype: "video/mp4" });
+            await m.react("✔️");
+        } catch (error) {
+          return error.message
+        }
+    }
 }
 
-    if (command === "play3" || command === "playvid") {
-      const api = await (await fetch(`https://api.sylphy.xyz/download/ytmp4?url=${video.url}`)).json();
-      const videoUrl = api?.res?.url;
-      if (!videoUrl) throw new Error("📹 El enlace de video no está disponible.");
-
-      const response = await fetch(videoUrl);
-      const size = parseInt(response.headers.get("Content-Length") || "0", 10) / (1024 * 1024);
-      const asDoc = size>= limit;
-
-      await conn.sendMessage(m.chat, {
-        video: { url: videoUrl},
-        mimetype: "video/mp4",
-        caption: "📽️ Tu video está listo para ver o descargar",
-        fileName: `${video.title}.mp4`,
-...asDoc && { asDocument: true}
-}, { quoted: m});
-
-      await m.react("✅");
-}
-} catch (err) {
-    console.error("❌ Error:", err.message);
-    m.reply(`⚠️ *Error al procesar el archivo.*\n💬 Detalles: ${err.message}`);
-}
-};
-
-handler.command = ["play1", "play3"];
+// Se han actualizado los comandos en el help y el command handler
+handler.help = ["play1", "play2"];
+handler.tags = ["download"];
+handler.command = ["play1", "play2", "playvid"];
 export default handler;
