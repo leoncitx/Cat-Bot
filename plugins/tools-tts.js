@@ -1,45 +1,53 @@
-export const handler = async (m, { conn, args, usedPrefix, command }) => {
-  const texto = args.join(' ')
-  if (!texto) {
-    return conn.reply(
-      m.chat,
-      `✳️ *Uso correcto:*\n${usedPrefix + command} <texto>\n\n📌 *Ejemplo:*\n${usedPrefix + command} Hola, ¿cómo estás?`,
-      m
-    )
-  }
+const SpeakEngine = require("google-tts-api");
 
-  // Reacción de inicio
-  await conn.sendMessage(m.chat, { react: { text: '🔵', key: m.key } })
-
+const handler = async (msg, { conn, text, usedPrefix }) => {
   try {
-    const url = `https://api.siputzx.my.id/api/tools/ttsgoogle?text=${encodeURIComponent(texto)}`
-    const res = await fetch(url)
+    await conn.sendMessage(msg.key.remoteJid, {
+      react: { text: "🗣️", key: msg.key }
+    });
 
-    if (!res.ok) throw 'Error al obtener el audio.'
+    let textToSay = (text || "").trim();
 
-    const buffer = await res.arrayBuffer()
+    if (!textToSay && msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.conversation) {
+      textToSay = msg.message.extendedTextMessage.contextInfo.quotedMessage.conversation.trim();
+    }
 
-    await conn.sendMessage(
-      m.chat,
-      {
-        audio: Buffer.from(buffer),
-        mimetype: 'audio/mp4',
-        ptt: true
-      },
-      { quoted: m }
-    )
+    if (!textToSay) {
+      return await conn.sendMessage(msg.key.remoteJid, {
+        text: `✳️ *Uso correcto del comando:*\n\n📌 Ejemplo: *${usedPrefix}tts Hola mi amor* o responde a un mensaje con *${usedPrefix}tts*`
+      }, { quoted: msg });
+    }
 
-    // Reacción de éxito
-    await conn.sendMessage(m.chat, { react: { text: '🟢', key: m.key } })
+    await conn.sendPresenceUpdate('recording', msg.key.remoteJid);
 
-  } catch (e) {
-    console.error(e)
-    await conn.sendMessage(m.chat, { react: { text: '🔴', key: m.key } })
-    conn.reply(m.chat, '🔴 Ocurrió un error al generar el audio.', m)
+    const ttsUrl = SpeakEngine.getAudioUrl(textToSay, {
+      lang: "es",
+      slow: false,
+      host: "https://translate.google.com"
+    });
+
+    await conn.sendMessage(msg.key.remoteJid, {
+      audio: { url: ttsUrl },
+      ptt: true,
+      mimetype: 'audio/mpeg',
+      fileName: `tts.mp3`
+    }, { quoted: msg });
+
+    await conn.sendMessage(msg.key.remoteJid, {
+      react: { text: "✅", key: msg.key }
+    });
+
+  } catch (err) {
+    console.error("❌ Error en el comando tts:", err);
+    await conn.sendMessage(msg.key.remoteJid, {
+      text: "❌ Ocurrió un error al procesar el texto a voz. Intenta más tarde."
+    }, { quoted: msg });
+
+    await conn.sendMessage(msg.key.remoteJid, {
+      react: { text: "❌", key: msg.key }
+    });
   }
-}
+};
 
-handler.help = ['tts <texto-voz>']
-handler.tags = ['herramientas']
-handler.command = /^tts$/i
-export default handler
+handler.command = ['tts'];
+module.exports = handler;
