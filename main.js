@@ -267,6 +267,7 @@ if (opcion == '1' || methodCodeQR) {
     console.log(chalk.yellow('🌿 Escanea el código QR.'));
  }}
   if (connection == 'open') {
+  autopost(conn)
     console.log(chalk.yellow('🌱 Conectado correctamente.'));
   }
 let reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
