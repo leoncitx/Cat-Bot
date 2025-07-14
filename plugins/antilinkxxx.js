@@ -27,7 +27,7 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, 
         if (isBotAdmin) {
             await conn.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: false, id: bang, participant: delet } });
             let responseb = await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove');
-            if (responseb[0].status === "404") return;
+            // if (responseb[0].status === "404") return;
         }
     }
     return !0;  
