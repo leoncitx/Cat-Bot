@@ -1,45 +1,50 @@
-const handler = async (m, {conn, args, groupMetadata, participants, usedPrefix, command, isBotAdmin, isSuperAdmin}) => {
-  if (!args[0]) return m.reply(`* 🎩 Ingrese EL Mensaje + El Prefijo\n> Ejemplo: ${usedPrefix + command} 52*`);
-  if (isNaN(args[0])) return m.reply(`*🍭 Ingrese Algun Prefijo De Un Pais: ${usedPrefix + command} 52*`);
-  const lol = args[0].replace(/[+]/g, '');
-  const pesan = args.join` `;
-  const colombia = `🎩 *Mensaje:* ${pesan}`;
-  const ps = participants.map((u) => u.id).filter((v) => v !== conn.user.jid && v.startsWith(lol || lol));
-  const bot = global.db.data.settings[conn.user.jid] || {};
-  if (ps == '') return m.reply(`*🍭 Aqui No Hay Ningun Numero Con El Prefijo +${lol}*`);
-  const numeros = ps.map((v)=> '┋💙 @' + v.replace(/@.+/, ''));
-  const delay = (time) => new Promise((res)=>setTimeout(res, time));
-  
-  switch (command) {
-    case 'hidnum': 
-    case 'tagnum':
-      // This sends the message and tags the users
-      conn.reply(m.chat, `*☄️ MENSAJE ESPECIAL PARA +${lol} QUE ESTAN EN ESTE GRUPO:*\n` + `${colombia}\n\n` + numeros.join`\n`, m, {mentions: ps});
+const delay = ms => new Promise(res => setTimeout(res, ms))
 
-      // The code for hidetagnum functionality (if intended to follow the message)
-      const ownerGroup = m.chat.split`-`[0] + '@s.whatsapp.net';
-      const users = participants.map((u) => u.id).filter((v) => v !== conn.user.jid && v.startsWith(lol || lol));
-      
-      for (const user of users) {
-        const error = `@${user.split('@')[0]} ʏᴀ ʜᴀ sɪᴅᴏ ᴇʟɪᴍɪɴᴀᴅᴏ ᴏ ʜᴀ ᴀʙᴀɴᴅᴏɴᴀᴅᴏ ᴇʟ ɢʀᴜᴘᴏ*`;
-        
-        // Ensure you have the necessary permissions and the user meets the criteria before attempting removal
-        if (user !== ownerGroup + '@s.whatsapp.net' && user !== global.conn.user.jid && user !== global.owner + '@s.whatsapp.net' && user.startsWith(lol || lol) && user !== isSuperAdmin && isBotAdmin && bot.restrict) {
-          
-          await delay(2000);
-          const responseb = await conn.groupParticipantsUpdate(m.chat, [user], 'remove');
-          
-          if (responseb[0].status === '404') m.reply(error, m.chat, {mentions: conn.parseMention(error)});
-          await delay(10000); // 10 second delay between removals
-        } else {
-          // Changed from return m.reply() to m.reply() to continue the loop if possible, or just skip if the user shouldn't be removed
-          m.reply('*✨️ 𝙴𝚁𝚁𝙾𝚁: No se pudo eliminar a un usuario.*');
-        }
-      }
-      break; // This break is now at the end of the combined case block.
-  }
-};
-handler.command = /^(hidnum|hidetagnum)$/i;
-handler.group = handler.botAdmin = handler.admin = true;
-handler.fail = null;
-export default handler;
+const handler = async (m, { conn, args, participants, usedPrefix, command, isBotAdmin}) => {
+  // Validación de entrada
+  if (args.length < 2) {
+    return m.reply(`📝 Uso correcto:\n${usedPrefix}${command} <prefijo> <mensaje>\nEjemplo: ${usedPrefix}${command} 52 Hola a todos los del +52`)
+}
+
+  // Procesamiento del prefijo y el mensaje
+  const prefijo = args[0].replace(/[+]/g, '')
+  const texto = args.slice(1).join(' ')
+  const botSettings = global.db.data.settings[conn.user.jid] || {}
+
+  // Filtrado de participantes con el prefijo
+  const objetivo = participants
+.map(u => u.id)
+.filter(id => id.startsWith(prefijo) && id!== conn.user.jid)
+
+  if (!objetivo.length) {
+    return m.reply(`📭 No encontré usuarios con prefijo +${prefijo} en este grupo.`)
+}
+
+  const menciones = objetivo.map(id => '@' + id.split('@')[0])
+
+  // Envío del mensaje con menciones ocultas
+  await conn.sendMessage(m.chat, {
+    text: `💌 *Mensaje para usuarios con prefijo +${prefijo}:*\n\n${texto}`,
+    mentions: objetivo
+}, { quoted: m})
+
+  // Expulsión opcional
+  if (isBotAdmin && botSettings.restrict) {
+    for (const usuario of objetivo) {
+      await delay(3000)
+      const respuesta = await conn.groupParticipantsUpdate(m.chat, [usuario], 'remove')
+      if (respuesta?.[0]?.status === '404') {
+        const errorMsg = `⚠️ @${usuario.split('@')[0]} no se pudo eliminar o ya no está en el grupo.`
+        await m.reply(errorMsg, m.chat, { mentions: conn.parseMention(errorMsg)})
+}
+}
+}
+}
+
+handler.command = /^(hidetagnum)$/i
+handler.group = true
+handler.botAdmin = true
+handler.admin = true
+handler.fail = null
+
+export default handler
