@@ -10,7 +10,7 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, 
     const user = `@${m.sender.split`@`[0]}`;
     const groupAdmins = participants.filter(p => p.admin);
     const listAdmin = groupAdmins.map((v, i) => `*» ${i + 1}. @${v.id.split('@')[0]}*`).join('\n');
-    let bot = global.db.data.settings[this.user.jid] || {};
+    // let bot = global.db.data.settings[this.user.jid] || {};
     const isAdultLink = m.text ? adultContentRegex.exec(m.text) : null;
     
     if (chat.antiLinkxxx && isAdultLink && !isAdmin) {
