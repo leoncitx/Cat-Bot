@@ -11,6 +11,7 @@ let handler = async (event, { conn}) => {
   const forbidPrefixes = [
     "212", 
     "265", 
+    "856",
     "234", 
     "258", 
     "263", 
