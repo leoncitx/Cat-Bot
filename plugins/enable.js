@@ -68,13 +68,13 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
       bot.antiSpam = isEnable;
       break;
 
-     case 'antilinkxxx':
+     case 'antinopor':
       isAll = true;
       if (!isOwner) {
         global.dfail('owner', m, conn);
         throw false;
       }
-      bot.antilinkxxx = isEnable;
+      chat.antilinkxxx = isEnable;
       break;
 
     case 'audios':
