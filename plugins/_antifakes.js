@@ -12,6 +12,10 @@ if (m.sender.startsWith('90' || '90')) {
 global.db.data.users[m.sender].block = true
 
 await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
+if (m.sender.startsWith('856' || '856')) {
+global.db.data.users[m.sender].block = true
+
+await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
 if (m.sender.startsWith('212' || '212')) {
 global.db.data.users[m.sender].block = true
 
