@@ -74,7 +74,7 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
         global.dfail('owner', m, conn);
         throw false;
       }
-      chat.antilinkxxx = isEnable;
+      chat.antiLinkxxx = isEnable;
       break;
 
     case 'audios':
