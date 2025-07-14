@@ -68,6 +68,15 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
       bot.antiSpam = isEnable;
       break;
 
+     case 'antilinkxxx':
+      isAll = true;
+      if (!isOwner) {
+        global.dfail('owner', m, conn);
+        throw false;
+      }
+      bot.antilinkxxx = isEnable;
+      break;
+
     case 'audios':
     case 'audiosbot':
     case 'botaudios':
