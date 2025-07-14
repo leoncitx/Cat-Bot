@@ -11,13 +11,13 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, 
     const groupAdmins = participants.filter(p => p.admin);
     const listAdmin = groupAdmins.map((v, i) => `*» ${i + 1}. @${v.id.split('@')[0]}*`).join('\n');
     let bot = global.db.data.settings[this.user.jid] || {};
-    const isAdultLink = adultContentRegex.exec(m.text);
+    const isAdultLink = m.text ? adultContentRegex.exec(m.text) : null;
     
-    if (chat.antilinkxxx && isAdultLink && !isAdmin) {
+    if (chat.antiLinkxxx && isAdultLink && !isAdmin) {
         await conn.sendMessage(m.chat, { 
             text: `⚠️ *「 ENLACE DETECTADO 」* ⚠️\n\n《✧》${user} compartió un enlace prohibido y será eliminado...`, 
             mentions: [m.sender] 
-        }, { quoted: m, ephemeralExpiration: 24 * 60 * 100, disappearingMessagesInChat: 24 * 60 * 100 });
+        }, { quoted: m });
         
         if (!isBotAdmin) return conn.sendMessage(m.chat, { 
             text: `✦ El antilink está activo pero no puedo eliminarte porque no soy admin.`, 
