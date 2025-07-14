@@ -184,6 +184,7 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
     case 'antiarabes':
     case 'antinegros':
     case 'antifakes':
+    case 'onlylatinos':
       if (m.isGroup) {
         if (!(isAdmin || isOwner)) {
           global.dfail('admin', m, conn);
