@@ -10,8 +10,6 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, 
     const user = `@${m.sender.split`@`[0]}`;
     const groupAdmins = participants.filter(p => p.admin);
     const listAdmin = groupAdmins.map((v, i) => `*» ${i + 1}. @${v.id.split('@')[0]}*`).join('\n');
-    // let bot = global.db.data.settings[this.user.jid] || {};
-    // const isAdultLink = m.text ? adultContentRegex.exec(m.text) : null;
     const isAdultLink = m.text && adultContentRegex.test(m.text)
     
     if (chat.antiLinkxxx && isAdultLink && !isAdmin) {
@@ -28,7 +26,6 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, 
         if (isBotAdmin) {
             await conn.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: false, id: bang, participant: delet } });
             let responseb = await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove');
-            // if (responseb[0].status === "404") return;
         }
     }
     return !0;  
