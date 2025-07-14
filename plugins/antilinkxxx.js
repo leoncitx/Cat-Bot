@@ -13,7 +13,7 @@ export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, 
     let bot = global.db.data.settings[this.user.jid] || {};
     const isAdultLink = adultContentRegex.exec(m.text);
     
-    if (chat.antiLink && isAdultLink && !isAdmin) {
+    if (chat.antilinkxxx && isAdultLink && !isAdmin) {
         await conn.sendMessage(m.chat, { 
             text: `⚠️ *「 ENLACE DETECTADO 」* ⚠️\n\n《✧》${user} compartió un enlace prohibido y será eliminado...`, 
             mentions: [m.sender] 
