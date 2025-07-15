@@ -1,3 +1,4 @@
+
 import hispamemes from 'hispamemes'
 import axios from 'axios'
 import delay from 'delay'
@@ -5,12 +6,12 @@ import delay from 'delay'
 const canal = '120363418774581077@newsletter'
 
 const query = [
-  'story wa', 'story sad', 'video fun', 'story wa galau', 
-  'story wa sindiran', 'story wa bahagia', 
-  'story wa lirik lagu overlay', 'story wa lirik lagu', 
-  'video viral',
-  'edits animes phonk',
-  'edits ultra phonk',
+  'videos graciosos', 'jajaja videos de risa', 'video fun', 'Funny videos', 
+  'memes', 'videos memes', 
+  'memes phonk', 'memes funk', 
+  'video viral gracioso',
+  'viral meme',
+  'graciosos viral',
   'carros edits',
   'edits series phonk'
 ]
@@ -83,7 +84,7 @@ caption: video.title
 }}
 
 const espera = Math.floor(Math.random() * (2 * 60 * 60 * 1000 - 60 * 60 * 1000)) + 60 * 60 * 1000
-console.log(`ðŸª Sig PublicaciÃ³n en ${Math.floor(espera / 60000)} minutos`)
+console.log(`ðŸª� Sig PublicaciÃ³n en ${Math.floor(espera / 60000)} minutos`)
 await delay(espera)
 
 } catch (err) {
