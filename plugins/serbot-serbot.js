@@ -30,6 +30,9 @@ let drm2 = "";
 let rtx = "*¡Bienvenido a la conexión Sub Bot! ✨🌀*\n\n*Para unirte, ¡escanea este código QR con otro dispositivo o PC! 📱💻*\n\n`1` » Toca los *tres puntos* en la esquina superior derecha.\n`2` » Selecciona *'Dispositivos vinculados'*.\n`3` » ¡Escanea este QR y listo para iniciar sesión! 🎉\n\n*⚠️ Este código QR caduca en 45 segundos. ¡Conéctate rápido!*";
 let rtx2 = "*¡Conexión Sub Bot por Código! ✨🌀*\n\n*Usa este código único para convertirte en un Sub Bot. ¡Es rápido y seguro! 🚀*\n\n`1` » Toca los *tres puntos* en la esquina superior derecha.\n`2` » Selecciona *'Dispositivos vinculados'*.\n`3` » Elige *'Vincular con el número de teléfono'*.\n`4` » ¡Introduce el *código* que te proporcionaremos a continuación! 👇\n\n*🔒 Este código solo funciona para ti. ¡No lo compartas!*";
 
+// Define img variable here, initialized to null or an empty string
+let img = null; // Or let img = 'https://files.catbox.moe/baj4z8.jpg';
+
 if (global.conns instanceof Array) {
 } else {
   global.conns = [];
@@ -38,7 +41,7 @@ if (global.conns instanceof Array) {
 const MAX_SUBBOTS = 9999;
 
 async function loadSubbots() {
-  const serbotFolders = fs.readdirSync('./' + global.jadi); // Changed to global.jadi assuming it's defined elsewhere
+  const serbotFolders = fs.readdirSync('./' + global.jadi);
   let totalC = 0;
 
   for (const folder of serbotFolders) {
@@ -47,7 +50,7 @@ async function loadSubbots() {
       break;
     }
 
-    const folderPath = `./${global.jadi}/${folder}`; // Changed to global.jadi
+    const folderPath = `./${global.jadi}/${folder}`;
     if (!fs.statSync(folderPath).isDirectory()) continue;
 
     const { state, saveCreds } = await useMultiFileAuthState(folderPath);
@@ -104,7 +107,7 @@ async function loadSubbots() {
             conn.ws.close();
             conn.ev.removeAllListeners();
             conn = makeWASocket(connectionOptions);
-            let handler = await import("../handler.js"); // Import handler here
+            let handler = await import("../handler.js");
             conn.handler = handler.handler.bind(conn);
             conn.connectionUpdate = connectionUpdate.bind(conn);
             conn.credsUpdate = saveCreds.bind(conn, true);
@@ -169,11 +172,11 @@ loadSubbots().catch(console.error);
 
 let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
   if (!global.db.data.settings[conn.user.jid].jadibotmd) {
-    return conn.reply(msg.chat, "*ðŸŒ¼ Este Comando estÃ¡ deshabilitado por mi creador.*", msg, global.rcanal); // Changed rcanal to global.rcanal
+    return conn.reply(msg.chat, "*❌ Este Comando está deshabilitado por mi creador.*", msg, global.rcanal);
   }
 
   if (global.conns.length >= MAX_SUBBOTS) {
-    return conn.reply(msg.chat, `*â€ Lo siento, se ha alcanzado el lÃ­mite de ${MAX_SUBBOTS} subbots. Por favor, intenta mÃ¡s tarde.*`, msg, global.rcanal); // Changed rcanal to global.rcanal
+    return conn.reply(msg.chat, `*❌ Lo siento, se ha alcanzado el límite de ${MAX_SUBBOTS} subbots. Por favor, intenta más tarde.*`, msg, global.rcanal);
   }
 
   let user = conn;
@@ -192,21 +195,21 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
     }
   }
 
-  if (!fs.existsSync("./" + global.jadi + "/" + userName)) { // Changed to global.jadi
-    fs.mkdirSync("./" + global.jadi + "/" + userName, { recursive: true }); // Changed to global.jadi
+  if (!fs.existsSync("./" + global.jadi + "/" + userName)) {
+    fs.mkdirSync("./" + global.jadi + "/" + userName, { recursive: true });
   }
 
   if (args[0] && args[0] != undefined) {
-    fs.writeFileSync("./" + global.jadi + "/" + userName + "/creds.json", JSON.stringify(JSON.parse(Buffer.from(args[0], "base64").toString("utf-8")), null, "\t")); // Changed to global.jadi
+    fs.writeFileSync("./" + global.jadi + "/" + userName + "/creds.json", JSON.stringify(JSON.parse(Buffer.from(args[0], "base64").toString("utf-8")), null, "\t"));
   } else {
     "";
   }
 
-  if (fs.existsSync("./" + global.jadi + "/" + userName + "/creds.json")) { // Changed to global.jadi
-    let creds = JSON.parse(fs.readFileSync("./" + global.jadi + "/" + userName + "/creds.json")); // Changed to global.jadi
+  if (fs.existsSync("./" + global.jadi + "/" + userName + "/creds.json")) {
+    let creds = JSON.parse(fs.readFileSync("./" + global.jadi + "/" + userName + "/creds.json"));
     if (creds) {
       if (creds.registered === false) {
-        fs.unlinkSync("./" + global.jadi + "/" + userName + "/creds.json"); // Changed to global.jadi
+        fs.unlinkSync("./" + global.jadi + "/" + userName + "/creds.json");
       }
     }
   }
@@ -219,12 +222,12 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
       let userJid = msg.mentionedJid && msg.mentionedJid[0] ? msg.mentionedJid[0] : msg.fromMe ? user.user.jid : msg.sender;
       let userName = "" + userJid.split`@`[0];
 
-      if (!fs.existsSync("./" + global.jadi + "/" + userName)) { // Changed to global.jadi
-        fs.mkdirSync("./" + global.jadi + "/" + userName, { recursive: true }); // Changed to global.jadi
+      if (!fs.existsSync("./" + global.jadi + "/" + userName)) {
+        fs.mkdirSync("./" + global.jadi + "/" + userName, { recursive: true });
       }
 
       if (args[0]) {
-        fs.writeFileSync("./" + global.jadi + "/" + userName + "/creds.json", JSON.stringify(JSON.parse(Buffer.from(args[0], "base64").toString("utf-8")), null, "\t")); // Changed to global.jadi
+        fs.writeFileSync("./" + global.jadi + "/" + userName + "/creds.json", JSON.stringify(JSON.parse(Buffer.from(args[0], "base64").toString("utf-8")), null, "\t"));
       } else {
         "";
       }
@@ -232,7 +235,7 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
       let { version, isLatest } = await fetchLatestBaileysVersion();
       const msgRetry = msgRetry => {};
       const cache = new nodeCache();
-      const { state, saveState, saveCreds } = await useMultiFileAuthState("./" + global.jadi + "/" + userName); // Changed to global.jadi
+      const { state, saveState, saveCreds } = await useMultiFileAuthState("./" + global.jadi + "/" + userName);
 
       const config = {
         printQRInTerminal: false,
@@ -248,7 +251,7 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
         browser: isCode ? ["Ubuntu", "Chrome", "110.0.5585.95"] : ["${botname} (Sub Bot)", "Chrome", "2.0.0"],
         defaultQueryTimeoutMs: undefined,
         getMessage: async msgId => {
-          if (global.store) {} // Changed to global.store
+          if (global.store) {}
           return {
             conversation: "${botname}Bot-MD"
           };
@@ -264,9 +267,12 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
         if (isNewLogin) {
           subBot.isInit = false;
         }
+
+        // --- Start of Image Addition ---
         if (qr && !isCode) {
+          img = await qrcode.toBuffer(qr, { scale: 8 }); // Generate the QR code image buffer
           qrMessage = await user.sendMessage(msg.chat, {
-            image: await qrcode.toBuffer(qr, { scale: 8 }),
+            image: img, // Use the generated image buffer here
             caption: rtx,
             contextInfo: {
               forwardingScore: 999,
@@ -280,6 +286,8 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
           }, { quoted: msg });
           return;
         }
+        // --- End of Image Addition ---
+
         if (qr && isCode) {
           code = await user.sendMessage(msg.chat, {
             text: rtx2,
@@ -298,7 +306,7 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
           pairingCode = await subBot.requestPairingCode(msg.sender.split`@`[0]);
 
           pairingCode = await user.sendMessage(msg.chat, {
-            text: `\`\`\`${pairingCode}\`\`\``, // Only the code, no extra text
+            text: `\`\`\`${pairingCode}\`\`\``,
             contextInfo: {
               forwardingScore: 999,
               isForwarded: true,
@@ -333,40 +341,40 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
         if (connection === "close") {
           console.log(disconnectCode);
           if (disconnectCode == 405) {
-            await fs.unlinkSync("./" + global.jadi + "/" + userName + "/creds.json"); // Changed to global.jadi
-            return await msg.reply("â€ Reenvia nuevamente el comando.");
+            await fs.unlinkSync("./" + global.jadi + "/" + userName + "/creds.json");
+            return await msg.reply("❌ Reenvia nuevamente el comando.");
           }
           if (disconnectCode === DisconnectReason.restartRequired) {
             initSubBot();
-            return console.log("\nðŸŒ¼ Tiempo de conexiÃ³n agotado, reconectando...");
+            return console.log("\n⏳ Tiempo de conexión agotado, reconectando...");
           } else if (disconnectCode === DisconnectReason.loggedOut) {
-            fs.rmdirSync(`./${global.jadi}/${userName}`, { recursive: true }); // Changed to global.jadi
-            return msg.reply("ðŸŒ¼ *ConexiÃ³n perdida...*");
+            fs.rmdirSync(`./${global.jadi}/${userName}`, { recursive: true });
+            return msg.reply("❌ *Conexión perdida...*");
           } else if (disconnectCode == 428) {
             await closeConnection(false);
-            return msg.reply("ðŸŒ¼ La conexiÃ³n se ha cerrado de manera inesperada, intentaremos reconectar...");
+            return msg.reply("❌ La conexión se ha cerrado de manera inesperada, intentaremos reconectar...");
           } else if (disconnectCode === DisconnectReason.connectionLost) {
             await initSubBot();
-            return console.log("\nðŸŒ¼ConexiÃ³n perdida con el servidor, reconectando....");
+            return console.log("\n⏳ Conexión perdida con el servidor, reconectando....");
           } else if (disconnectCode === DisconnectReason.badSession) {
-            return await msg.reply("ðŸŒ¼ La conexiÃ³n se ha cerrado, deberÃ¡ de conectarse manualmente usando el comando *.serbot* y reescanear el nuevo *QR.* Que fuÃ³ enviada la primera vez que se hizo *SubBot*");
+            return await msg.reply("❌ La conexión se ha cerrado, deberá de conectarse manualmente usando el comando *.serbot* y reescanear el nuevo *QR.* Que fue enviada la primera vez que se hizo *SubBot*");
           } else if (disconnectCode === DisconnectReason.timedOut) {
             await closeConnection(false);
-            return console.log("\nðŸŒ¼ Tiempo de conexiÃ³n agotado, reconectando....");
+            return console.log("\n⏳ Tiempo de conexión agotado, reconectando....");
           } else {
-            console.log("\nðŸŒ¼ RazÃ³n de la desconexiÃ³n desconocida: " + (disconnectCode || "") + " >> " + (connection || ""));
+            console.log("\n❌ Razón de la desconexión desconocida: " + (disconnectCode || "") + " >> " + (connection || ""));
           }
         }
 
         if (global.db.data == null) {
-          global.loadDatabase(); // Changed to global.loadDatabase()
+          global.loadDatabase();
         }
 
         if (connection == "open") {
           subBot.isInit = true;
           global.conns.push(subBot);
           await user.sendMessage(msg.chat, {
-            text: args[0] ? "â€ *EstÃ¡ conectado(a)!! Por favor espere se estÃ¡ cargando los mensajes...*\n\nðŸŒ¼ *Opciones Disponibles:*\n*Â» " + usedPrefix + "pausarai _(Detener la funciÃ³n Sub Bot)_*\n*Â» " + usedPrefix + "deletesession _(Borrar todo rastro de Sub Bot)_*\n*Â» " + usedPrefix + "serbot _(Nuevo cÃ³digo QR o Conectarse si ya es Sub Bot)_*" : "*â€ ConexiÃ³n con Ã©xito al WhatsApp*"
+            text: args[0] ? "✅ *¡Está conectado(a)! Por favor, espere, se están cargando los mensajes...*\n\n*✨ Opciones Disponibles:*\n*» " + usedPrefix + "pausarai _(Detener la función Sub Bot)_*\n*» " + usedPrefix + "deletesession _(Borrar todo rastro de Sub Bot)_*\n*» " + usedPrefix + "serbot _(Nuevo código QR o Conectarse si ya es Sub Bot)_*" : "*✅ Conexión con éxito al WhatsApp*"
           }, { quoted: msg });
           if (!args[0]) {
           }
@@ -422,7 +430,7 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
             subBot.chats[chatId].isBanned = false;
           });
         } else {
-          console.log(subBot.chats, "ðŸš© Omitiendo mensajes en espera.", subBot.ev);
+          console.log(subBot.chats, "⚠️ Omitiendo mensajes en espera.", subBot.ev);
           Object.keys(subBot.chats).forEach(chatId => {
             subBot.chats[chatId].isBanned = true;
           });
