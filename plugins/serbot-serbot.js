@@ -273,8 +273,8 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
               forwardingScore: 999,
               isForwarded: true,
               forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363419009027760@newsletter',
-                newsletterName: '𝐊𝐀𝐍𝐄𝐊𝐈 𝐁𝐎𝐓 𝐌𝐃',
+                newsletterJid: '120363418774581077@newsletter',
+                newsletterName: 'Sticker,Memes y frases',
                 serverMessageId: -1
               }
             }
@@ -288,9 +288,9 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
               forwardingScore: 999,
               isForwarded: true,
               forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363419009027760@newsletter',
-                newsletterName: '𝐊𝐀𝐍𝐄𝐊𝐈 𝐁𝐎𝐓 𝐌𝐃',
-                serverMessageId: -1
+                newsletterJid: '120363418774581077@newsletter',
+                newsletterName: 'Sticker,Memes y frases',
+               serverMessageId: -1
               }
             }
           }, { quoted: msg });
@@ -304,8 +304,8 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
               forwardingScore: 999,
               isForwarded: true,
               forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363419009027760@newsletter',
-                newsletterName: '𝐊𝐀𝐍𝐄𝐊𝐈 𝐁𝐎𝐓 𝐌𝐃',
+                newsletterJid: '120363418774581077@newsletter',
+                newsletterName: 'Sticker,Memes y frases',
                 serverMessageId: -1
               }
             }
