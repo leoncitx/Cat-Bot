@@ -170,7 +170,7 @@ loadSubbots().catch(console.error);
 
 let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
   if (!global.db.data.settings[conn.user.jid].jadibotmd) {
-    return conn.reply(msg.chat, "*Este comando esta deshabilitado por mi creador Bajo Bots.*", msg, global.rcanal); // Changed rcanal to global.rcanal
+    return conn.reply(msg.chat, "*Este comando esta deshabilitado por mi creador Barboza.*", msg, global.rcanal); // Changed rcanal to global.rcanal
   }
 
   if (global.conns.length >= MAX_SUBBOTS) {
