@@ -31,7 +31,7 @@ let rtx = "*¡Bienvenido a la conexión Sub Bot! ✨🌀*\n\n*Para unirte, ¡esc
 let rtx2 = "*¡Conexión Sub Bot por Código! ✨🌀*\n\n*Usa este código único para convertirte en un Sub Bot. ¡Es rápido y seguro! 🚀*\n\n`1` » Toca los *tres puntos* en la esquina superior derecha.\n`2` » Selecciona *'Dispositivos vinculados'*.\n`3` » Elige *'Vincular con el número de teléfono'*.\n`4` » ¡Introduce el *código* que te proporcionaremos a continuación! 👇\n\n*🔒 Este código solo funciona para ti. ¡No lo compartas!*";
 
 // Define img variable here, initialized to null or an empty string
-let img = null; // Or let img = 'https://files.catbox.moe/baj4z8.jpg';
+let img = 'https://files.catbox.moe/baj4z8.jpg'; 
 
 if (global.conns instanceof Array) {
 } else {
