@@ -38,18 +38,10 @@ handler.before = async function (m, { conn, participants, groupMetadata }) {
     admingp = `👑 @${m.messageStubParameters[0].split`@`[0]} *¡Ahora es administrador del grupo!* 👑\n\n> 💫 Acción realizada por: ${usuario}`
     noadmingp = `🗑️ @${m.messageStubParameters[0].split`@`[0]} *ha dejado de ser administrador del grupo.* 🗑️\n\n> 💫 Acción realizada por: ${usuario}`
 
-    if (chat.detect && m.messageStubType == 2) {
-        const uniqid = (m.isGroup ? m.chat : m.sender)
-        const sessionPath = './Sessions/'
-        for (const file of await fs.readdir(sessionPath)) {
-            if (file.includes(uniqid)) {
-                await fs.unlink(path.join(sessionPath, file))
-                console.log(`${chalk.yellow.bold('[ Archivo Eliminado ]')} ${chalk.greenBright(`'${file}'`)}\n` +
-                            `${chalk.blue('(Session PreKey)')} ${chalk.redBright('que provoca el "undefined" en el chat')}`
-                )
-            }
-        }
-    } else if (chat.detect && m.messageStubType == 21) {
+    // The entire 'if (chat.detect && m.messageStubType == 2)' block which handled
+    // session file deletion has been removed as per your request.
+    
+    if (chat.detect && m.messageStubType == 21) {
         await this.sendMessage(m.chat, { text: nombre, mentions: [m.sender] }, { quoted: fkontak })  
     } else if (chat.detect && m.messageStubType == 22) {
         await this.sendMessage(m.chat, { image: { url: pp }, caption: foto, mentions: [m.sender] }, { quoted: fkontak })
@@ -64,7 +56,8 @@ handler.before = async function (m, { conn, participants, groupMetadata }) {
     } else if (chat.detect && m.messageStubType == 30) {
         await this.sendMessage(m.chat, { text: noadmingp, mentions: [`${m.sender}`,`${m.messageStubParameters[0]}`] }, { quoted: fkontak })
     } else {
-        if (m.messageStubType == 2) return
+        // This condition now directly handles messageStubType == 2
+        // since the specific deletion logic for it is removed.
         console.log({
             messageStubType: m.messageStubType,
             messageStubParameters: m.messageStubParameters,
