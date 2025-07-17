@@ -37,6 +37,5 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 handler.help = ['igstalk *<nombre>*'];
 handler.tags = ['stalk'];
 handler.command = ['igstalk', 'instagramstalk'];
-handler.register = false;
 
 export default handler;
