@@ -57,7 +57,7 @@ handler.tags = ['descargas'];
 handler.command = /^ttmp3|tiktokmp3$/i;
 
 handler.disable = false;
-handler.register = true;
+handler.register = false;
 handler.limit = true;
 
 export default handler;
