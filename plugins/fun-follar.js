@@ -15,5 +15,5 @@ handler.help = ['follar']
 handler.tags = ['fun']
 handler.command = /^(Follar|violar)/i
 
-handler.register = true
+handler.register = false
 export default handler
