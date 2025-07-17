@@ -26,6 +26,6 @@ global.db.data.users[m.sender].lastcofre = new Date * 1
 handler.help = ['alpes']
 handler.tags = ['freefire']
 handler.command = ['alpes'] 
-handler.register = true
+handler.register = false
 handler.admin = true
 export default handler
