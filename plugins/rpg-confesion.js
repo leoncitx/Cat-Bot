@@ -57,7 +57,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 handler.tags = ['rg'];
 handler.help = ['confesar'].map(v => v + ' <número mensaje>');
 handler.command = ['confesar', 'confesiones']
-handler.register = true;
+handler.register = false
 handler.private = true;
 
 export default handler;
