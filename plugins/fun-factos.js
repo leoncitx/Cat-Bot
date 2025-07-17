@@ -30,7 +30,7 @@ handler.tags = ['fun'];
 handler.command = ['facto'];
 handler.fail = null;
 handler.exp = 0;
-handler.register = true;
+handler.register = false
 
 export default handler;
 
