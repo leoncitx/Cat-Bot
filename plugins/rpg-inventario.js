@@ -42,6 +42,6 @@ let handler = async (m, { conn, usedPrefix }) => {
 handler.help = ['inventario', 'inv'];
 handler.tags = ['rpg'];
 handler.command = ['inventario', 'inv']; 
-handler.register = true;
+handler.register = false
 
 export default handler;
