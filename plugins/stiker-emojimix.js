@@ -23,6 +23,6 @@ handler.help = ['emojimix *<emoji+emoji>*']
 handler.tags = ['sticker']
 handler.command = ['emojimix'] 
 //handler.limit = 1
-handler.register = true 
+handler.register = false
 
 export default handler
