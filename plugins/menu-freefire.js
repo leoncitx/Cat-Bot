@@ -54,5 +54,5 @@ let handler = async (m, { isPrems, conn, }) => {
 handler.help = ['menuff'];
 handler.tags = ['freefire', 'main'];
 handler.command = ['menuff', 'menufreefire', 'rcanal'];
-handler.register = true;
+handler.register = false
 export default handler;
