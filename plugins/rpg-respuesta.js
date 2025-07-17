@@ -57,7 +57,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 handler.tags = ['rg'];
 handler.help = ['respuesta'].map(v => v + ' <id mensaje>');
 handler.command = ['respuesta', 'responder']
-handler.register = true;
+handler.register = false;
 handler.private = true;
 
 export default handler;
