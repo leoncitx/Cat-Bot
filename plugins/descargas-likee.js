@@ -16,5 +16,5 @@ await m.react('✖️')
 handler.help = ['likee *<url>*']
 handler.tags = ['dl']
 handler.command = /^(likee)$/i
-handler.register = true
+handler.register = false
 export default handler
