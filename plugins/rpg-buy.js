@@ -17,6 +17,6 @@ let handler = async (m, { conn, command, args }) => {
 handler.help = ['buycoins', 'buyall']
 handler.tags = ['fun']
 handler.command = ['buycoins', 'buyall', 'buy'] 
-handler.register = true 
+handler.register = false
 
 export default handler
