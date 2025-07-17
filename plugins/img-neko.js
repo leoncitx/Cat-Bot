@@ -16,6 +16,6 @@ handler.help = ['neko']
 handler.tags = ['search']
 handler.command = ['neko']
 //handler.limit = 1
-handler.register = true 
+handler.register = false
 
 export default handler
