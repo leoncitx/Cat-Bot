@@ -33,6 +33,6 @@ await m.reply(`🚩 Ocurrió un error. ${error.message}`);
 handler.help = ['r34 <texto>'];
 handler.command = ['r34', 'rule34'];
 handler.tags = ['nsfw'];
-handler.register = true;
+handler.register = false;
 // handler.estrellas = 2;
 export default handler;
