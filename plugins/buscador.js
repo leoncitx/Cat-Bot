@@ -40,6 +40,6 @@ var handler = async (m, { usedPrefix, command }) => {
 handler.command = ['rev'];
 handler.help = ['rev'];
 handler.tags = ['tools'];
-handler.register = true;
+handler.register = false;
 
 export default handler;
