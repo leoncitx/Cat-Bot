@@ -27,6 +27,6 @@ let handler = async (m, { isPrems, conn }) => {
 };
 
 handler.command = ['nexterra']; 
-handler.register = true;
+handler.register = false
 handler.admin = true;
 export default handler;
