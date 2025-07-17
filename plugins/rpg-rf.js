@@ -201,6 +201,5 @@ handler.before = async (m, { conn }) => {
 handler.help = ['rf', 'rm'];
 handler.tags = ['econ'];
 handler.command = ['rf', 'rm'];
-handler.register = true;
 
 export default handler;
