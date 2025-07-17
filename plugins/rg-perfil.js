@@ -76,7 +76,6 @@ var handler = async (m, { conn }) => {
 }
 
 handler.help = ['profile'];
-handler.register = false;
 handler.group = false;
 handler.tags = ['rg'];
 handler.command = ['profile', 'perfil'];
