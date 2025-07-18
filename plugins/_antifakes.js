@@ -1,52 +1,106 @@
-import db from '../lib/database.js'
-let handler = m => m
-handler.before = async function (m, {conn, isAdmin, isBotAdmin} ) {
-if (!m.isGroup) return !1
-let chat = global.db.data.chats[m.chat]
-if (isBotAdmin && chat.antifake) {
-if (m.sender.startsWith('6' || '6')) {
-global.db.data.users[m.sender].block = true
+let handler = async (m, { conn, args, command, usedPrefix }) => {
+  const chatId = m.chat;
+  global.db = global.db || {};
+  global.db.data = global.db.data || { chats: {} };
+  global.db.data.chats[chatId] = global.db.data.chats[chatId] || {};
+  const chat = global.db.data.chats[chatId];
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('90' || '90')) {
-global.db.data.users[m.sender].block = true
+  if (!m.isGroup) {
+    return m.reply(
+      `╭─⬣「 *MediaHub* 」⬣
+│  ≡◦ 🚫 *¡Error!*
+│  ≡◦ Este comando solo funciona en grupos.
+╰─⬣
+> © MediaHub™`
+    );
+  }
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('212' || '212')) {
-global.db.data.users[m.sender].block = true
+  if (args[0] === 'on') {
+    chat.antiarabes = true;
+    return m.reply(
+      `╭─⬣「 *MediaHub* 」⬣
+│  ≡◦ 🛡️ *Modo Anti-Árabes Activado*
+│  ≡◦ Usuarios con números extranjeros serán expulsados.
+╰─⬣
+> © MediaHub™`
+    );
+  }
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('92' || '92')) {
-global.db.data.users[m.sender].block = true
+  if (args[0] === 'off') {
+    chat.antiarabes = false;
+    return m.reply(
+      `╭─⬣「 *MediaHub* 」⬣
+│  ≡◦ ⚠️ *Modo Anti-Árabes Desactivado*
+│  ≡◦ Ya no se filtrarán usuarios por prefijo.
+╰─⬣
+> © MediaHub™`
+    );
+  }
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('93' || '93')) {
-global.db.data.users[m.sender].block = true
+  return m.reply(
+    `╭─⬣「 *MediaHub* 」⬣
+│  ≡◦ 🧩 *Uso Correcto:*
+│  ≡◦ ${usedPrefix + command} on
+│  ≡◦ ${usedPrefix + command} off
+╰─⬣
+> © MediaHub™`
+  );
+};
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('94' || '94')) {
-global.db.data.users[m.sender].block = true
+// 🔒 Filtro que expulsa automáticamente si el número es extranjero
+handler.before = async function (m, { conn, isAdmin, isBotAdmin, isOwner }) {
+  if (!m.isGroup) return;
+  const chat = global.db?.data?.chats?.[m.chat];
+  if (!chat?.antiarabes) return;
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('7' || '7')) {
-global.db.data.users[m.sender].block = true
+  if (isBotAdmin && !isAdmin && !isOwner) {
+    const forbiddenPrefixes = [
+      "212", // Marruecos
+      "265", // Malawi
+      "234", // Nigeria
+      "258", // Mozambique
+      "263", // Zimbabue
+      "93",  // Afganistán
+      "967", // Yemen
+      "92",  // Pakistán
+      "254", // Kenia
+      "213", // Argelia
+      "20",  // Egipto
+      "971", // Emiratos Árabes Unidos
+      "966", // Arabia Saudita
+      "90",  // Turquía
+      "98",  // Irán
+      "218", // Libia
+      "963", // Siria
+      "964", // Irak
+      "93",  // Afganistán
+      "62"   // Indonesia
+    ];
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('49' || '49')) {
-global.db.data.users[m.sender].block = true
+    for (let prefix of forbiddenPrefixes) {
+      if (m.sender.startsWith(prefix)) {
+        await m.reply(
+          `╭─⬣「 *MediaHub* 」⬣
+│  ≡◦ ❌ *Acceso Restringido*
+│  ≡◦ Este grupo es solo para usuarios autorizados.
+│  ≡◦ @${m.sender.split("@")[0]} fue expulsado.
+╰─⬣
+> © MediaHub™`,
+          null,
+          { mentions: [m.sender] }
+        );
+        await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove');
+        return false;
+      }
+    }
+  }
+};
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('+63' || '+63')) {
-global.db.data.users[m.sender].block = true
+handler.help = ['antiarabes [on/off]'];
+handler.tags = ['grupos'];
+handler.command = ['antiarabes'];
+handler.group = true;
+handler.admin = true;
+handler.botAdmin = true;
 
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('91' || '91')) {
-global.db.data.users[m.sender].block = true
-
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')}
-if (m.sender.startsWith('48' || '48')) {
-global.db.data.users[m.sender].block = true
-
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')} 
-}}
-export default handler
+export default handler;
