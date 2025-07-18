@@ -1,9 +1,24 @@
 import { WAMessageStubType } from "@whiskeysockets/baileys";
 import fetch from "node-fetch";
 
-export async function before(m, { conn, participants, groupMetadata }) {
+export async function before(m, { conn, participants, groupMetadata, sender }) {
   try {
     if (!m.messageStubType || !m.isGroup) return true;
+
+    const fkontak = {
+        key: {
+          participants: "0@s.whatsapp.net",
+          remoteJid: "status@broadcast",
+          fromMe: false,
+          id: "Halo"
+        },
+        message: {
+          contactMessage: {
+            vcard: `BEGIN:VCARD\nVERSION:3.0\nN:Sy;Bot;;;\nFN:y\nitem1.TEL;waid=${conn.user.jid.split('@')[0]}:${conn.user.jid.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD`
+          }
+        },
+        participant: "0@s.whatsapp.net"
+      };
 
     let ppUrl = await conn.profilePictureUrl(m.messageStubParameters[0], "image").catch(
       () => "https://files.catbox.moe/6dewf4.jpg"
@@ -18,16 +33,16 @@ export async function before(m, { conn, participants, groupMetadata }) {
     const groupName = groupMetadata.subject;
     const groupDesc = groupMetadata.desc || "🌎 Sin descripción";
 
-    // 🎉 Bienvenida
+    
     if (chat.bienvenida && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
       const welcomeText = `🎊 *¡Bienvenido, ${user}!* 🎊\n✨ *Has entrado a* ${groupName}.\n📢 *Descripción:* ${groupDesc}\n🚀 *Disfruta tu estancia y sigue las reglas!*`;
-      const welcomeAudioUrl = "https://qu.ax/dvPOt.opus"; // Your welcome audio link
+      const welcomeAudioUrl = "https://qu.ax/dvPOt.opus";
 
       await conn.sendMessage(m.chat, {
         image: imgBuffer,
         caption: welcomeText,
         mentions: [m.messageStubParameters[0]]
-      });
+      }, { quoted: fkontak });
 
       try {
         await conn.sendMessage(m.chat, {
@@ -41,16 +56,16 @@ export async function before(m, { conn, participants, groupMetadata }) {
       }
     }
 
-    // 👋 Despedida (Sale del grupo)
+   
     if (chat.bienvenida && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE) {
       const goodbyeText = `👋 *${user} ha decidido salir del grupo.*\n✨ *Esperamos verte nuevamente en* ${groupName}!`;
-      const exitAudioUrl = "https://qu.ax/drUpn.opus"; // Audio for leaving/kicking
+      const exitAudioUrl = "https://qu.ax/drUpn.opus";
 
       await conn.sendMessage(m.chat, {
         image: imgBuffer,
         caption: goodbyeText,
         mentions: [m.messageStubParameters[0]]
-      });
+      }, { quoted: fkontak });
 
       try {
         await conn.sendMessage(m.chat, {
@@ -64,16 +79,16 @@ export async function before(m, { conn, participants, groupMetadata }) {
       }
     }
 
-    // 🚨 Expulsión (Kick)
+    
     if (chat.bienvenida && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE) {
       const kickText = `🚨 *${user} ha sido expulsado del grupo!* 🚨\n❌ *Eliminado de* ${groupName}.\n⚡ *Sigue las normas para evitar futuras sanciones.*`;
-      const kickAudioUrl = "https://qu.ax/drUpn.opus"; // Audio for leaving/kicking
+      const kickAudioUrl = "https://qu.ax/drUpn.opus";
 
       await conn.sendMessage(m.chat, {
         image: imgBuffer,
         caption: kickText,
         mentions: [m.messageStubParameters[0]]
-      });
+      }, { quoted: fkontak });
 
       try {
         await conn.sendMessage(m.chat, {
