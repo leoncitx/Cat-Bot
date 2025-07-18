@@ -1,35 +1,54 @@
-let { downloadContentFromMessage } = (await import('@whiskeysockets/baileys'))
+//código creado por +50248019799 
+//para Hinata Bot /  akeno himejima 
+//https://whatsapp.com/channel/0029Vaqe1Iv65yDAKBYr6z0A
+let handler = async (m, { conn, text, args, command, isAdmin, isBotAdmin, usedPrefix }) => {
+  if (!isAdmin) throw '🛑 Este comando solo lo pueden usar los *admins* del grupo.'
+  if (!isBotAdmin) throw '🤖 Necesito ser admin para activar esta función.'
 
-let handler = m => m
-handler.before = async function (m, { conn, isAdmin, isBotAdmin }) {
-let media, msg, type
-const { antiver, isBanned } = global.db.data.chats[m.chat]
-if (!antiver || isBanned || !(m.mtype == 'viewOnceMessageV2' || m.mtype == 'viewOnceMessageV2Extension')) return
-if (m.mtype == 'viewOnceMessageV2' || m.mtype == 'viewOnceMessageV2Extension') {
-msg = m.mtype == 'viewOnceMessageV2' ? m.message.viewOnceMessageV2.message : m.message.viewOnceMessageV2Extension.message 
-type = Object.keys(msg)[0]
-if (m.mtype == 'viewOnceMessageV2') {
-media = await downloadContentFromMessage(msg[type], type == 'imageMessage' ? 'image' : 'videoMessage' ? 'video' : 'audio')
-} else {
-media = await downloadContentFromMessage(msg[type], 'audio')
+  global.db.data.chats[m.chat] = global.db.data.chats[m.chat] || {}
+  const chat = global.db.data.chats[m.chat]
+  const arabes = ['212', '91', '92', '234', '964', '971', '963', '93', '90', '994']
+
+  // ACTIVAR
+  if (command === 'activa') {
+    if (text.toLowerCase() === 'antiarabe') {
+      chat.antiArabe = true
+      await conn.reply(m.chat, '🌐 Modo *antiárabe activado*. Ahora los números raros serán eliminados del grupo.', m)
+
+      // Revisar y eliminar árabes ya presentes
+      let groupData = await conn.groupMetadata(m.chat)
+      let participantes = groupData.participants
+
+      for (let user of participantes) {
+        let number = user.id.split('@')[0]
+        if (arabes.some(code => number.startsWith(code))) {
+          try {
+            await conn.sendMessage(m.chat, { text: `⚠️ Usuario sospechoso *@${number}* detectado. Eliminando...`, mentions: [user.id] })
+            await conn.groupParticipantsUpdate(m.chat, [user.id], 'remove')
+            await conn.sendMessage(m.chat, { text: `✅ *Listo*, ese número raro fue eliminado del grupo.`, mentions: [user.id] })
+          } catch (e) {
+            await conn.reply(m.chat, `❌ No pude eliminar a *@${number}*, puede que sea admin.`, m, { mentions: [user.id] })
+          }
+        }
+      }
+      return
+    } else {
+      return conn.reply(m.chat, `✋ Estás usando el comando mal.\n\n📌 Usa así:\n*${usedPrefix}activa antiarabe* para activar\n*${usedPrefix}desactiva antiarabe* para desactivar`, m)
+    }
+  }
+
+  // DESACTIVAR
+  if (command === 'desactiva') {
+    if (text.toLowerCase() === 'antiarabe') {
+      chat.antiArabe = false
+      return conn.reply(m.chat, '📴 Modo *antiárabe desactivado*. Ya no eliminaré a los números raros.', m)
+    } else {
+      return conn.reply(m.chat, `✋ Estás usando el comando mal.\n\n📌 Usa así:\n*${usedPrefix}activa antiarabe* para activar\n*${usedPrefix}desactiva antiarabe* para desactivar`, m)
+    }
+  }
 }
-let buffer = Buffer.from([])
-for await (const chunk of media) {
-buffer = Buffer.concat([buffer, chunk])}
-const fileSize = formatFileSize(msg[type].fileLength)
-const description = `
-✅️ *ANTI VER UNA VEZ* ✅️\n\n💭 *No ocultes* ${type === 'imageMessage' ? '`Imagen` 📷' : type === 'videoMessage' ? '`Vídeo` 🎥' : type === 'audioMessage' ? '`Mensaje de voz` 🎤' : 'este mensaje'}\n- ✨️ *Usuario:* *@${m.sender.split('@')[0]}*
-${msg[type].caption ? `- *Texto:* ${msg[type].caption}` : ''}`.trim()
-if (/image|video/.test(type)) return await conn.sendFile(m.chat, buffer, type == 'imageMessage' ? 'error.jpg' : 'error.mp4', description, m, false, { mentions: [m.sender] })
-if (/audio/.test(type)) { 
-await conn.reply(m.chat, description, m, { mentions: [m.sender] }) 
-await conn.sendMessage(m.chat, { audio: buffer, fileName: 'error.mp3', mimetype: 'audio/mpeg', ptt: true }, { quoted: m })
-}
-}}
+
+handler.command = ['activa', 'desactiva']
+handler.group = true
+handler.admin = true
 export default handler
-
-function formatFileSize(bytes) {
-const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'TY', 'EY']
-const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)))
-return Math.round(100 * (bytes / Math.pow(1024, i))) / 100 + ' ' + sizes[i]
-}
