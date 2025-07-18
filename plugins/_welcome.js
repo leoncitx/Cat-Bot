@@ -21,11 +21,19 @@ export async function before(m, { conn, participants, groupMetadata }) {
     // 🎉 Bienvenida
     if (chat.bienvenida && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
       const welcomeText = `🎊 *¡Bienvenido, ${user}!* 🎊\n✨ *Has entrado a* ${groupName}.\n📢 *Descripción:* ${groupDesc}\n🚀 *Disfruta tu estancia y sigue las reglas!*`;
+      const audioUrl = "https://qu.ax/dvPOt.opus"; // Your audio link
 
       await conn.sendMessage(m.chat, { 
         image: imgBuffer, 
         caption: welcomeText, 
         mentions: [m.messageStubParameters[0]] 
+      });
+
+      // Send the audio message
+      await conn.sendMessage(m.chat, { 
+        audio: { url: audioUrl }, 
+        mimetype: 'audio/opus', // Ensure correct mimetype for .opus files
+        ptt: true // Optional: Set to true if you want it to be a voice note
       });
     }
     if (chat.bienvenida && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE) {
