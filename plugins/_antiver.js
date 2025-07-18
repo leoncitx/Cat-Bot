@@ -7,7 +7,7 @@ let handler = async (m, { conn, text, args, command, isAdmin, isBotAdmin, usedPr
 
   global.db.data.chats[m.chat] = global.db.data.chats[m.chat] || {}
   const chat = global.db.data.chats[m.chat]
-  const arabes = ['212', '91', '92', '234', '964', '971', '963', '93', '90', '994']
+  const arabes = ['212', '91', '92', '234', '964', '971', '963', '93', '90', '994', '63']
 
   // ACTIVAR
   if (command === 'activa') {
