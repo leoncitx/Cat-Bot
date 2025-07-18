@@ -67,7 +67,7 @@ handler.before = async function (m, { conn, isAdmin, isBotAdmin, isOwner }) {
       "213", // Argelia
       "20",  // Egipto
       "971", // Emiratos Árabes Unidos
-      "966", // Arabia Saudita
+      "63", // Arabia Saudita
       "90",  // Turquía
       "98",  // Irán
       "218", // Libia
