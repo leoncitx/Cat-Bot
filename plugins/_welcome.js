@@ -21,7 +21,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
     // 🎉 Bienvenida
     if (chat.bienvenida && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
       const welcomeText = `🎊 *¡Bienvenido, ${user}!* 🎊\n✨ *Has entrado a* ${groupName}.\n📢 *Descripción:* ${groupDesc}\n🚀 *Disfruta tu estancia y sigue las reglas!*`;
-      const audioUrl = "https://qu.ax/dvPOt.opus"; // Your audio link
+      const welcomeAudioUrl = "https://qu.ax/dvPOt.opus"; // Your welcome audio link
 
       await conn.sendMessage(m.chat, {
         image: imgBuffer,
@@ -29,14 +29,11 @@ export async function before(m, { conn, participants, groupMetadata }) {
         mentions: [m.messageStubParameters[0]]
       });
 
-      // --- Important: Ensure the audio is sent correctly ---
-      // For .opus files, 'audio/ogg; codecs=opus' is often more reliable
-      // You can also try 'audio/mp4' if converting to an M4A/AAC format
       try {
         await conn.sendMessage(m.chat, {
-          audio: { url: audioUrl },
-          mimetype: 'audio/ogg; codecs=opus', // Corrected mimetype for better compatibility
-          ptt: true // Set to true for a voice note
+          audio: { url: welcomeAudioUrl },
+          mimetype: 'audio/ogg; codecs=opus',
+          ptt: true
         });
         console.log(`Audio de bienvenida enviado para ${user}`);
       } catch (audioError) {
@@ -44,24 +41,50 @@ export async function before(m, { conn, participants, groupMetadata }) {
       }
     }
 
+    // 👋 Despedida (Sale del grupo)
     if (chat.bienvenida && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE) {
       const goodbyeText = `👋 *${user} ha decidido salir del grupo.*\n✨ *Esperamos verte nuevamente en* ${groupName}!`;
+      const exitAudioUrl = "https://qu.ax/drUpn.opus"; // Audio for leaving/kicking
 
       await conn.sendMessage(m.chat, {
         image: imgBuffer,
         caption: goodbyeText,
         mentions: [m.messageStubParameters[0]]
       });
+
+      try {
+        await conn.sendMessage(m.chat, {
+          audio: { url: exitAudioUrl },
+          mimetype: 'audio/ogg; codecs=opus',
+          ptt: true
+        });
+        console.log(`Audio de salida enviado para ${user}`);
+      } catch (audioError) {
+        console.error(`❌ Error al enviar el audio de salida para ${user}:`, audioError);
+      }
     }
 
+    // 🚨 Expulsión (Kick)
     if (chat.bienvenida && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE) {
       const kickText = `🚨 *${user} ha sido expulsado del grupo!* 🚨\n❌ *Eliminado de* ${groupName}.\n⚡ *Sigue las normas para evitar futuras sanciones.*`;
+      const kickAudioUrl = "https://qu.ax/drUpn.opus"; // Audio for leaving/kicking
 
       await conn.sendMessage(m.chat, {
         image: imgBuffer,
         caption: kickText,
         mentions: [m.messageStubParameters[0]]
       });
+
+      try {
+        await conn.sendMessage(m.chat, {
+          audio: { url: kickAudioUrl },
+          mimetype: 'audio/ogg; codecs=opus',
+          ptt: true
+        });
+        console.log(`Audio de expulsión enviado para ${user}`);
+      } catch (audioError) {
+        console.error(`❌ Error al enviar el audio de expulsión para ${user}:`, audioError);
+      }
     }
   } catch (error) {
     console.error("❌ Error general en bienvenida/despedida:", error);
