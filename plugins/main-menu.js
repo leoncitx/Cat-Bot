@@ -1,20 +1,5 @@
 import { xpRange } from '../lib/levelling.js';
 
-const fkontak = {
-  key: {
-    participants: "0@s.whatsapp.net",
-    remoteJid: "status@broadcast",
-    fromMe: false,
-    id: "Halo"
-  },
-  message: {
-    contactMessage: {
-      vcard: `BEGIN:VCARD\nVERSION:3.0\nN:Sy;Bot;;;\nFN:y\nitem1.TEL;waid=${sender.split('@')[0]}:${sender.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD`
-    }
-  },
-  participant: "0@s.whatsapp.net"
-};
-
 const clockString = ms => {
   const h = Math.floor(ms / 3600000);
   const m = Math.floor(ms / 60000) % 60;
@@ -46,13 +31,33 @@ const menuFooter = `
 `.trim();
 
 let handler = async (m, { conn, usedPrefix: _p }) => {
+  const fkontak = {
+    key: {
+      participants: "0@s.whatsapp.net",
+      remoteJid: "status@broadcast",
+      fromMe: false,
+      id: "Halo"
+    },
+    message: {
+      contactMessage: {
+        vcard: `BEGIN:VCARD\nVERSION:3.0\nN:Sy;Bot;;;\nFN:y\nitem1.TEL;waid=${m.sender.split('@')[0]}:${m.sender.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD`
+      }
+    },
+    participant: "0@s.whatsapp.net"
+  };
+
   try {
-    const user = global.db?.data?.users?.[m.sender] || { level: 1, exp: 0, limit: 5 };
+    if (!global.db || !global.db.data || !global.db.data.users) {
+      console.error("Error: global.db.data.users no está inicializado o no es accesible.");
+      return conn.reply(m.chat, '⚠️ El bot no tiene acceso a la base de datos de usuarios. Por favor, reporta esto al desarrollador.', m);
+    }
+
+    const user = global.db.data.users[m.sender] || { level: 1, exp: 0, limit: 5 };
     const { exp, level, limit } = user;
 
     const { min, xp } = xpRange(level, global.multiplier || 1);
 
-    const totalreg = Object.keys(global.db?.data?.users || {}).length;
+    const totalreg = Object.keys(global.db.data.users).length;
 
     const mode = global.opts?.self ? 'Privado 🔒' : 'Público 🌐';
 
@@ -67,6 +72,11 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
 
     let categorizedCommands = {};
 
+    if (!global.plugins) {
+      console.error("Error: global.plugins no está inicializado. No se pueden cargar los comandos.");
+      return conn.reply(m.chat, '⚠️ Los comandos del bot no están cargados. Por favor, reporta esto al desarrollador.', m);
+    }
+
     Object.values(global.plugins)
       .filter(p => p?.help && !p.disabled)
       .forEach(p => {
@@ -77,7 +87,7 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
 
         if (commands.length > 0) {
           categorizedCommands[tag] = categorizedCommands[tag] || new Set();
-          commands.forEach(cmd => categorizedCommands[tag].add(cmd));
+          commands.forEach(cmd => categorizedCommands[tag].add((_p === '' ? '' : _p) + cmd));
         }
       });
 
@@ -106,7 +116,7 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
     const menuBody = Object.entries(categorizedCommands).map(([title, cmds]) => {
       const cleanTitle = title.toLowerCase().trim();
       const emoji = categoryEmojis[cleanTitle] || "📁";
-      const commandEntries = [...cmds].map(cmd => `│ ◦ _${_p}${cmd}_`).join('\n');
+      const commandEntries = [...cmds].map(cmd => `│ ◦ _${cmd}_`).join('\n');
       return `╭─「 ${emoji} *${title.toUpperCase()}* 」\n${commandEntries}\n${sectionDivider}`;
     }).join('\n\n');
 
