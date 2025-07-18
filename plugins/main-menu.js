@@ -1,5 +1,20 @@
 import { xpRange } from '../lib/levelling.js';
 
+const fkontak = {
+  key: {
+    participants: "0@s.whatsapp.net",
+    remoteJid: "status@broadcast",
+    fromMe: false,
+    id: "Halo"
+  },
+  message: {
+    contactMessage: {
+      vcard: `BEGIN:VCARD\nVERSION:3.0\nN:Sy;Bot;;;\nFN:y\nitem1.TEL;waid=${sender.split('@')[0]}:${sender.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD`
+    }
+  },
+  participant: "0@s.whatsapp.net"
+};
+
 const clockString = ms => {
   const h = Math.floor(ms / 3600000);
   const m = Math.floor(ms / 60000) % 60;
@@ -7,7 +22,7 @@ const clockString = ms => {
   return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
 };
 
-let img = 'https://files.catbox.moe/6dewf4.jpg'; 
+let img = 'https://files.catbox.moe/6dewf4.jpg';
 
 let menuText = `
 ╭─❒ 「 sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀 」
@@ -95,7 +110,6 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
       return `╭─「 ${emoji} *${title.toUpperCase()}* 」\n${commandEntries}\n${sectionDivider}`;
     }).join('\n\n');
 
-    // Cambiado de 'menuHeader' a 'menuText' para la sustitución de variables
     const finalHeader = menuText
       .replace('%name', userName)
       .replace('%level', level)
@@ -109,14 +123,12 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
     const fullMenu = `${finalHeader}\n\n${menuBody}\n\n${menuFooter}`;
 
     try {
-      // Cambiado de 'video: { url: menuMediaUrl }' a 'image: { url: img }'
       await conn.sendMessage(m.chat, {
         image: { url: img },
         caption: fullMenu,
         mentions: [m.sender]
       }, { quoted: m });
     } catch (sendError) {
-      // Cambiado 'videoError' a 'sendError' y el mensaje de error para reflejar que se intenta enviar una imagen
       console.error("Error al enviar la imagen del menú, enviando como texto:", sendError);
       await conn.reply(m.chat, fullMenu, m);
     }
