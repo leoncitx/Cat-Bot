@@ -28,11 +28,14 @@ function verify() {
 }
 verify();
 
+// Diseño para "Sasuke Bot"
 say('sᥲsᥙkᥱ ᑲ᥆𝗍', {
-  font: 'chrome',
+  font: 'block', // Estilo 'block' para un diseño fuerte
   align: 'center',
-  colors: ['white']
+  colors: ['red', 'white'], // Colores que recuerdan al Sharingan
+  background: 'black' // Fondo oscuro para resaltar el texto
 });
+
 say(`Developed By • sᥲsᥙkᥱ ᑲ᥆𝗍 mძ`, {
   font: 'console',
   align: 'center',
