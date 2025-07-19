@@ -6,8 +6,9 @@ var number = text.split`@`[1]
 }else if(!isNaN(text)) {
 var number = text
 }
-if(!text && !m.quoted) return conn.reply(m.chat, `🚩 Menciona a una persona.`, m, rcanal)
-if(number.length > 13 || (number.length < 11 && number.length > 0)) return conn.reply(m.chat, `🚩 Menciona a una persona.`, m, rcanal)
+if(!text && !m.quoted) return conn.reply(m.chat, `🌀 Ingresa el tag o responde a un mensaje del usuario. Ejemplo :\n *${usedPrefix + command}* @tag`, m)
+if(number.length > 13 || (number.length < 11 && number.length > 0)) return conn.reply(m.chat, `🌀 El número es inválido.`, m)
+
 try {
 if(text) {
 var user = number + '@s.whatsapp.net'
@@ -19,12 +20,11 @@ var user = number + '@s.whatsapp.net'
 } catch (e) {
 } finally {
 conn.groupParticipantsUpdate(m.chat, [user], 'demote')
-await conn.reply(m.chat, `🚩 Usuario degradado.`, m, rcanal)
-await m.react('✅')
+m.reply(`✅ Usuario degradado con éxito.`)
 }
 
 }
-handler.help = ['demote *@tag*']
+handler.help = ['demote']
 handler.tags = ['group']
 handler.command = ['demote', 'degradar'] 
 handler.group = true
