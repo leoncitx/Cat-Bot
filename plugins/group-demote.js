@@ -9,7 +9,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
         if (numberMatch && numberMatch[0].length >= 11 && numberMatch[0].length <= 13) {
             user = numberMatch[0] + '@s.whatsapp.net';
         } else {
-            return conn.reply(m.chat, `🌀 Por favor, responda al mensaje de un aquel usuario que le quitarás admin .`, m,rcanal);
+            return conn.reply(m.chat, `*🌀 Por favor, responda al mensaje de un aquel usuario que le quitarás admin* .`, m,rcanal);
         }
     } else if (m.mentionedJid && m.mentionedJid[0]) {
         user = m.mentionedJid[0];
