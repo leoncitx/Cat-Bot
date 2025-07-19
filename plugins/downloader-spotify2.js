@@ -9,7 +9,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 ╰━━━━━━━━━━━━━━━━━━━━⬣
   `.trim());
 
-  await m.react('🕒');
+  await m.react('🌀');
 
   let ouh = await fetch(`https://api.nekorinn.my.id/downloader/spotifyplay?q=${text}`);
   let gyh = await ouh.json();
@@ -21,12 +21,12 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
   await m.reply(`
 ╭━〔 *🔊 SPOTIFY DOWNLOADER* 〕━⬣
-┃ 🐉 *Petición:* ${text}
-┃ 🎧 *Estado:* Éxito, canción enviada.
+┃ 🌀 *Petición:* ${text}
+┃ 💣 *Estado:* Éxito, canción enviada.
 ╰━━━━━━━━━━━━━━━━━━━━⬣
   `.trim());
 
-  await m.react('✅');
+  await m.react('🎵');
 }
 
 handler.help = ['music *<texto>*'];
