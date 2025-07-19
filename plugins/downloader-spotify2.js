@@ -1,54 +1,36 @@
-import fetch from 'node-fetch';
+import fetch from 'node-fetch'
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
-  try {
-    if (!text) {
-      return m.reply(`✨ *Uso del comando incorrecto:*\n\n🎵 Ejemplo:\n${usedPrefix + command} Believer`);
-    }
+  if (!text) throw m.reply(`
+╭━━〔 *❌ FALTA TEXTO* 〕━━⬣
+┃ 🍡 *Usa el comando así:*
+┃ ⎔ ${usedPrefix + command} <nombre canción>
+┃ 💽 *Ejemplo:* ${usedPrefix + command} Believer
+╰━━━━━━━━━━━━━━━━━━━━⬣
+  `.trim());
 
-    await m.react('🎧');
+  await m.react('🕒');
 
-    const res = await fetch(`https://api.nekorinn.my.id/downloader/spotifyplay?q=${encodeURIComponent(text)}`);
-    const json = await res.json();
+  let ouh = await fetch(`https://api.nekorinn.my.id/downloader/spotifyplay?q=${text}`);
+  let gyh = await ouh.json();
 
-    // Validación estricta
-    if (!json || !json.status || !json.result || !json.result.downloadUrl) {
-      throw new Error('No se encontró la canción o la API falló.');
-    }
+  await conn.sendMessage(m.chat, {
+    audio: { url: gyh.result.downloadUrl },
+    mimetype: 'audio/mpeg'
+  }, { quoted: m });
 
-    const { title, artist, thumbnail, downloadUrl } = json.result;
+  await m.reply(`
+╭━〔 *🔊 SPOTIFY DOWNLOADER* 〕━⬣
+┃ 🐉 *Petición:* ${text}
+┃ 🎧 *Estado:* Éxito, canción enviada.
+╰━━━━━━━━━━━━━━━━━━━━⬣
+  `.trim());
 
-    await conn.sendMessage(m.chat, {
-      image: { url: thumbnail },
-      caption: `
-╭━━━〘 *🎧 SPOTIFY DOWNLOADER* 〙━━━╮
-
-🔊 *Título:* ${title || 'Desconocido'}
-🎤 *Artista:* ${artist || 'Desconocido'}
-
-🎶 *Descargando audio...*
-
-╰━━━━━━━━━━━━━━━━━━━━╯
-`.trim(),
-    }, { quoted: m });
-
-    await conn.sendMessage(m.chat, {
-      audio: { url: downloadUrl },
-      mimetype: 'audio/mpeg',
-      fileName: `${title || 'spotify_audio'}.mp3`
-    }, { quoted: m });
-
-    await m.react('✅');
-
-  } catch (e) {
-    console.error('[ERROR Spotify]', e);
-    await m.reply(`⚠️ *Error al procesar tu solicitud:*\n${e.message || String(e)}`);
-    await m.react('❌');
-  }
-};
+  await m.react('✅');
+}
 
 handler.help = ['music *<texto>*'];
 handler.tags = ['descargas'];
-handler.command = ['music', 'spotify', 'splay'];
+handler.command = ['music'];
 
 export default handler;
