@@ -6,7 +6,7 @@ var number = text.split`@`[1]
 }else if(!isNaN(text)) {
 var number = text
 }
-if(!text && !m.quoted) return conn.reply(m.chat, `🌀 Ingresa el tag o responde a un mensaje del usuario. Ejemplo :\n *${usedPrefix + command}* @tag`, m)
+if(!text && !m.quoted) return conn.reply(m.chat, `🌀 Responda a un mensaje de dicho usuario a cual le quitarás admin. Ejemplo :\n *${usedPrefix + command}* @tag`, m)
 if(number.length > 13 || (number.length < 11 && number.length > 0)) return conn.reply(m.chat, `🌀 El número es inválido.`, m)
 
 try {
