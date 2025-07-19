@@ -10,9 +10,9 @@ var handler = async (m, { conn,usedPrefix, command, text }) => {
         var number = text;
     }
 
-    if (!text && !m.quoted) return conn.reply(m.chat, `Debes responder a un mensaje de aquel usuario cual le darás admin.`, m);
+    if (!text && !m.quoted) return conn.reply(m.chat, `Debes responder a un mensaje de aquel usuario cual le darás admin.`, m,rcanal);
     
-    if (number && (number.length > 13 || (number.length < 11 && number.length > 0))) return conn.reply(m.chat, `Debes responder a un mensaje de aquel usuario cual le darás admin.`, m,fake);
+    if (number && (number.length > 13 || (number.length < 11 && number.length > 0))) return conn.reply(m.chat, `Debes responder a un mensaje de aquel usuario cual le darás admin.`, m,rcanal);
 
     try {
         var user;
