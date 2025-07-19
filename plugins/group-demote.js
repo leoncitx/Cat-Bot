@@ -14,7 +14,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
     } else if (m.mentionedJid && m.mentionedJid[0]) {
         user = m.mentionedJid[0];
     } else {
-        return conn.reply(m.chat, `🌀 Por favor, responda al mensaje de un usuario.`, m,rcanal);
+        return conn.reply(m.chat, `🌀 Por favor, responda al mensaje de un usuario aquel que le quitaras admin.`, m,rcanal);
     }
 
     if (!user) {
