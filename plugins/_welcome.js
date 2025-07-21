@@ -74,7 +74,7 @@ export async function before(m, { conn, groupMetadata}) {
         try {
           await conn.sendMessage(m.chat, {
             audio: { url: "https://qu.ax/sjtTL.opus"},
-            mimetype: "audio/ogg",
+            mimetype: "audio/mp3",
             ptt: false
 }, { quoted: fkontak});
 } catch (err) {
