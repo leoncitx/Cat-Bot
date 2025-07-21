@@ -1,3 +1,4 @@
+
 import { WAMessageStubType} from "@whiskeysockets/baileys";
 import fetch from "node-fetch";
 
@@ -33,7 +34,7 @@ export async function before(m, { conn, groupMetadata}) {
 );
     const imgBuffer = await fetch(ppUrl).then(res => res.buffer()).catch(() => null);
 
-    // Bienvenida
+    // 🎉 Bienvenida
     if (chat.bienvenida && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
       const welcomeText = `🎉 *¡HOLA ${user}!* 🎉\n\nBienvenido/a a *${groupName}*.\n\n📚 *Sobre nosotros:*\n_${groupDesc}_\n\n🌟 ¡Esperamos que disfrutes tu estancia!`;
 
@@ -43,14 +44,20 @@ export async function before(m, { conn, groupMetadata}) {
         mentions: [userJid]
 }, { quoted: fkontak});
 
-      await conn.sendMessage(m.chat, {
-        audio: { url: "https://qu.ax/dvPOt.opus"},
-        mimetype: "audio/ogg",
-        ptt: false
+      try {
+        await conn.sendMessage(m.chat, {
+          audio: { url: "https://qu.ax/dvPOt.opus"},
+          mimetype: "audio/ogg; codecs=opus", // MIME específico para.opus
+          ptt: false
 }, { quoted: fkontak});
+        console.log("✅ Audio de bienvenida enviado correctamente.");
+} catch (error) {
+        console.error("❌ Error al enviar el audio de bienvenida:", error);
+        await m.reply("⚠️ El audio de bienvenida no se pudo enviar.");
+}
 }
 
-    // Salida voluntaria
+    // 👋 Salida voluntaria
     if (chat.bienvenida && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE) {
       const goodbyeText = `🚶‍♂️ *¡Adiós ${user}!* 😔\n\nGracias por haber formado parte de *${groupName}*. ¡Vuelve cuando quieras!`;
 
@@ -60,14 +67,19 @@ export async function before(m, { conn, groupMetadata}) {
         mentions: [userJid]
 }, { quoted: fkontak});
 
-      await conn.sendMessage(m.chat, {
-        audio: { url: "https://cdn.russellxz.click/98d99914.mp3"},
-        mimetype: "audio/mpeg",
-        ptt: false
+      try {
+        await conn.sendMessage(m.chat, {
+          audio: { url: "https://cdn.russellxz.click/98d99914.mp3"},
+          mimetype: "audio/mpeg",
+          ptt: false
 }, { quoted: fkontak});
+        console.log("✅ Audio de despedida enviado correctamente.");
+} catch (error) {
+        console.error("❌ Error al enviar el audio de despedida:", error);
+}
 }
 
-    // Expulsión del grupo
+    // 🚫 Expulsión
     if (chat.bienvenida && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE) {
       const kickText = `🚨 *${user} ha sido expulsado del grupo* 🚨\n\nMantengamos un ambiente respetuoso en *${groupName}*`;
 
@@ -77,11 +89,16 @@ export async function before(m, { conn, groupMetadata}) {
         mentions: [userJid]
 }, { quoted: fkontak});
 
-      await conn.sendMessage(m.chat, {
-        audio: { url: "https://qu.ax/AGEns.mp3"},
-        mimetype: "audio/mpeg",
-        ptt: false
+      try {
+        await conn.sendMessage(m.chat, {
+          audio: { url: "https://qu.ax/AGEns.mp3"},
+          mimetype: "audio/mpeg",
+          ptt: false
 }, { quoted: fkontak});
+        console.log("✅ Audio de expulsión enviado correctamente.");
+} catch (error) {
+        console.error("❌ Error al enviar el audio de expulsión:", error);
+}
 }
 } catch (error) {
     console.error("❌ Error general en el sistema de bienvenida/despedida:", error);
