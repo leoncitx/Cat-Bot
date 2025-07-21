@@ -1,26 +1,14 @@
-const fkontak = {
-  key: {
-    participants: "0@s.whatsapp.net",
-    remoteJid: "status@broadcast",
-    fromMe: false,
-    id: "Halo"
-  },
-  message: {
-    contactMessage: {
-      vcard: `BEGIN:VCARD\nVERSION:3.0\nN:Sy;Bot;;;\nFN:y\nitem1.TEL;waid=${conn.user.jid.split('@')[0]}:${conn.user.jid.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD`
-    }
-  },
-  participant: "0@s.whatsapp.net"
-};
 
-const handler = async (m, { isOwner, isAdmin, conn, text, participants, args }) => {
+import fetch from "node-fetch";
+
+const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) => {
   const chat = global.db.data.chats[m.chat];
   const emoji = chat.emojiTag || '🤖';
 
   if (!(isAdmin || isOwner)) {
     global.dfail('admin', m, conn);
     throw false;
-  }
+}
 
   const mensajePersonalizado = args.join(' ');
 
@@ -31,34 +19,58 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args }) 
     '52': '🇲🇽', '57': '🇨🇴', '54': '🇦🇷', '34': '🇪🇸', '55': '🇧🇷', '1': '🇺🇸', '44': '🇬🇧', '91': '🇮🇳',
     '502': '🇬🇹', '56': '🇨🇱', '51': '🇵🇪', '58': '🇻🇪', '505': '🇳🇮', '593': '🇪🇨', '504': '🇭🇳',
     '591': '🇧🇴', '53': '🇨🇺', '503': '🇸🇻', '507': '🇵🇦', '595': '🇵🇾'
-  };
+};
 
   const getCountryFlag = (id) => {
     const phoneNumber = id.split('@')[0];
     let phonePrefix = phoneNumber.slice(0, 3);
 
     if (phoneNumber.startsWith('1')) return '🇺🇸';
-
     if (!countryFlags[phonePrefix]) {
       phonePrefix = phoneNumber.slice(0, 2);
-    }
-    
+}
     return countryFlags[phonePrefix] || '🏳️‍🌈';
-  };
+};
 
   let textoMensaje = `*${groupName}*\n\n*Integrantes: ${participants.length}*\n${mensajePersonalizado}\n┌──⭓ *Despierten*\n`;
   for (const mem of participants) {
     textoMensaje += `${emoji} ${getCountryFlag(mem.id)} @${mem.id.split('@')[0]}\n`;
-  }
+}
   textoMensaje += `└───────⭓\n\n𝘚𝘶𝘱𝘦𝘳 𝘉𝘰𝘵 𝘞𝘩𝘢𝘵𝘴𝘈𝘱𝘱 🚩`;
 
   const imageUrl = 'https://files.catbox.moe/1j784p.jpg';
 
-  await conn.sendMessage(m.chat, { 
-    image: { url: imageUrl }, 
-    caption: textoMensaje, 
-    mentions: participants.map((a) => a.id) 
-  });
+  const fkontak = {
+    key: {
+      remoteJid: m.chat,
+      fromMe: false,
+      id: m.key.id
+},
+    message: {
+      contactMessage: {
+        displayName: conn.getName(m.sender),
+        vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:${conn.getName(m.sender)}\nTEL;type=WA:${m.sender}\nEND:VCARD`
+}
+}
+};
+
+  // Enviar imagen con mensaje
+  await conn.sendMessage(m.chat, {
+    image: { url: imageUrl},
+    caption: textoMensaje,
+    mentions: participants.map((a) => a.id)
+}, { quoted: fkontak});
+
+  // Enviar audio adicional
+  try {
+    await conn.sendMessage(m.chat, {
+      audio: { url: "https://qu.ax/LhbNi.opus"},
+      mimetype: "audio/ogg; codecs=opus",
+      ptt: false
+}, { quoted: fkontak});
+} catch (err) {
+    console.error("❌ Error al enviar el audio de tagall:", err);
+}
 };
 
 handler.help = ['todos'];
