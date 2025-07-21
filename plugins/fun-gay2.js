@@ -9,7 +9,6 @@ const handler = async (m, { conn, args}) => {
     (_) => 'https://telegra.ph/file/24fa902ead26340f3df2c.png'
 );
 
-  // Envía la imagen con el mensaje
   await conn.sendFile(
     m.chat,
     global.API('https://some-random-api.com', '/canvas/gay', { avatar: avatarUrl}),
@@ -18,7 +17,6 @@ const handler = async (m, { conn, args}) => {
     m
 );
 
-  // Envía el audio
   await conn.sendFile(
     m.chat,
     'https://qu.ax/grQGD.m4a',
