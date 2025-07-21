@@ -108,6 +108,3 @@ export async function before(m, { conn, groupMetadata}) {
     console.error("❌ Error general en la función de bienvenida/despedida:", error);
 }
 }
-```
-
-🔧 Si el audio aún no se reproduce, puedes intentar convertirlo a `.mp3`, subirlo a un host confiable como [Catbox](https://catbox.moe) y ajustar el `mimetype` a `"audio/mpeg"`. ¿Te gustaría que te ayude con eso?
