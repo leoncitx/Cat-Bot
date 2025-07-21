@@ -1,5 +1,6 @@
+
 let handler = async (m, { conn, groupMetadata}) => {
-  let who = m.mentionedJid[0]
+  let who = m.mentionedJid?.[0]
 ? m.mentionedJid[0]
 : m.quoted
 ? m.quoted.sender
@@ -12,8 +13,8 @@ let handler = async (m, { conn, groupMetadata}) => {
 
   // Envío del audio como nota de voz
   await conn.sendMessage(m.chat, {
-    audio: { url: 'https://qu.ax/lQSxP.mp3'},
-    mimetype: 'audio/mp4',
+    audio: { url: 'https://qu.ax/grQGD.m4a'},
+    mimetype: 'audio/m4a',
     ptt: true // Esto lo envía como nota de voz (push-to-talk)
 }, { quoted: m});
 };
