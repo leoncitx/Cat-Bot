@@ -1,5 +1,3 @@
-
-
 let handler = async (m, { conn, groupMetadata}) => {
   let who = m.mentionedJid[0]
 ? m.mentionedJid[0]
