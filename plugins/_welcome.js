@@ -71,7 +71,7 @@ export async function before(m, { conn, participants, groupMetadata}) {
     // Expulsión del grupo
     if (chat.bienvenida && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE) {
       const kickText = `🚨 *¡${user} ha sido ELIMINADO del grupo!* 🚨\n\n💥 Ya no forma parte de *${groupName}*.\n\n🚫 Este es un recordatorio importante: las reglas están para cumplirse. ¡Mantengamos un ambiente positivo!`;
-      const kickAudioUrl = "https://qu.ax/AGEns.mp3";
+      const kickAudioUrl = "https://cdn.russellxz.click/98d99914.mp3";
 
       await conn.sendMessage(m.chat, {
         image: imgBuffer,
