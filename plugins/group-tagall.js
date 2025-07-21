@@ -38,6 +38,8 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args }) 
   }
   messageText += `└───────⭓\n\n𝘚𝘶𝘱𝘦𝘳 𝘉𝘰𝘵 𝘞𝘩𝘢𝘵𝘴𝘈𝘱𝘱 🚩`;
 
+ const imageUrl = 'https://files.catbox.moe/1j784p.jpg';
+
   const fkontak = {
     key: {
       remoteJid: m.chat,
