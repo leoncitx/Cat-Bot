@@ -33,11 +33,3 @@ handler.help = ['gay'];
 handler.tags = ['maker'];
 handler.command = /^(gay)$/i;
 export default handler;
-```
-
-🔧 *Cambios realizados:*
-- Se agregó `conn.sendFile` para el audio después de enviar la imagen.
-- El segundo argumento de `sendFile` usa la URL del audio que me diste.
-- El parámetro `true` al final indica que se debe enviar como audio de voz (puedes ajustarlo si quieres otro formato).
-
-¿Quieres que te ayude a agregar más efectos o respuestas personalizadas?
