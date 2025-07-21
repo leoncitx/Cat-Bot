@@ -23,13 +23,10 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
 
   const getCountryFlag = (id) => {
     const phoneNumber = id.split('@')[0];
-    let phonePrefix = phoneNumber.slice(0, 3);
-
+    let prefix = phoneNumber.slice(0, 3);
     if (phoneNumber.startsWith('1')) return '🇺🇸';
-    if (!countryFlags[phonePrefix]) {
-      phonePrefix = phoneNumber.slice(0, 2);
-}
-    return countryFlags[phonePrefix] || '🏳️‍🌈';
+    if (!countryFlags[prefix]) prefix = phoneNumber.slice(0, 2);
+    return countryFlags[prefix] || '🏳️‍🌈';
 };
 
   let textoMensaje = `*${groupName}*\n\n*Integrantes: ${participants.length}*\n${mensajePersonalizado}\n┌──⭓ *Despierten*\n`;
@@ -54,23 +51,12 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
 }
 };
 
-  // Enviar imagen con mensaje
+  // ✅ Enviar imagen con mensaje
   await conn.sendMessage(m.chat, {
     image: { url: imageUrl},
     caption: textoMensaje,
-    mentions: participants.map((a) => a.id)
+    mentions: participants.map(a => a.id)
 }, { quoted: fkontak});
-
-  // Enviar audio adicional
-  try {
-    await conn.sendMessage(m.chat, {
-      audio: { url: "https://qu.ax/LhbNi.opus"},
-      mimetype: "audio/ogg; codecs=opus",
-      ptt: false
-}, { quoted: fkontak});
-} catch (err) {
-    console.error("❌ Error al enviar el audio de tagall:", err);
-}
 };
 
 handler.help = ['todos'];
