@@ -14,7 +14,7 @@ let handler = async (m, { conn}) => {
   try {
     await conn.sendMessage(m.chat, {
       audio: { url: 'https://qu.ax/grQGD.m4a'},
-      mimetype: 'audio/mp3', // Prueba con audio/mp4 en lugar de audio/m4a
+      mimetype: 'audio/mp4', // Prueba con audio/mp4 en lugar de audio/m4a
       ptt: true
 }, { quoted: m});
 } catch (e) {
