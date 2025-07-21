@@ -59,7 +59,7 @@ export async function before(m, { conn, participants, groupMetadata, sender }) {
 
     if (chat.bienvenida && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE) {
       const goodbyeText = `🚶‍♂️ *¡Adiós ${user}!* 😔\n\nNos entristece verte partir de *${groupName}*.\n\n✨ ¡Gracias por haber sido parte de nuestra comunidad! Siempre serás bienvenido/a de vuelta.`;
-      const exitAudioUrl = "https://qu.ax/drUpn.opus";
+      const exitAudioUrl = "https://cdn.russellxz.click/98d99914.mp3";
 
       await conn.sendMessage(m.chat, {
         image: imgBuffer,
@@ -81,7 +81,7 @@ export async function before(m, { conn, participants, groupMetadata, sender }) {
 
     if (chat.bienvenida && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE) {
       const kickText = `🚨 *¡${user} ha sido ELIMINADO del grupo!* 🚨\n\n💥 Ya no forma parte de *${groupName}*.\n\n🚫 Este es un recordatorio importante: las reglas están para cumplirse. ¡Mantengamos un ambiente positivo!`;
-      const kickAudioUrl = "https://qu.ax/drUpn.opus";
+      const kickAudioUrl = "https://cdn.russellxz.click/98d99914.mp3";
 
       await conn.sendMessage(m.chat, {
         image: imgBuffer,
