@@ -613,7 +613,7 @@ let handler = async (m, { conn }) => {
 
         case 'audio hentai':
             conn.sendPresenceUpdate('recording', m.chat);
-            await conn.sendFile(m.chat, 'https://qu.ax/GSUY.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
+            await conn.sendFile(m.chat, 'https://cdn.russellxz.click/b7d487e8.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
             break;
 
         case 'homero chino':
