@@ -43,23 +43,8 @@ export async function before(m, { conn, groupMetadata}) {
     const groupName = groupMetadata.subject;
     const groupDesc = groupMetadata.desc || "📜 Sin descripción disponible";
 
-    const ppUrl = await conn.profilePictureUrl(userJid, "image").catch(() => null);
-    let imgBuffer = null;
-    if (ppUrl) {
-      try {
-        imgBuffer = await fetch(ppUrl).then(res => res.buffer());
-} catch (e) {
-        console.error("❌ Error al descargar la foto de perfil:", e);
-}
-}
-
-    if (!imgBuffer) {
-      try {
-        imgBuffer = await fetch("https://example.com/default_profile_pic.jpg").then(res => res.buffer());
-} catch (e) {
-        console.error("❌ Error al descargar imagen de respaldo:", e);
-}
-}
+    // 🔄 Usar imagen personalizada de bienvenida
+    const imgBuffer = await fetch("https://qu.ax/xwmUv.jpg").then(res => res.buffer());
 
     if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
       const welcomeText = `🎉 *¡HOLA ${user}!* 🎉\n\nBienvenido/a a *${groupName}*.\n\n📚 *Sobre nosotros:*\n_${groupDesc}_\n\n🌟 ¡Esperamos que disfrutes tu estancia!`;
@@ -82,7 +67,7 @@ export async function before(m, { conn, groupMetadata}) {
 }
 }
 
-    // Salida voluntaria sin audio
+    // Salida voluntaria
     if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE) {
       const goodbyeText = `🚶‍♂️ *¡Adiós ${user}!* 😔\n\nGracias por haber formado parte de *${groupName}*. ¡Vuelve cuando quieras!`;
       await conn.sendMessage(m.chat, {
@@ -92,7 +77,7 @@ export async function before(m, { conn, groupMetadata}) {
 }, { quoted: fkontak});
 }
 
-    // Expulsión sin audio
+    // Expulsión
     if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE) {
       const kickText = `🚨 *${user} ha sido expulsado del grupo* 🚨\n\nMantengamos un ambiente respetuoso en *${groupName}*`;
       await conn.sendMessage(m.chat, {
