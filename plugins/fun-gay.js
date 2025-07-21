@@ -1,24 +1,30 @@
 
-let handler = async (m, { conn}) => {
+let handler = async (m, { conn, groupMetadata}) => {
   let who = m.mentionedJid?.[0]
 ? m.mentionedJid[0]
 : m.quoted
 ? m.quoted.sender
 : m.sender;
 
-  let nro = Math.floor(Math.random() * 101);
+  let nro = Math.floor(Math.random() * 101); // Valor entre 0 y 100
   let mensaje = `@${who.split("@")[0]} es ${nro}% Gay 🏳️‍🌈.`;
 
   await m.reply(mensaje, null, { mentions: [who]});
 
-  try {
-    await conn.sendMessage(m.chat, {
-      audio: { url: 'https://qu.ax/grQGD.m4a'},
-      mimetype: 'audio/mp4', // Prueba con audio/mp4 en lugar de audio/m4a
-      ptt: true
-}, { quoted: m});
-} catch (e) {
-    await m.reply('⚠️ No se pudo enviar el audio. Quizás el archivo no es compatible o el servidor lo bloquea.');
-    console.error(e);
-}
+  // Envío del audio como archivo
+  await conn.sendFile(
+    m.chat,
+    'https://qu.ax/grQGD.m4a',
+    'audio.mp3',
+    null,
+    m,
+    true // Enviar como nota de voz
+);
 };
+
+handler.help = ['gay'];
+handler.tags = ['fun'];
+handler.command = ['cekgay', 'gay2'];
+handler.group = true;
+
+export default handler;
