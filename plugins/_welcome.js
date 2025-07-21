@@ -1,4 +1,3 @@
-
 import { WAMessageStubType} from "@whiskeysockets/baileys";
 import fetch from "node-fetch";
 
@@ -43,18 +42,6 @@ export async function before(m, { conn, groupMetadata}) {
         caption: welcomeText,
         mentions: [userJid]
 }, { quoted: fkontak});
-
-      try {
-        await conn.sendMessage(m.chat, {
-          audio: { url: "https://qu.ax/dvPOt.opus"},
-          mimetype: "audio/ogg", // Simplificado MIME
-          ptt: false
-}, { quoted: fkontak});
-        console.log("✅ Audio de bienvenida enviado correctamente.");
-} catch (error) {
-        console.error("❌ Error al enviar el audio de bienvenida:", error);
-        await m.reply("⚠️ El audio de bienvenida no se pudo enviar.");
-}
 }
 
     // 👋 Salida voluntaria
@@ -66,17 +53,6 @@ export async function before(m, { conn, groupMetadata}) {
         caption: goodbyeText,
         mentions: [userJid]
 }, { quoted: fkontak});
-
-      try {
-        await conn.sendMessage(m.chat, {
-          audio: { url: "https://cdn.russellxz.click/98d99914.mp3"},
-          mimetype: "audio/mpeg",
-          ptt: false
-}, { quoted: fkontak});
-        console.log("✅ Audio de despedida enviado correctamente.");
-} catch (error) {
-        console.error("❌ Error al enviar el audio de despedida:", error);
-}
 }
 
     // 🚫 Expulsión
@@ -88,18 +64,8 @@ export async function before(m, { conn, groupMetadata}) {
         caption: kickText,
         mentions: [userJid]
 }, { quoted: fkontak});
+}
 
-      try {
-        await conn.sendMessage(m.chat, {
-          audio: { url: "https://qu.ax/AGEns.mp3"},
-          mimetype: "audio/mpeg",
-          ptt: false
-}, { quoted: fkontak});
-        console.log("✅ Audio de expulsión enviado correctamente.");
-} catch (error) {
-        console.error("❌ Error al enviar el audio de expulsión:", error);
-}
-}
 } catch (error) {
     console.error("❌ Error general en el sistema de bienvenida/despedida:", error);
 }
