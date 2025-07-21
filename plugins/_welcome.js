@@ -42,8 +42,6 @@ export async function before(m, { conn, groupMetadata}) {
     const user = `@${userJid.split("@")[0]}`;
     const groupName = groupMetadata.subject;
     const groupDesc = groupMetadata.desc || "📜 Sin descripción disponible";
-
-    // 🔄 Usar imagen personalizada de bienvenida
     const imgBuffer = await fetch("https://qu.ax/xwmUv.jpg").then(res => res.buffer());
 
     if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
@@ -55,7 +53,6 @@ export async function before(m, { conn, groupMetadata}) {
         mentions: [userJid]
 }, { quoted: fkontak});
 
-      // 🎵 Enviar audio de bienvenida
       try {
         await conn.sendMessage(m.chat, {
           audio: { url: "https://qu.ax/sjtTL.opus"},
@@ -67,26 +64,50 @@ export async function before(m, { conn, groupMetadata}) {
 }
 }
 
-    // Salida voluntaria
     if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE) {
       const goodbyeText = `🚶‍♂️ *¡Adiós ${user}!* 😔\n\nGracias por haber formado parte de *${groupName}*. ¡Vuelve cuando quieras!`;
+
       await conn.sendMessage(m.chat, {
         image: imgBuffer,
         caption: goodbyeText,
         mentions: [userJid]
 }, { quoted: fkontak});
+
+      try {
+        await conn.sendMessage(m.chat, {
+          audio: { url: "https://qu.ax/LhbNi.opus"},
+          mimetype: "audio/ogg; codecs=opus",
+          ptt: false
+}, { quoted: fkontak});
+} catch (err) {
+        console.error("❌ Error al enviar el audio de despedida:", err);
+}
 }
 
-    // Expulsión
     if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE) {
       const kickText = `🚨 *${user} ha sido expulsado del grupo* 🚨\n\nMantengamos un ambiente respetuoso en *${groupName}*`;
+
       await conn.sendMessage(m.chat, {
         image: imgBuffer,
         caption: kickText,
         mentions: [userJid]
 }, { quoted: fkontak});
+
+      try {
+        await conn.sendMessage(m.chat, {
+          audio: { url: "https://qu.ax/LhbNi.opus"},
+          mimetype: "audio/ogg; codecs=opus",
+          ptt: false
+}, { quoted: fkontak});
+} catch (err) {
+        console.error("❌ Error al enviar el audio de expulsión:", err);
 }
+}
+
 } catch (error) {
-    console.error("❌ Error general en el sistema de bienvenida/despedida:", error);
+    console.error("❌ Error general en la función de bienvenida/despedida:", error);
 }
 }
+```
+
+🔧 Si el audio aún no se reproduce, puedes intentar convertirlo a `.mp3`, subirlo a un host confiable como [Catbox](https://catbox.moe) y ajustar el `mimetype` a `"audio/mpeg"`. ¿Te gustaría que te ayude con eso?
