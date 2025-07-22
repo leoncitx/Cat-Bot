@@ -33,7 +33,8 @@ let texto = `*☁️ _M E N U - A U D I O S_ ☁️*
 ° _Lo Paltimos_.
 ° _Jesucristo_.
 ° _Juicioso_.
-° _chambear
+° _chambear_
+° _mudo_
 ° _tralalero tralala_
 ° _Homero Chino_.
 ° _Hora De Sexo_.
