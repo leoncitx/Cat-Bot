@@ -16,6 +16,11 @@ let handler = async (m, { conn }) => {
             await conn.sendFile(m.chat, 'https://cdn.russellxz.click/8bf465cd.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
             break;
 
+        case 'chambear':
+            conn.sendPresenceUpdate('recording', m.chat);
+            await conn.sendFile(m.chat, 'https://cdn.russellxz.click/fb415e7d.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
+            break;
+
         case 'conoces a miguel':
             conn.sendPresenceUpdate('recording', m.chat);
             await conn.sendFile(m.chat, 'https://qu.ax/ygNqu.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
@@ -677,7 +682,7 @@ let handler = async (m, { conn }) => {
 
 
 
-handler.customPrefix = /^(Bueno master|maldito teni|conoces a miguel|usted es feo|como estan|viva el sexo|juicioso|lo paltimos|poco de gente|moshi moshi|nadie te pregunto|feliz navidad|niconico|no chupala|no me hables|no me hagas usar esto|no digas eso papus|noche de paz|omg|onichan|orale|pasa pack|contexto|pero esto|pikachu|pokemon|quien es tu botsito|rawr|hablame|cagaste|yoshi|verdad que te engañe|vivan los novios|yamete|usted esta detenido|una pregunta|chiste|gaspi y la minita|gaspi frase|se pubrio|temazo|:v|freefire|aguanta|es viernes|feriado|delibery|tarado|donde esta|q onda| bebesita|tka|takataka|hey|joder|siuuu|amongos|teamo|estoy triste|un pato|fiesta viernes|wtf|yokese|vete a la vrg|buenas noches|bueno si|buenos dias|me olvide|diagnosticado con gay|el pepe|trap|enojado|entrada|esto va ser epico papus|esto va para ti|feliz cumpleaños|fiesta de admin|fiesta de admin 2|fiesta de admin 3|fino señores|me voy|tunometecabrasaramambiche|gemidos|audio hentai|homero chino|hora de sexo|jesucristo|laoracion|marica tu|ma ma masivo|oh me vengo|me pica los cocos|mmmm|y este quien es|goku pervertido|tengo los calzones|a nadie le importa|mierda de bot|baneado|basado|bien pensado woody|bañate|tal vez|te gusta el pepino|todo bien|traiganle una falda|su nivel de pendejo|se estan riendo de mi|que tal grupo|potasio|nico nico|no rompas mas|muchachos escucharon|momento xds|motivacion|me anda buscando anonymous|eres fuerte|zzzz|las reglas del grupo|no estes tite|FBI|en caso de una investigación|elmo sabe donde vives|corte corte|el toxico|cambiate a movistar|hermoso negro|ara ara|bienvenido wey|in your area|buen dia grupo|calla fan de bts|)/i;
+handler.customPrefix = /^(Bueno master|maldito teni|conoces a miguel|usted es feo|como estan|viva el sexo|juicioso|lo paltimos|poco de gente|moshi moshi|nadie te pregunto|feliz navidad|niconico|no chupala|no me hables|no me hagas usar esto|no digas eso papus|noche de paz|omg|onichan|orale|pasa pack|contexto|pero esto|pikachu|pokemon|quien es tu botsito|rawr|hablame|cagaste|yoshi|verdad que te engañe|vivan los novios|yamete|usted esta detenido|una pregunta|chiste|gaspi y la minita|gaspi frase|se pubrio|temazo|:v|freefire|aguanta|es viernes|feriado|delibery|tarado|donde esta|q onda| bebesita|tka|takataka|hey|joder|siuuu|amongos|teamo|estoy triste|un pato|fiesta viernes|wtf|yokese|vete a la vrg|buenas noches|bueno si|buenos dias|me olvide|diagnosticado con gay|el pepe|trap|enojado|entrada|esto va ser epico papus|esto va para ti|feliz cumpleaños|fiesta de admin|fiesta de admin 2|fiesta de admin 3|fino señores|me voy|tunometecabrasaramambiche|gemidos|audio hentai|homero chino|hora de sexo|jesucristo|laoracion|marica tu|ma ma masivo|oh me vengo|me pica los cocos|mmmm|y este quien es|goku pervertido|tengo los calzones|a nadie le importa|mierda de bot|baneado|basado|bien pensado woody|bañate|tal vez|te gusta el pepino|todo bien|traiganle una falda|chambear|su nivel de pendejo|se estan riendo de mi|que tal grupo|potasio|nico nico|no rompas mas|muchachos escucharon|momento xds|motivacion|me anda buscando anonymous|eres fuerte|zzzz|las reglas del grupo|no estes tite|FBI|en caso de una investigación|elmo sabe donde vives|corte corte|el toxico|cambiate a movistar|hermoso negro|ara ara|bienvenido wey|in your area|buen dia grupo|calla fan de bts|)/i;
 handler.command = new RegExp;
 
 export default handler;
