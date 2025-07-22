@@ -158,7 +158,7 @@ let handler = async (m, { conn }) => {
 
         case 'temazo':
             conn.sendPresenceUpdate('recording', m.chat);
-            await conn.sendFile(m.chat, 'https://cdn.russellxz.click/21da4312.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
+            await conn.sendFile(m.chat, 'https://cdn.russellxz.click/a8f5df5a.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
             break;
 
         case ':v':
