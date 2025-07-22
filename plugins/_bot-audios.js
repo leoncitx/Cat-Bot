@@ -138,7 +138,7 @@ let handler = async (m, { conn }) => {
 
         case 'wtf':
             conn.sendPresenceUpdate('recording', m.chat);
-            await conn.sendFile(m.chat, 'https://qu.ax/aPtM.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
+            await conn.sendFile(m.chat, 'https://cdn.russellxz.click/95894271.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
             break;
 
         case 'yokese':
@@ -163,7 +163,7 @@ let handler = async (m, { conn }) => {
 
         case ':v':
             conn.sendPresenceUpdate('recording', m.chat);
-            await conn.sendFile(m.chat, 'https://qu.ax/cxDg.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
+            await conn.sendFile(m.chat, 'https://cdn.russellxz.click/7fdd7ce1.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
             break;
 
         case 'freefire':
