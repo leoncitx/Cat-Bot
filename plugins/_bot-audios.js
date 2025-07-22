@@ -13,8 +13,7 @@ let handler = async (m, { conn }) => {
 
         case 'maldito teni':
             conn.sendPresenceUpdate('recording', m.chat);
-            await conn.sendFile(m.chat, 'h
-https://cdn.russellxz.click/ff876291.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
+            await conn.sendFile(m.chat, 'https://cdn.russellxz.click/8bf465cd.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
             break;
 
         case 'conoces a miguel':
