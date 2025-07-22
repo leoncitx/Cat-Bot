@@ -50,6 +50,6 @@ const handler = async (m, { conn, text, command}) => {
 handler.command = ["playlite", "mp3lite"];
 handler.tags = ["downloader"];
 handler.help = ["playlite <nombre>", "mp3lite <nombre>"];
-handler.register = true;
+handler.register = false;
 
 export default handler;
