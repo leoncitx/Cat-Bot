@@ -10,6 +10,7 @@ let handler = async (m, { isPrems, conn }) => {
 🎭 _Elmo Sabe Dónde Vives_
 💉 _Diagnosticado Con Gay_
 📢 _Esto Va Para Ti_
+👻 _chambear_
 🎉 _Feliz Cumpleaños_
 😡 _Maldito Teni_
 🧔 _Conoces a Miguel_
