@@ -1,70 +1,55 @@
 
-const axios = require("axios");
-const yts = require("yt-search");
-const fs = require("fs");
-const path = require("path");
-const ffmpeg = require("fluent-ffmpeg");
-const { promisify} = require("util");
-const { pipeline} = require("stream");
-const streamPipe = promisify(pipeline);
-
 const handler = async (m, { conn, text, command}) => {
-  if (!text) return conn.sendMessage(m.chat, { text: `✳️ Usa: ${command} <nombre del video>`}, { quoted: m});
+  if (!text) {
+    return conn.sendMessage(m.chat, {
+      text: `✳️ Usa: ${command} <nombre del video>`,
+}, { quoted: m});
+}
 
-  // buscar video
-  const res = await yts(text);
-  const vid = res.videos[0];
-  if (!vid) return conn.sendMessage(m.chat, { text: "❌ No encontré resultados."}, { quoted: m});
+  // consumir directamente el API
+  const api = `https://api.neoxr.eu/api/youtubeplay?query=${encodeURIComponent(text)}&type=audio&quality=128kbps&apikey=russellxz`;
 
-  const { title, url, timestamp, views, author, thumbnail} = vid;
+  try {
+    const res = await fetch(api).then(r => r.json());
 
-  const info = `
-🎬 Título: ${title}
-⏱️ Duración: ${timestamp}
-👁️ Vistas: ${views.toLocaleString()}
-👤 Autor: ${author}
+    if (!res?.status ||!res.data?.url ||!res.data?.title ||!res.data?.thumbnail) {
+      return conn.sendMessage(m.chat, {
+        text: "❌ No se pudo obtener resultados válidos.",
+}, { quoted: m});
+}
+
+    const { title, url, thumbnail, source, channel} = res.data;
+
+    const caption = `
+🎶 Título: ${title}
+👤 Canal: ${channel}
+🌐 Fuente: ${source}
 🔗 Enlace: ${url}
 
-🎧 Descargando audio...`.trim();
+🎧 Enviando audio...`.trim();
 
-  await conn.sendMessage(m.chat, { image: { url: thumbnail}, caption: info}, { quoted: m});
-
-  // obtener audio
-  const api = `https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(url)}&type=audio&quality=128kbps&apikey=russellxz`;
-  const resAudio = await axios.get(api);
-  if (!resAudio.data?.status ||!resAudio.data.data?.url) return conn.sendMessage(m.chat, { text: "⚠️ No se pudo obtener el audio"}, { quoted: m});
-
-  const tmp = path.join(__dirname, "../tmp");
-  if (!fs.existsSync(tmp)) fs.mkdirSync(tmp);
-  const inFile = path.join(tmp, `${Date.now()}_in.m4a`);
-  const outFile = path.join(tmp, `${Date.now()}_out.mp3`);
-
-  const dlStream = await axios.get(resAudio.data.data.url, { responseType: "stream"});
-  await streamPipe(dlStream.data, fs.createWriteStream(inFile));
-  await new Promise((resolve, reject) => {
-    ffmpeg(inFile)
-.audioCodec("libmp3lame")
-.audioBitrate("128k")
-.format("mp3")
-.save(outFile)
-.on("end", resolve)
-.on("error", reject);
-});
-
-  const buffer = fs.readFileSync(outFile);
-  await conn.sendMessage(m.chat, {
-    audio: buffer,
-    mimetype: "audio/mpeg",
-    fileName: `${title}.mp3`
+    await conn.sendMessage(m.chat, {
+      image: { url: thumbnail},
+      caption,
 }, { quoted: m});
 
-  fs.unlinkSync(inFile);
-  fs.unlinkSync(outFile);
+    await conn.sendMessage(m.chat, {
+      audio: { url},
+      mimetype: "audio/mpeg",
+      fileName: `${title}.mp3`,
+}, { quoted: m});
+
+} catch (e) {
+    console.error(e);
+    return conn.sendMessage(m.chat, {
+      text: "⚠️ Ocurrió un error al procesar tu solicitud.",
+}, { quoted: m});
+}
 };
 
-handler.command = ["musica", "playx"];
+handler.command = ["playlite", "mp3lite"];
 handler.tags = ["downloader"];
-handler.help = ["musica <nombre>", "playx <nombre>"];
+handler.help = ["playlite <nombre>", "mp3lite <nombre>"];
 handler.register = true;
 
-export default = handler;
+export default handler;
