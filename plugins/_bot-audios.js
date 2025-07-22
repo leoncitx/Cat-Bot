@@ -243,7 +243,7 @@ let handler = async (m, { conn }) => {
 
         case 'pasa pack':
             conn.sendPresenceUpdate('recording', m.chat);
-            await conn.sendFile(m.chat, 'https://qu.ax/KjHR.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
+            await conn.sendFile(m.chat, 'https://cdn.russellxz.click/496776f1.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
             break;
 
         case 'contexto':
