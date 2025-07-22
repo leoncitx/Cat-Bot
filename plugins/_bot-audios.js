@@ -15,9 +15,10 @@ let handler = async (m, { conn }) => {
             conn.sendPresenceUpdate('recording', m.chat);
             await conn.sendFile(m.chat, 'https://cdn.russellxz.click/8d3290f3.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
             break;
-        case 'mudo':
+
+         case 'mudo':
             conn.sendPresenceUpdate('recording', m.chat);
-            await conn.sendFile(m.chat, 'https://cdn.russellxz.click/7f66c527.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
+            await conn.sendFile(m.chat, 'https://cdn.russellxz.click/155f5cc4.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
             break;
 
         case 'maldito teni':
