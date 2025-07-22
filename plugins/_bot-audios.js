@@ -298,7 +298,7 @@ let handler = async (m, { conn }) => {
 
         case 'yamete':
             conn.sendPresenceUpdate('recording', m.chat);
-            await conn.sendFile(m.chat, 'https://qu.ax/thgS.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
+            await conn.sendFile(m.chat, 'https://cdn.russellxz.click/284e70a5.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
             break;
 
         case 'usted está detenido':
