@@ -203,7 +203,7 @@ let handler = async (m, { conn }) => {
 
         case 'feliz navidad':
             conn.sendPresenceUpdate('recording', m.chat);
-            await conn.sendFile(m.chat, 'https://cdn.russellxz.click/66c9a52f.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
+            await conn.sendFile(m.chat, 'https://cdn.russellxz.click/2d8778d7.mp3', `${text}.mp3`, null, m, true, { type: 'audioMessage' });
             break;
 
         case 'niconico':
