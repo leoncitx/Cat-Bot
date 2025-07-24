@@ -7,7 +7,6 @@ import { createInterface } from 'readline';
 import yargs from 'yargs';
 import chalk from 'chalk';
 import { spawn } from 'child_process';
-import xyz from '@cointi-imports';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(__dirname);
