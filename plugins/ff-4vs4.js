@@ -5,6 +5,7 @@ const maxJugadores = 4
 const maxSuplentes = 2
 let mensajeId = null
 let chatId = null
+let registrado = false
 
 function render() {
   return `
@@ -35,36 +36,43 @@ function render() {
 `.trim()
 }
 
+async function manejarReaccion({ key, message}, conn) {
+  if (!mensajeId ||!chatId) return
+  if (key.id!== mensajeId || key.remoteJid!== chatId) return
+
+  const reaction = message?.reaction?.text
+  const userId = key.participant
+  const metadata = await conn.groupMetadata(chatId)
+  const name = metadata.participants.find(p => p.id === userId)?.name || userId
+
+  if (reaction === '👍') {
+    if (!escuadra.includes(name) && escuadra.length < maxJugadores) {
+      escuadra.push(name)
+      jugadores.set(userId, name)
+}
+}
+
+  if (reaction === '❤️') {
+    if (!suplentes.includes(name) && suplentes.length < maxSuplentes) {
+      suplentes.push(name)
+      jugadores.set(userId, name)
+}
+}
+
+  await conn.sendMessage(chatId, { text: render()})
+}
+
 let handler = async (m, { conn}) => {
   chatId = m.chat
-
   const msg = await conn.sendMessage(chatId, { text: render()}, { quoted: m})
   mensajeId = msg.key.id
 
-  conn.ev.on('messages.reaction', async ({ key, message}) => {
-    if (key.id!== mensajeId || key.remoteJid!== chatId) return
-
-    const reaction = message?.reaction?.text
-    const userId = key.participant
-    const metadata = await conn.groupMetadata(chatId)
-    const name = metadata.participants.find(p => p.id === userId)?.name || userId
-
-    if (reaction === '👍') {
-      if (!escuadra.includes(name) && escuadra.length < maxJugadores) {
-        escuadra.push(name)
-        jugadores.set(userId, name)
-}
-}
-
-    if (reaction === '❤️') {
-      if (!suplentes.includes(name) && suplentes.length < maxSuplentes) {
-        suplentes.push(name)
-        jugadores.set(userId, name)
-}
-}
-
-    await conn.sendMessage(chatId, { text: render()})
+  if (!registrado) {
+    conn.ev.on('messages.reaction', async (data) => {
+      await manejarReaccion(data, conn)
 })
+    registrado = true
+}
 }
 
 handler.help = ['4vs4']
