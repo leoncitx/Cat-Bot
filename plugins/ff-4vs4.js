@@ -73,6 +73,6 @@ handler.command = /^4vs4$/i
 handler.help = ['4vs4']
 handler.tags = ['freefire']
 handler.group = true
-handler.admin = true
+handler.admin = false
 
 export default handler
