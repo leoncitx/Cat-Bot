@@ -65,5 +65,4 @@ handler.help = ['24vs24']
 handler.tags = ['freefire']
 handler.command = /^(vs24|24vs24)$/i
 handler.group = true
-handler.admin = true
 export default handler
