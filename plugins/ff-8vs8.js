@@ -36,5 +36,5 @@ handler.help = ['8vs8']
 handler.tags = ['freefire']
 handler.command = /^(vs8|8vs8|masc8)$/i
 handler.group = true
-handler.admin = true
+handler.admin = false
 export default handler
