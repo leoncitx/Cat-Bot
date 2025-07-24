@@ -1,4 +1,4 @@
- {
+{
   "name": "Barboza",
   "version": "2.2.0",
   "description": "Super WhatsApp Bot Multi Device",
@@ -84,8 +84,9 @@
     "qrcode": "^1.5.1",
     "qrcode-terminal": "^0.12.0",
     "readline": "^1.3.0",
-    "ruhend-scraper": "^7.0.4",
+    "ruhend-scraper": "latest",
     "sanzy-spotifydl": "^1.0.0",
+    "senna-fg": "^1.0.0",
     "similarity": "^1.2.1",
     "socket.io": "^4.5.2",
     "syntax-error": "^1.4.0",
@@ -102,8 +103,3 @@
     "wa-sticker-formatter": "^4.3.2"
 }
 }
-```
-
-—
-
-Ahora sí, puedes correr `npm install` sin que se queje de versiones inexistentes. ¿Quieres que revisemos también el archivo `index.js` para evitar más errores de importación? 🔎🧩
