@@ -26,5 +26,5 @@ handler.help = ['reglaslideres']
 handler.tags = ['freefire']
 handler.command = ['reglaslideres'] 
 handler.register = false
-handler.admin = true
+handler.admin = false
 export default handler
