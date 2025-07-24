@@ -29,5 +29,5 @@ handler.help = ['scrim']
 handler.tags = ['freefire']
 handler.command = /^(scrim)$/i
 handler.group = true
-handler.admin = true
+handler.admin = false
 export default handler
