@@ -84,7 +84,7 @@
     "qrcode": "^1.5.1",
     "qrcode-terminal": "^0.12.0",
     "readline": "^1.3.0",
-    "ruhend-scraper": "^7.0.4",
+    "ruhend-scraper": "latest",
     "sanzy-spotifydl": "^1.0.0",
     "senna-fg": "^1.0.0",
     "similarity": "^1.2.1",
