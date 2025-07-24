@@ -3,9 +3,9 @@ const escuadra = []
 const suplentes = []
 const maxJugadores = 4
 const maxSuplentes = 2
-let mensajeId = null
+let mensajeTorneo = null
 let chatId = null
-let registrado = false
+let handlerRegistrado = false
 
 function render() {
   return `
@@ -36,48 +36,94 @@ function render() {
 `.trim()
 }
 
-async function manejarReaccion({ key, message}, conn) {
-  if (!mensajeId ||!chatId) return
-  if (key.id!== mensajeId || key.remoteJid!== chatId) return
+async function manejarReaccion(reactionData, conn) {
+  if (!mensajeTorneo || !mensajeTorneo.key || !mensajeTorneo.key.id || !mensajeTorneo.key.remoteJid) {
+    return;
+  }
 
-  const reaction = message?.reaction?.text
-  const userId = key.participant
-  const metadata = await conn.groupMetadata(chatId)
-  const name = metadata.participants.find(p => p.id === userId)?.name || userId
+  const { key, message } = reactionData;
+
+  if (key.id !== mensajeTorneo.key.id || key.remoteJid !== mensajeTorneo.key.remoteJid) {
+    return;
+  }
+
+  const reaction = message?.reaction?.text;
+  const userId = key.participant;
+  
+  let name = userId;
+  try {
+    const metadata = await conn.groupMetadata(chatId);
+    name = metadata.participants.find(p => p.id === userId)?.name || userId;
+  } catch (error) {
+    console.error("Error al obtener metadatos del grupo:", error);
+  }
+
+  let cambiosRealizados = false;
+
+  if (jugadores.has(userId)) {
+      const rolActual = jugadores.get(userId);
+      if (reaction === '👍' && rolActual === 'titular') return;
+      if (reaction === '❤️' && rolActual === 'suplente') return;
+
+      if (rolActual === 'titular') {
+          const index = escuadra.indexOf(name);
+          if (index > -1) escuadra.splice(index, 1);
+      } else if (rolActual === 'suplente') {
+          const index = suplentes.indexOf(name);
+          if (index > -1) suplentes.splice(index, 1);
+      }
+      jugadores.delete(userId);
+  }
 
   if (reaction === '👍') {
-    if (!escuadra.includes(name) && escuadra.length < maxJugadores) {
-      escuadra.push(name)
-      jugadores.set(userId, name)
-}
-}
+    if (escuadra.length < maxJugadores) {
+      escuadra.push(name);
+      jugadores.set(userId, 'titular');
+      cambiosRealizados = true;
+    }
+  }
 
   if (reaction === '❤️') {
-    if (!suplentes.includes(name) && suplentes.length < maxSuplentes) {
-      suplentes.push(name)
-      jugadores.set(userId, name)
-}
+    if (suplentes.length < maxSuplentes) {
+      suplentes.push(name);
+      jugadores.set(userId, 'suplente');
+      cambiosRealizados = true;
+    }
+  }
+
+  if (cambiosRealizados) {
+    await conn.sendMessage(chatId, { text: render() }, { edit: mensajeTorneo.key });
+  }
 }
 
-  await conn.sendMessage(chatId, { text: render()})
-}
+let handler = async (m, { conn }) => {
+  chatId = m.chat;
 
-let handler = async (m, { conn}) => {
-  chatId = m.chat
-  const msg = await conn.sendMessage(chatId, { text: render()}, { quoted: m})
-  mensajeId = msg.key.id
+  if (mensajeTorneo) {
+      try {
+          await conn.sendMessage(chatId, { delete: mensajeTorneo.key });
+      } catch (e) {
+          console.error("Error al eliminar el mensaje anterior del torneo:", e);
+      }
+      escuadra.length = 0;
+      suplentes.length = 0;
+      jugadores.clear();
+  }
 
-  if (!registrado) {
+  const msg = await conn.sendMessage(chatId, { text: render() }, { quoted: m });
+  mensajeTorneo = msg;
+
+  if (!handlerRegistrado) {
     conn.ev.on('messages.reaction', async (data) => {
-      await manejarReaccion(data, conn)
-})
-    registrado = true
-}
-}
+      await manejarReaccion(data, conn);
+    });
+    handlerRegistrado = true;
+  }
+};
 
-handler.help = ['4vs4']
-handler.tags = ['game']
-handler.command = /^(4vs4|vs4)$/i
-handler.group = true
+handler.help = ['4vs4'];
+handler.tags = ['game'];
+handler.command = /^(4vs4|vs4)$/i;
+handler.group = true;
 
-export default handler
+export default handler;
