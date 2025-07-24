@@ -1,7 +1,6 @@
 
 import axios from "axios";
-import cheerio from "cheerio";
-
+import * as cheerio from 'cheerio';
 const handler = async (m, { conn, args}) => {
     if (!args[0]) return conn.reply(m.chat, '❌ *Debes proporcionar un enlace de TikTok!*', m);
 
