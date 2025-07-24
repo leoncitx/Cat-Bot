@@ -1,74 +1,75 @@
-
-import axios from 'axios'
-
 const jugadores = new Map()
-const escuadras = [[], []]
+const escuadra = []
 const suplentes = []
-const maxPorEscuadra = 4
+const maxJugadores = 4
 const maxSuplentes = 2
+let mensajeId = null
+let chatId = null
 
-const render = () => {
-  let salida = `
-〘 ⚔️ *EVENTO 4 VS 4* ⚔️ 〙
-───────────────────────
+function render() {
+  return `
+🧨 *TORNEO 4 VS 4* ⚔️
+──────────────────────────
 
-🕒 *HORARIO*
-🇲🇽 MÉXICO: --
-🇨🇴 COLOMBIA: --
+🕓 *HORARIOS DISPONIBLES*
+🇲🇽 México: --
+🇨🇴 Colombia: --
 
-🎯 *MODALIDAD:* CLÁSICO / PVP
+🎮 *MODALIDAD:* Clásico / PvP
 
-👥 *JUGADORES CONFIRMADOS:*
+🎯 *JUGADORES TITULARES*
 
-━━━━━━━━━━━━━━━━━━━━━
-🛡️ *ESCUADRA 1*
-👑 ${escuadras[0][0] || '—'}
-🥷 ${escuadras[0][1] || '—'}
-🥷 ${escuadras[0][2] || '—'}
-🥷 ${escuadras[0][3] || '—'}
+👑 ${escuadra[0] || '—'}
+🥷 ${escuadra[1] || '—'}
+🥷 ${escuadra[2] || '—'}
+🥷 ${escuadra[3] || '—'}
 
 💤 *SUPLENTES*
-🥷 ${suplentes[0] || '—'}
-🥷 ${suplentes[1] || '—'}
-━━━━━━━━━━━━━━━━━━━━━
 
-📌 Reacciona con 👍 para jugar
-📌 Reacciona con ❤️ para suplente
-  `.trim()
-  return salida
+🔁 ${suplentes[0] || '—'}
+🔁 ${suplentes[1] || '—'}
+
+──────────────────────────
+📝 Reacciona con 👍 para jugar
+📝 Reacciona con ❤️ para ser suplente
+`.trim()
 }
 
 let handler = async (m, { conn}) => {
-  const msg = await conn.sendMessage(m.chat, { text: render()}, { quoted: m})
+  chatId = m.chat
 
-  conn.updateMessageReaction = async ({ key, reaction}) => {
-    const user = key.participant || m.sender
-    const metadata = await conn.groupMetadata(m.chat)
-    const name = metadata.participants.find(p => p.id === user)?.name || user
+  const msg = await conn.sendMessage(chatId, { text: render()}, { quoted: m})
+  mensajeId = msg.key.id
+
+  conn.ev.on('messages.reaction', async ({ key, message}) => {
+    if (key.id!== mensajeId || key.remoteJid!== chatId) return
+
+    const reaction = message?.reaction?.text
+    const userId = key.participant
+    const metadata = await conn.groupMetadata(chatId)
+    const name = metadata.participants.find(p => p.id === userId)?.name || userId
 
     if (reaction === '👍') {
-      for (let i = 0; i < escuadras.length; i++) {
-        if (escuadras[i].length < maxPorEscuadra &&!escuadras[i].includes(name)) {
-          jugadores.set(user, name)
-          escuadras[i].push(name)
-          break
-}
+      if (!escuadra.includes(name) && escuadra.length < maxJugadores) {
+        escuadra.push(name)
+        jugadores.set(userId, name)
 }
 }
 
     if (reaction === '❤️') {
-      if (suplentes.length < maxSuplentes &&!suplentes.includes(name)) {
-        jugadores.set(user, name)
+      if (!suplentes.includes(name) && suplentes.length < maxSuplentes) {
         suplentes.push(name)
+        jugadores.set(userId, name)
 }
 }
 
-    await conn.sendMessage(m.chat, { text: render()}, { quoted: m})
-}
+    await conn.sendMessage(chatId, { text: render()})
+})
 }
 
 handler.help = ['4vs4']
 handler.tags = ['game']
 handler.command = /^(4vs4|vs4)$/i
 handler.group = true
+
 export default handler
