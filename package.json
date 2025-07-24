@@ -102,19 +102,3 @@
     "wa-sticker-formatter": "^4.4.4"
 }
 }
-```
-
----
-
-Este archivo está pulido para que no te lance errores al instalar 🧽. Puedes guardarlo como `package.json` y ejecutar:
-
-```bash
-npm install
-```
-
-Si en algún momento quieres dividir las dependencias por funcionalidades (por ejemplo: imágenes, redes sociales, AI), puedo ayudarte a ordenarlas por grupos comentados.
-
-¿Te gustaría que armemos un índice de funciones según los módulos que ya tienes? 🧠📁⁽¹⁾
-
---------
-[1]  (https://github.com/fahmicog/whatsapp-bot/tree/3ca0658b1602e37e36b836c9cab5409a1bf8412d/package.js)
