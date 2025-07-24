@@ -66,7 +66,7 @@ const handler = async (m, { conn, usedPrefix}) => {
       anime: '🎭', info: 'ℹ️', search: '🔎', diversión: '🎉', subbots: '🤖',
       rpg: '🌀', registro: '📝', sticker: '🎨', imagen: '🖼️', logo: '🖌️',
       premium: '🎖️', configuración: '⚙️', descargas: '📥', herramientas: '🛠️',
-      nsfw: '🔞', 'base de datos': '📀', audios: '🔊', 'free fire': '🔥', otros: '🪪'
+      nsfw: '🔞', 'base de datos': '📀', audios: '🔊', 'freefire': '🔥', otros: '🪪'
 };
 
     const menuBody = Object.entries(categorizedCommands).map(([title, cmds]) => {
