@@ -14,5 +14,5 @@ conn.sendMessage(m.chat, { image: { url: img }, caption: txt }, { quoted: fkonta
 }
 
 handler.command = ['packxxx'];
-
+handler.tags = ['nsfw'];
 export default handler;
