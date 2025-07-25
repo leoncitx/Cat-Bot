@@ -1,3 +1,8 @@
+//créditos a mí papito Emma
+sigan su channel 🤤🤤
+https://whatsapp.com/channel/0029Vaj5mivLdQegrUZ1Xl3M
+
+
 import fetch from 'node-fetch';
 
 const SEARCH_APIS = [
@@ -7,7 +12,7 @@ const SEARCH_APIS = [
 ];
 
 const DOWNLOAD_APIS = [
-  { name: 'Servidor Masha', url: 'http://api.alyabot.xyz:3269/download_video?url=' },
+  { name: 'Servidor Masha', url: 'http://api.alyabot.xyz:https://whatsapp.com/channel/0029Vaj5mivLdQegrUZ1Xl3M3269/download_video?url=' },
   { name: 'Servidor Alya', url: 'http://api2.alyabot.xyz:5216/download_video?url=' },
   { name: 'Servidor Masachika', url: 'https://api3.alyabot.xyz/download_video?url=' }
 ];
