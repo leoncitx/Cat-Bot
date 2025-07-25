@@ -1,6 +1,4 @@
-//créditos a mí papito Emma
-sigan su channel 🤤🤤
-https://whatsapp.com/channel/0029Vaj5mivLdQegrUZ1Xl3M
+Crédito a emma
 
 import fetch from 'node-fetch';
 
