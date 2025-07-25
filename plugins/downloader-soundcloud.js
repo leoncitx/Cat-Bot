@@ -1,5 +1,3 @@
-Crédito a emma
-
 import fetch from 'node-fetch';
 
 const SEARCH_APIS = [
