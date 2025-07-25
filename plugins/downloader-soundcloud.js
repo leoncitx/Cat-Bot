@@ -2,7 +2,6 @@
 sigan su channel 🤤🤤
 https://whatsapp.com/channel/0029Vaj5mivLdQegrUZ1Xl3M
 
-
 import fetch from 'node-fetch';
 
 const SEARCH_APIS = [
@@ -12,7 +11,7 @@ const SEARCH_APIS = [
 ];
 
 const DOWNLOAD_APIS = [
-  { name: 'Servidor Masha', url: 'http://api.alyabot.xyz:https://whatsapp.com/channel/0029Vaj5mivLdQegrUZ1Xl3M3269/download_video?url=' },
+  { name: 'Servidor Masha', url: 'http://api.alyabot.xyz:3269/download_video?url=' },
   { name: 'Servidor Alya', url: 'http://api2.alyabot.xyz:5216/download_video?url=' },
   { name: 'Servidor Masachika', url: 'https://api3.alyabot.xyz/download_video?url=' }
 ];
@@ -48,17 +47,18 @@ let handler = async (m, { text, conn, command }) => {
     const duration = Math.floor(video.duration);
 
     const msgInfo = `
-╔═ೋ═══❖═══ೋ═╗
-║  ⚡ 𝐒𝐚𝐬𝐮𝐤𝐞 𝐁𝐨𝐭 𝐌𝐃 ⚡
-║  🎶 𝐃𝐞𝐬𝐜𝐚𝐫𝐠𝐚𝐬 𝐏𝐥𝐚𝐲 🎶
-╠═ೋ═══❖═══ೋ═╣
-║ 🎵 Título: ${videoTitle}
-║ ⏱️ Duración: ${duration}s
-║ 👀 Vistas: ${video.views.toLocaleString()}
-║ 🧑‍🎤 Autor: ${video.channel}
-║ 🔗 Link: ${videoUrl}
-║ 🌐 Servidor: ${searchServer || 'Desconocido'}
-╚═ೋ═══❖═══ೋ═╝
+╭─ׅ─ׅ┈ ─๋︩︪─☪︎︎︎̸⃘̸࣭ٜ࣪࣪࣪۬◌⃘۪֟፝֯۫۫︎⃪𐇽۫۬🎧⃘⃪۪֟፝֯۫۫۫۬◌⃘࣭ٜ࣪࣪࣪۬☪︎︎︎︎̸─ׅ─ׅ┈ ─๋︩︪─╮    
+│  〔彡🄰ʟɪsᴀ  彡 ʙ ᴏ ᴛ〕
+│˚̩̩̥͙°̩̥〔 𝘿 𝙚 𝙨 𝙘 𝙖 𝙧 𝙜 𝙖 𝙨 𝙋𝙡𝙖𝙮 〕°̩̥˚̩̩̥͙°̩̥ ·͙*̩̩͙
+┃
+├̟̇˚₊·͟͟͟͟͟͟͞͞͞͞͞͞➳₊• 🎼 𝑻𝒊𝒕𝒖𝒍𝒐: ${videoTitle}
+├̟̇˚₊·͟͟͟͟͟͟͞͞͞͞͞͞➳₊• ⏱️ 𝑫𝒖𝒓𝒂𝒄𝒊𝒐́𝒏: ${duration}s
+├̟̇˚₊·͟͟͟͟͟͟͞͞͞͞͞͞➳₊• 👁️ 𝑽𝒊𝒔𝒕𝒂𝒔: ${video.views.toLocaleString()}
+├̟̇˚₊·͟͟͟͟͟͟͞͞͞͞͞͞➳₊• 👤 𝑨𝒖𝒕𝒐𝒓: ${video.channel}
+├̟̇˚₊·͟͟͟͟͟͟͞͞͞͞͞͞➳₊• 🔗 𝑳𝒊𝒏𝒌 : ${videoUrl}
+├̟̇˚₊·͟͟͟͟͟͟͞͞͞͞͞͞➳₊• 💠 𝑺𝒆𝒓𝒗𝒆𝒓: ${searchServer || 'Desconocido'}
+│
+╰─〔𝙀𝙣𝙫𝙞𝙖𝙣𝙙𝙤▰▰▱▱〕
 `.trim();
 
     await conn.sendMessage(m.chat, { image: { url: thumb }, caption: msgInfo }, { quoted: m });
@@ -79,7 +79,7 @@ let handler = async (m, { text, conn, command }) => {
   }
 };
 
-handler.command = ['play2', 'mp4', 'ytmp4', 'playmp4'];
+handler.command = ['play2'];
 handler.help = ['play2 <video>'];
 handler.tags = ['downloader'];
 
