@@ -1,5 +1,4 @@
 import * as cheerio from "cheerio";
-import { fetch } from "undici";
 import { lookup } from "mime-types";
 
 let handler = async (m, { conn, text }) => {
