@@ -1,4 +1,6 @@
+
 import { xpRange} from '../lib/levelling.js';
+import axios from 'axios';
 
 const clockString = ms => {
   const h = Math.floor(ms / 3600000);
@@ -15,7 +17,6 @@ const saludarSegunHora = () => {
 };
 
 const img = 'https://files.catbox.moe/6dewf4.jpg';
-
 const sectionDivider = '╰━━━━━━━━━━━━━━━━━━⭓';
 
 const menuFooter = `
@@ -38,6 +39,38 @@ const handler = async (m, { conn, usedPrefix}) => {
     const userName = await conn.getName(m.sender);
     const tagUsuario = `@${m.sender.split('@')[0]}`;
 
+    const msjRandom = [
+      "𝙀𝙩𝙞𝙦𝙪𝙚𝙩𝙖 𝙂𝙚𝙣𝙚𝙧𝙖𝙡 𝙓 𝙂𝙚𝙣",
+      "𝙈𝙚𝙣𝙘𝙞𝙤𝙣 𝙂𝙚𝙣𝙚𝙧𝙖𝙡",
+      "𝙀𝙩𝙞𝙦𝙪𝙚𝙩𝙖𝙣𝙙𝙤 𝙖 𝙡𝙤𝙨 𝙉𝙋𝘾"
+    ].sort(() => Math.random() - 0.5)[0];
+
+    const imgIzumi = [
+      "https://iili.io/FKVDVAN.jpg",
+      "https://iili.io/FKVbUrJ.jpg"
+    ].sort(() => Math.random() - 0.5)[0];
+
+    const thumbnailBuffer = Buffer.from(
+      (await axios.get(imgIzumi, { responseType: 'arraybuffer'})).data
+);
+
+    const izumi = {
+      key: { participants: "0@s.whatsapp.net", fromMe: false, id: "Halo"},
+      message: {
+        locationMessage: {
+          name: msjRandom,
+          jpegThumbnail: thumbnailBuffer,
+          vcard:
+            "BEGIN:VCARD\nVERSION:3.0\nN:;Unlimited;;;\nFN:Unlimited\nORG:Unlimited\n" +
+            "item1.TEL;waid=19709001746:+1 (970) 900-1746\n" +
+            "item1.X-ABLabel:Unlimited\nX-WA-BIZ-DESCRIPTION:ofc\nX-WA-BIZ-NAME:Unlimited\nEND:VCARD"
+}
+},
+      participant: "0@s.whatsapp.net"
+};
+
+    await conn.sendMessage(m.chat, { text: '📢 Etiquetando a todos los NPCs...'}, { quoted: izumi})
+
     const fkontak = {
       key: {
         remoteJid: m.chat,
@@ -52,6 +85,7 @@ const handler = async (m, { conn, usedPrefix}) => {
 }
 };
 
+    // ────────── MENU STRUCTURE ──────────
     let categorizedCommands = {};
     Object.values(global.plugins)
 .filter(p => p?.help &&!p.disabled)
@@ -70,7 +104,7 @@ const handler = async (m, { conn, usedPrefix}) => {
 };
 
     const menuBody = Object.entries(categorizedCommands).map(([title, cmds]) => {
-      const emoji = categoryEmojis[title.toLowerCase()] || '📁';
+const emoji = categoryEmojis[title.toLowerCase()] || '📁';
       const list = [...cmds].map(cmd => `│ ◦ ${cmd}`).join('\n');
       return `╭─「 ${emoji} ${title.toUpperCase()} 」\n${list}\n${sectionDivider}`;
 }).join('\n\n');
@@ -104,3 +138,8 @@ ${saludo} ${tagUsuario} 👋
 
 handler.command = ['menu', 'help', 'menú'];
 export default handler;
+```
+
+💡 **Nota importante**: la función `.getRandom()` que mencionabas no existe por defecto. La reemplacé con un truco común usando `.sort(() => Math.random() - 0.5)[0]`.
+
+Si quieres que el menú incluya botones, reacciones interactivas o que cada categoría se muestre como una lista de selección, ¡te lo armo al estilo que tú mandes! 💻✨
