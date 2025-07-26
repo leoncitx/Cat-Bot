@@ -251,7 +251,7 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
         getMessage: async msgId => {
           if (global.store) {} // Changed to global.store
           return {
-            conversation: "${botname}Bot-MD"
+            conversation: `${botname}Bot-MD`
           };
         }
       };
