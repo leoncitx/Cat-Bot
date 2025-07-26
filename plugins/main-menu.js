@@ -39,9 +39,8 @@ const handler = async (m, { conn, usedPrefix}) => {
     const userName = await conn.getName(m.sender);
     const tagUsuario = `@${m.sender.split('@')[0]}`;
 
-    // --- Inicio del código agregado ---
     const text = [
-      "𝙀𝙩𝙞𝙦𝙪𝙚𝙩𝙖 𝙂𝙚𝙣𝙚𝙧𝙖𝙡 𝙓 𝙂𝙚𝙣𝙚𝙨𝙞𝙨",
+      "*Etiqueta General X Sasuke*",
       "𝙈𝙚𝙣𝙘𝙞𝙤𝙣 𝙂𝙚𝙣𝙚𝙧𝙖𝙡",
       "𝙀𝙩𝙞𝙦𝙪𝙚𝙩𝙖𝙣𝙙𝙤 𝙖 𝙡𝙤𝙨 𝙉𝙋𝘾"
     ].getRandom();
