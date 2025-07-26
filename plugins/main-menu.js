@@ -138,8 +138,3 @@ ${saludo} ${tagUsuario} 👋
 
 handler.command = ['menu', 'help', 'menú'];
 export default handler;
-```
-
-💡 **Nota importante**: la función `.getRandom()` que mencionabas no existe por defecto. La reemplacé con un truco común usando `.sort(() => Math.random() - 0.5)[0]`.
-
-Si quieres que el menú incluya botones, reacciones interactivas o que cada categoría se muestre como una lista de selección, ¡te lo armo al estilo que tú mandes! 💻✨
