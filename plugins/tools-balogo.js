@@ -1,29 +1,29 @@
+
 import { downloadContentFromMessage} from '@whiskeysockets/baileys';
 
 const handler = async (m, { conn}) => {
   try {
-    // Asegurarse de que el mensaje contiene imagen
+    // Verifica si el mensaje contiene imagen
     const imageMessage = m.message?.imageMessage;
     if (!imageMessage) {
       return m.reply('❌ Debes enviar una imagen junto con el comando `.setperfil`.');
 }
 
-    // Descargar el contenido de la imagen
+    // Descarga el contenido de imagen en un stream
     const stream = await downloadContentFromMessage(imageMessage, 'image');
     const buffer = [];
     for await (const chunk of stream) {
       buffer.push(chunk);
 }
+    const fullImage = Buffer.concat(buffer);
 
-    const fullBuffer = Buffer.concat(buffer);
+    // Cambia la foto de perfil del bot
+    await conn.updateProfilePicture(conn.user.id, fullImage);
 
-    // Cambiar la foto de perfil del bot
-    await conn.updateProfilePicture(conn.user.id, fullBuffer);
-
-    m.reply('✅ *¡Foto de perfil actualizada con éxito!* 🖼️');
+    m.reply('✅ *Foto de perfil actualizada correctamente!* 🎉🖼️');
 
 } catch (error) {
-    console.error('Error al actualizar el perfil:', error);
+    console.error('🛑 Error al actualizar la foto:', error);
     m.reply(`⚠️ No se pudo actualizar la foto de perfil.\n${error.message}`);
 }
 };
