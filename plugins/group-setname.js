@@ -1,24 +1,21 @@
-let handler = async (m, { conn, text, isRowner }) => {
-  // Define your emojis and etiqueta here
-  const emoji = '✅'; // Example: A checkmark emoji
-  const emoji2 = '📝'; // Example: A memo emoji
-  const etiqueta = 'Your Etiqueta Here'; // Example: A custom label or tag
 
-  if (!text) return m.reply(`${emoji} Por favor, proporciona un nombre para el bot.\n> Ejemplo: #setname Nombre/Texto`);
+const handler = async (m, { conn, text}) => {
+  try {
+    if (!text) {
+      return m.reply('❌ *Error:* Debes escribir el nuevo nombre después del comando.\n📌 Ejemplo: `.setname TuNombre`');
+}
 
-  const names = text.split('/');
-  if (names.length !== 2) return m.reply(`${emoji} Por favor, proporciona ambos nombres separados por una barra (/) en el formato: nombre1/nombre2.`);
+    // Actualiza el nombre de perfil del bot
+    await conn.updateProfileName(text);
 
-  global.botname = names[0].trim();
-  const texto1bot = ` • Powered By ${etiqueta}`;
-  global.textbot = `${names[1].trim()}${texto1bot}`;
+    m.reply(`✅ *Nombre actualizado correctamente.* ✨\n📌 *Nuevo nombre:* ${text}`);
 
-  m.reply(`${emoji} El nombre del bot ha sido cambiado a: ${global.botname}\n\n> ${emoji2} El texto del bot ha sido cambiado a: ${global.textbot}`);
+} catch (error) {
+    console.error('Error al actualizar el nombre:', error);
+    m.reply(`⚠️ No se pudo cambiar el nombre.\n${error.message}`);
+}
 };
 
-handler.help = ['setname'];
-handler.tags = ['tools'];
-handler.command = ['setname'];
-handler.rowner = false;
-
+handler.command = /^setname$/i;
+handler.tags = ['perfil'];
 export default handler;
