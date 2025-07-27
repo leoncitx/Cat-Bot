@@ -17,5 +17,5 @@ const handler = async (m, { conn, text}) => {
 };
 
 handler.command = /^setname$/i;
-handler.tags = ['subbost']
+handler.tags = ['Subbost']
 export default handler;
