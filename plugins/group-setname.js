@@ -1,5 +1,5 @@
 let handler = async (m, { conn, text, isRowner }) => {
- 
+
   const etiqueta = "🔥";
 
   if (!text) return m.reply(`Por favor, proporciona un nombre para el bot.\n> Ejemplo: #setname Nombre/Texto`);
@@ -13,3 +13,11 @@ let handler = async (m, { conn, text, isRowner }) => {
 
   m.reply(`El nombre del bot ha sido cambiado a: ${global.botname}\n\n> ${emoji2} El texto del bot ha sido cambiado a: ${global.textbot}`);
 };
+
+
+handler.help = ['setname'];
+handler.tags = ['tools'];
+handler.command = ['setname'];
+handler.rowner = false;
+
+export default handler;
