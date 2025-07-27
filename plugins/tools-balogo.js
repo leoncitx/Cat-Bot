@@ -1,5 +1,4 @@
 import jimp from "jimp"
-import { S_WHATSAPP_NET } from '@whiskeysockets/baileys'
  
 let handler = async (m, { conn, usedPrefix, command, args, isOwner }) => {
   try {
@@ -8,7 +7,7 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner }) => {
 
     let mediaType = (quotedMsg.type || quotedMsg).mimetype || '';
     var media = await quotedMsg.download();
-    
+
     async function processImage(media) {
       const image = await jimp.read(media);
       const resizedImage = image.getWidth() > image.getHeight()
@@ -19,19 +18,7 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner }) => {
 
     var { img: processedImage } = await processImage(media);
 
-    await conn.query({
-      tag: 'iq',
-      attrs: {
-        to: m.sender,
-        type: 'set',
-        xmlns: 'w:profile:picture'
-      },
-      content: [{
-        tag: 'picture',
-        attrs: { type: 'image' },
-        content: processedImage
-      }]
-    });
+    await conn.updateProfilePicture(conn.user.id, processedImage);
 
     m.react("✅️");
     await m.reply('✅ Foto de perfil del bot actualizada.');
