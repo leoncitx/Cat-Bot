@@ -1,33 +1,41 @@
 
-import { downloadContentFromMessage} from '@whiskeysockets/baileys';
+import Jimp from 'jimp';
 
-const handler = async (m, { conn}) => {
+let handler = async (m, { conn}) => {
+  const emojiOk = '✅';
+  const emojiError = '⚠️';
+  const emojiPhoto = '🖼️';
+  const msgError = 'Ocurrió un problema al cambiar la foto de perfil.';
+
+  // Verifica que el mensaje citado tenga imagen
+  if (!m.quoted ||!/image/.test(m.quoted?.mimetype)) {
+    return conn.reply(m.chat, `${emojiError} Responde a una imagen para establecerla como perfil.`, m);
+}
+
   try {
-    // Verifica si el mensaje contiene imagen
-    const imageMessage = m.message?.imageMessage;
-    if (!imageMessage) {
-      return m.reply('❌ Debes enviar una imagen junto con el comando `.setperfil`.');
-}
+    const media = await m.quoted.download();
+    if (!media) return conn.reply(m.chat, `${emojiError} No se pudo descargar la imagen.`, m);
 
-    // Descarga el contenido de imagen en un stream
-    const stream = await downloadContentFromMessage(imageMessage, 'image');
-    const buffer = [];
-    for await (const chunk of stream) {
-      buffer.push(chunk);
-}
-    const fullImage = Buffer.concat(buffer);
+    const image = await Jimp.read(media);
 
-    // Cambia la foto de perfil del bot
-    await conn.updateProfilePicture(conn.user.id, fullImage);
+    // 🔧 Procesamiento opcional
+    image.resize(640, 640); // Redimensiona a tamaño recomendado
+    image.brightness(0.1);  // Aumenta un poco el brillo
 
-    m.reply('✅ *Foto de perfil actualizada correctamente!* 🎉🖼️');
+    const buffer = await image.getBufferAsync(Jimp.MIME_JPEG);
 
-} catch (error) {
-    console.error('🛑 Error al actualizar la foto:', error);
-    m.reply(`⚠️ No se pudo actualizar la foto de perfil.\n${error.message}`);
+    await conn.updateProfilePicture(conn.user.id, buffer);
+
+    conn.reply(m.chat, `${emojiOk} Foto de perfil actualizada correctamente ${emojiPhoto}`, m);
+} catch (e) {
+    console.error(e);
+    conn.reply(m.chat, `${emojiError} ${msgError}`, m);
 }
 };
 
-handler.command = /^setperfil$/i;
-handler.tags = ['perfil'];
+handler.help = ['setperfil'];
+handler.tags = ['owner'];
+handler.command = ['setperfil', 'perfil'];
+handler.rowner = false;
+
 export default handler;
