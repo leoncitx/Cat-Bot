@@ -107,7 +107,7 @@ ${saludo} ${tagUsuario} 👋
 
     const fullMenu = `${header}\n\n${menuBody}\n\n${menuFooter}`;
 
-const bot = global.db.data.settings[this.user.jid]
+const bot = global.db.data.settings[conn.user.jid]
 let bannerr = bot.banner || 'https://raw.githubusercontent.com/WillZek/CrowBot-ST/main/media/catalogo.jpg'
 
     await conn.sendMessage(m.chat, {
