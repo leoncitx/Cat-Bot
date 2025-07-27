@@ -1,32 +1,29 @@
-import { downloadContentFromMessage } from '@whiskeysockets/baileys'; // Podría ser necesaria esta importación
+import { downloadContentFromMessage} from '@whiskeysockets/baileys';
 
-const handler = async (m, { conn }) => {
+const handler = async (m, { conn}) => {
   try {
-    const messageType = Object.keys(m.message)[0]; // Obtener el tipo de mensaje
-    let buffer;
+    const mediaMsg = m.message?.imageMessage;
+    if (!mediaMsg) {
+      return m.reply('❌ Debes enviar una imagen junto con el comando `.setperfil`.');
+}
 
-    if (messageType === 'imageMessage') {
-      const stream = await downloadContentFromMessage(m.message.imageMessage, 'image');
-      let chunks = [];
-      for await (const chunk of stream) {
-        chunks.push(chunk);
-      }
-      buffer = Buffer.concat(chunks);
-    } else {
-      return m.reply('❌ *Error:* Debes enviar una imagen junto con el comando `.setperfil`.');
-    }
+    const stream = await downloadContentFromMessage(mediaMsg, 'image');
+    const chunks = [];
+    for await (const chunk of stream) {
+      chunks.push(chunk);
+}
 
-    // Actualizar la foto de perfil
-    await conn.updateProfilePicture(conn.user.jid, buffer);
+    const buffer = Buffer.concat(chunks);
 
-    m.reply('✅ *¡Imagen de perfil actualizada exitosamente!* 🖼️✨');
+    await conn.updateProfilePicture(conn.user.id, buffer);
+    m.reply('✅ *Foto de perfil actualizada correctamente!* 🖼️');
 
-  } catch (error) {
-    console.error(error);
-    m.reply(`⚠️ *Error:* No se pudo actualizar la imagen de perfil. 🛑\n${error.message}`);
-  }
+} catch (err) {
+    console.error(err);
+    m.reply(`⚠️ No se pudo cambiar la imagen de perfil.\n${err.message}`);
+}
 };
 
 handler.command = /^setperfil$/i;
-handler.tags = ['Subbost'];
+handler.tags = ['perfil', 'admin'];
 export default handler;
