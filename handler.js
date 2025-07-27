@@ -195,13 +195,6 @@ const isPremSubs = subsactivos.some(jid => jid.replace(/[^0-9]/g, '') === sendNu
 
         let usedPrefix
 
-const banner = global.db.data.chats[m.chat]?.banner || 'https://i.imgur.com/defaultBanner.png';
-
-await conn.sendMessage(m.chat, {
-  image: { url: banner },
-  caption: '🎴 Bienvenido al menú de Sasuke bot',
-});
-
 const groupMetadata = (m.isGroup ? ((conn.chats[m.chat] || {}).metadata || await this.groupMetadata(m.chat).catch(_ => null)) : {}) || {}
 const participants = (m.isGroup ? groupMetadata.participants : []) || []
 //- Matías es mi novia (Tesis) 🥺       
