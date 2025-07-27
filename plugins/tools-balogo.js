@@ -25,7 +25,5 @@ return m.react('❌');
 handler.help = ['setppgc'];
 handler.tags = ['group'];
 handler.command = /^setpp(group|grup|gc)?$/i
-handler.group = true
-handler.admin = true
-handler.botAdmin = true
+
 export default handler
