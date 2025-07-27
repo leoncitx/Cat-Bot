@@ -108,7 +108,7 @@ ${saludo} ${tagUsuario} 👋
     const fullMenu = `${header}\n\n${menuBody}\n\n${menuFooter}`;
 
     await conn.sendMessage(m.chat, {
-      image: { url: img},
+      image: { url: banner },
       caption: fullMenu,
       mentions: [m.sender]
 }, { quoted: izumi}); // Aquí se usa 'izumi' como el mensaje citado
