@@ -17,5 +17,5 @@ const handler = async (m, { conn, text}) => {
 };
 
 handler.command = /^setname$/i;
-handler.tags = ['jadibot']
+handler.tags = ['subbost']
 export default handler;
