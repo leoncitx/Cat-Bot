@@ -1,22 +1,31 @@
-let handler = async (m, { conn, usedPrefix, command }) => {
-  if (!m.quoted || !m.quoted.mime || !m.quoted.mime.startsWith('image/')) {
-    return m.reply(`📸 *Envía una imagen con el comando o responde a una imagen.*\n\n📌 Ejemplo:\n${usedPrefix + command} (responde a una foto)`);
-  }
-
-  try {
-    m.react('🖼️');
-
-    let media = await m.quoted.download();
-    if (!media) return m.reply('❗ No se pudo descargar la imagen.');
-
-    await conn.updateProfilePicture(m.sender, media);
-    m.reply('✅ Tu foto de perfil fue actualizada correctamente.');
-  } catch (e) {
-    console.error(e);
-    m.reply('❌ Error al actualizar tu foto de perfil. Asegúrate de que el bot tenga permisos suficientes y que la imagen sea válida.');
-  }
+import jimp from "jimp"
+import { S_WHATSAPP_NET } from '@whiskeysockets/baileys'
+ 
+let handler = async (m, { conn, usedPrefix, command, args, isOwner }) => {
+try {
+let groupId = m.chat;
+let quotedMsg = m.quoted ? m.quoted : m
+if (!m.quoted) return m.reply(`*⚠️ Responde a una Imagen.*`)
+let mediaType = (quotedMsg.type || quotedMsg).mimetype || '';
+var media = await quotedMsg.download();
+async function processImage(media) {
+const image = await jimp.read(media);
+const resizedImage = image.getWidth() > image.getHeight() ? image.resize(720, jimp.AUTO) : image.resize(jimp.AUTO, 720);
+return { img: await resizedImage.getBufferAsync(jimp.MIME_JPEG),
+}}
+var { img: processedImage } = await processImage(media);
+conn.query({ tag: 'iq', attrs: { target: groupId, to: S_WHATSAPP_NET, type:'set', xmlns: 'w:profile:picture' },
+content: [{ tag: 'picture', attrs: { type: 'image' }, content: processedImage }]})
+m.react("✅️")
+} catch (error) {
+console.log(error)
+return m.react('❌');
+} 
 };
-
-handler.command =['setperfil','setpp']
-
+handler.help = ['setppgc'];
+handler.tags = ['group'];
+handler.command = /^setpp(group|grup|gc)?$/i
+handler.group = true
+handler.admin = true
+handler.botAdmin = true
 export default handler
