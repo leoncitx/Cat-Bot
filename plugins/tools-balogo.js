@@ -17,5 +17,5 @@ let handler = async (m, { conn, usedPrefix, command }) => {
   }
 };
 
-handler.command =[ 'setperfil'  'setpp' ]
+handler.command =['setperfil','setpp']
 handler.private = true;
