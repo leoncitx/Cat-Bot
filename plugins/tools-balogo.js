@@ -18,4 +18,5 @@ let handler = async (m, { conn, usedPrefix, command }) => {
 };
 
 handler.command =['setperfil','setpp']
-handler.private = true;
+
+export default handler
