@@ -107,8 +107,11 @@ ${saludo} ${tagUsuario} 👋
 
     const fullMenu = `${header}\n\n${menuBody}\n\n${menuFooter}`;
 
+const bot = global.db.data.settings[this.user.jid]
+let bannerr = bot.banner || 'https://raw.githubusercontent.com/WillZek/CrowBot-ST/main/media/catalogo.jpg'
+
     await conn.sendMessage(m.chat, {
-      image: { url: banner },
+      image: { url: bannerr },
       caption: fullMenu,
       mentions: [m.sender]
 }, { quoted: izumi}); // Aquí se usa 'izumi' como el mensaje citado
