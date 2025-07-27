@@ -1,21 +1,19 @@
-const handler = async (m, { conn, text}) => {
-    try {
-        if (!text) return m.reply('❌ *Error:* Debes escribir el nuevo nombre después de `.newname`.');
+let handler = async (m, { conn, text, isRowner }) => {
+  if (!text) return m.reply(`Por favor, proporciona un nombre para el bot.\n> Ejemplo: #setname Nombre/Texto`);
 
-        await conn.updateProfileName(text);
+  const names = text.split('/');
+  if (names.length !== 2) return m.reply(`Por favor, proporciona ambos nombres separados por una barra (/) en el formato: nombre1/nombre2.`);
 
-        if (conn.authState.creds.me.id) {
-            await conn.updateProfileName(text);
-}
+  global.botname = names[0].trim();
+  const texto1bot = ` • Powered By ${etiqueta}`;
+  global.textbot = `${names[1].trim()}${texto1bot}`;
 
-        m.reply(`✅ *¡Nombre cambiado exitosamente!* 😃✨\n📌 *Nuevo nombre:* ${text}`);
-
-} catch (error) {
-        console.error(error);
-        m.reply(`⚠️ *Error:* No se pudo cambiar el nombre. 🛑\n${error.message}`);
-}
+  m.reply(`El nombre del bot ha sido cambiado a: ${global.botname}\n\n> ${emoji2} El texto del bot ha sido cambiado a: ${global.textbot}`);
 };
 
-handler.command = /^setname$/i;
-handler.tags = ['Subbost']
+handler.help = ['setname'];
+handler.tags = ['tools'];
+handler.command = ['setname'];
+handler.rowner = true;
+
 export default handler;
