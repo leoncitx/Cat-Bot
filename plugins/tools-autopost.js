@@ -1,92 +1,95 @@
-import fs from 'fs';  
-import path from 'path';  
+
+import fs from 'fs';
+import path from 'path';
 import fetch from "node-fetch";
 import crypto from "crypto";
-import { FormData, Blob } from "formdata-node";
-import { fileTypeFromBuffer } from "file-type";
+import { FormData, Blob} from "formdata-node";
+import { fileTypeFromBuffer} from "file-type";
 
-// Define your emojis and messages here
-const emoji = '✅'; // Example emoji for success
-const emoji2 = '❌'; // Example emoji for error
-const msm = '⚠️';   // Example emoji/message for general errors
+global.emoji = '🔮';
+global.emoji2 = '🔮';
 
-let handler = async (m, { conn, isRowner }) => {
-
-  if (!m.quoted || !/image/.test(m.quoted.mimetype)) return m.reply(`${emoji} Por favor, responde a una imagen con el comando *seticono* para actualizar la foto del catalogo.`);
+let handler = async (m, { conn}) => {
+  if (!m.quoted ||!/image/.test(m.quoted.mimetype)) {
+    return m.reply(`${emoji} Por favor, responde a una imagen con el comando *seticono* para actualizar el ícono del menú.`, m);
+}
 
   try {
-
     const media = await m.quoted.download();
-    let link = await catbox(media);
 
-    if (!isImageValid(media)) {
-      return m.reply(`${emoji2} El archivo enviado no es una imagen válida.`);
-    }
+    const filetype = await fileTypeFromBuffer(media);
+    if (!filetype ||!filetype.mime.startsWith('image/')) {
+      return m.reply(`${emoji2} El archivo enviado no es una imagen válida.`, m);
+}
 
-    global.icono = `${link}`;  
+    let url;
+    try {
+      const sunflare = await uploadToSunflare(media);
+      url = sunflare.url;
+} catch (e) {
+      const russell = await uploadToRussellXZ(media);
+      url = russell.url;
+}
 
-    await conn.sendFile(m.chat, media, 'icono.jpg', `${emoji} Icono actualizado.`, m);
+    // Guardar como ícono en config global
+    let botData = global.db.data.settings[conn.user.jid] || {};
+    botData.icono = url;
+    global.db.data.settings[conn.user.jid] = botData;
 
-  } catch (error) {
-    console.error(error);
-    m.reply(`${msm} Hubo un error al intentar cambiar el icono.`);
-  }
+    await conn.sendFile(m.chat, media, 'icono.jpg', `${emoji} Ícono actualizado correctamente.`, m);
+
+} catch (e) {
+    m.reply(`🧿 Error: ${e.message}`);
+}
 };
 
-
-const isImageValid = (buffer) => {
-  const magicBytes = buffer.slice(0, 4).toString('hex');
-
-
-  if (magicBytes === 'ffd8ffe0' || magicBytes === 'ffd8ffe1' || magicBytes === 'ffd8ffe2') {
-    return true;
-  }
-
-
-  if (magicBytes === '89504e47') {
-    return true;
-  }
-
-
-  if (magicBytes === '47494638') {
-    return true;
-  }
-
-  return false; 
-};
-
-handler.help = ['setcatalogo'];
+handler.help = ['seticono'];
 handler.tags = ['tools'];
 handler.command = ['seticono'];
-handler.owner = true;
+handler.rowner = true;
 
 export default handler;
 
-function formatBytes(bytes) {
-  if (bytes === 0) {
-    return "0 B";
-  }
-  const sizes = ["B", "KB", "MB", "GB", "TB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`;
+async function uploadToSunflare(buffer) {
+  const { ext, mime} = await fileTypeFromBuffer(buffer) || { ext: 'bin', mime: 'application/octet-stream'};
+  const blob = new Blob([buffer], { type: mime});
+  const randomName = crypto.randomBytes(5).toString('hex') + '.' + ext;
+
+  let folder = 'icons';
+  const arrayBuffer = await blob.arrayBuffer();
+  const base64Content = Buffer.from(arrayBuffer).toString('base64');
+
+  const resp = await fetch('https://cdn-sunflareteam.vercel.app/api/upload', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      folder,
+      filename: randomName,
+      base64Content
+})
+});
+
+  const result = await resp.json();
+  if (resp.ok && result?.url) {
+    return { url: result.url, name: randomName};
+} else {
+    throw new Error(result?.error || 'Error cdn.sunflare');
+}
 }
 
-async function catbox(content) {
-  const { ext, mime } = (await fileTypeFromBuffer(content)) || {};
-  const blob = new Blob([content.toArrayBuffer()], { type: mime });
-  const formData = new FormData();
-  const randomBytes = crypto.randomBytes(5).toString("hex");
-  formData.append("reqtype", "fileupload");
-  formData.append("fileToUpload", blob, randomBytes + "." + ext);
+async function uploadToRussellXZ(buffer) {
+  const form = new FormData();
+  form.set("file", new Blob([buffer], { type: 'image/jpeg'}), "icono.jpg");
 
-  const response = await fetch("https://catbox.moe/user/api.php", {
+  const resp = await fetch("https://cdn.russellxz.click/upload.php", {
     method: "POST",
-    body: formData,
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36",
-    },
-  });
+    body: form
+});
 
-  return await response.text();
+  const result = await resp.json();
+  if (resp.ok && result?.url) {
+    return { url: result.url};
+} else {
+    throw new Error(result?.error || 'Error cdn.russellxz');
+}
 }
