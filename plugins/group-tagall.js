@@ -1,4 +1,3 @@
-
 import fetch from "node-fetch";
 import axios from "axios";
 
@@ -43,8 +42,21 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
 }
   messageText += `└───────⭓\n\n𝘚𝘶𝘱𝘦𝘳 𝘉𝘰𝘵 𝘞𝘩𝘢𝘵𝘴𝘈𝘱𝘱 🚩`;
 
+  const textArray = [
+    "𝙀𝙩𝙞𝙦𝙪𝙚𝙩𝙖 𝙂𝙚𝙣𝙚𝙧𝙖𝙡 𝙓 𝙂𝙚𝙣𝙚𝙨𝙞𝙨",
+    "𝙈𝙚𝙣𝙘𝙞𝙤𝙣 𝙂𝙚𝙣𝙚𝙧𝙖𝙡",
+    "𝙀𝙩𝙞𝙦𝙪𝙚𝙩𝙖𝙣𝙙𝙤 𝙖 𝙡𝙤𝙨 𝙉𝙋𝘾"
+  ];
+  const imgArray = [
+    "https://iili.io/FKVDVAN.jpg",
+    "https://iili.io/FKVbUrJ.jpg"
+  ];
+
+  const text = textArray[Math.floor(Math.random() * textArray.length)];
+  const img = imgArray[Math.floor(Math.random() * imgArray.length)];
+
   const thumbnailBuffer = Buffer.from(
-    (await axios.get('https://files.catbox.moe/1j784p.jpg', { responseType: 'arraybuffer'})).data
+    (await axios.get(img, { responseType: 'arraybuffer'})).data
 );
 
   const izumi = {
@@ -56,7 +68,7 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
 },
     message: {
       locationMessage: {
-        name: "*Sasuke Bot MD 🌀*",
+        name: text,
         jpegThumbnail: thumbnailBuffer,
         vcard:
           "BEGIN:VCARD\n" +
@@ -76,7 +88,7 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
 };
 
   await conn.sendMessage(m.chat, {
-    image: { url: 'https://files.catbox.moe/1j784p.jpg'},
+    image: { url: img},
     caption: messageText,
     mentions: participants.map(a => a.id)
 }, { quoted: izumi});
