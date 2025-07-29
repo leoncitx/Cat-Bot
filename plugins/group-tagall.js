@@ -1,4 +1,3 @@
-
 import fetch from "node-fetch";
 
 const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) => {
@@ -30,9 +29,7 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
     const phoneNumber = id.split('@')[0];
     if (phoneNumber.startsWith('1')) return '🇺🇸';
     let prefix = phoneNumber.substring(0, 3);
-    if (!countryFlags[prefix]) {
-      prefix = phoneNumber.substring(0, 2);
-}
+    if (!countryFlags[prefix]) prefix = phoneNumber.substring(0, 2);
     return countryFlags[prefix] || '🏳️‍🌈';
 };
 
@@ -55,7 +52,7 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
     message: {
       locationMessage: {
         name: "INVOCACIÓN MASIVA 👽",
-        jpegThumbnail: await (await fetch('https://files.catbox.moe/1j784p.jpg')).buffer(),
+        jpegThumbnail: await (await fetch(imageUrl)).buffer(),
         vcard:
           "BEGIN:VCARD\n" +
           "VERSION:3.0\n" +
@@ -73,12 +70,20 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
     participant: "0@s.whatsapp.net"
 };
 
+  // Envía imagen decorativa con menciones
   await conn.sendMessage(m.chat, {
     image: { url: imageUrl},
-    caption: messageText,
+    caption: 'INVOCACIÓN MASIVA 👽',
     mentions: participants.map(a => a.id)
 }, { quoted: fkontak});
 
+  // Envía mensaje completo con listado de miembros
+  await conn.sendMessage(m.chat, {
+    text: messageText,
+    mentions: participants.map(a => a.id)
+}, { quoted: fkontak});
+
+  // Envía audio PTT
   await conn.sendMessage(m.chat, {
     audio: { url: audioUrl},
     mimetype: 'audio/mp4',
