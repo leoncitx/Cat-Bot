@@ -1,4 +1,3 @@
-
 import fg from 'api-dylux'
 import fetch from 'node-fetch'
 import axios from 'axios'
@@ -54,16 +53,17 @@ let handler = async (m, { conn, args, command, usedPrefix}) => {
 }
 }
 
-  // Enviar intro visual primero
+  // Enviar intro visual (opcional si quieres que aparezca antes del mensaje principal)
+  // Si no quieres este mensaje separado, puedes quitarlo.
   await conn.sendMessage(m.chat, {
     text: '⚡ 𝘌𝘴𝘤𝘶𝘢𝘥𝘳𝘢 𝘢𝘤𝘵𝘪𝘷𝘢 | 𝘚𝘢𝘴𝘶𝘬𝘦 𝘉𝘰𝘵 MD 👑'
 }, { quoted: fkontak})
 
-  // Enviar imagen con listado principal
+  // Enviar imagen con listado principal, ¡ahora citando a fkontak!
   await conn.sendMessage(m.chat, {
     image: { url: 'https://cdn.russellxz.click/16b3faeb.jpeg'},
     caption: `𝟒 𝐕𝐒 𝟒\n\n⏱ 𝐇𝐎𝐑𝐀𝐑𝐈𝐎\n🇲🇽 𝐌𝐄𝐗𝐈𝐂𝐎: ${args[0]}\n🇨🇴 𝐂𝐎𝐋𝐎𝐌𝐁𝐈𝐀: ${args[0]}\n\n➥ 𝐌𝐎𝐃𝐀𝐋𝐈𝐃𝐀𝐃:\n➥ 𝐉𝐔𝐆𝐀𝐃𝐎𝐑𝐄𝐒:\n\n👑 ┇ \n🥷🏻 ┇\n🥷🏻 ┇\n🥷🏻 ┇\n\nʚ 𝐒𝐔𝐏𝐋𝐄𝐍𝐓𝐄𝐒:\n🥷🏻 ┇\n🥷🏻 ┇`
-}, { quoted: m})
+}, { quoted: fkontak}) // <-- CAMBIO AQUÍ: m se reemplazó por fkontak
 }
 
 handler.help = ['4vs4']
