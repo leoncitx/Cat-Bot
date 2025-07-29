@@ -35,7 +35,6 @@ let handler = async (m, { conn, args}) => {
 ╰────────────────────❍
 `
 
-  // Mensaje citado dinámico tipo Izumi
   const textos = [
     "⚔️ 𝘙𝘦𝘵𝘰 12𝘹12 | 𝘊𝘭𝘢𝘯 𝘊𝘰𝘮𝘣𝘢𝘵𝘦",
     "🔥 𝘋𝘶𝘦𝘭𝘰 𝘔𝘶𝘭𝘵𝘪𝘦𝘴𝘤𝘶𝘢𝘥𝘳𝘢",
@@ -49,6 +48,7 @@ let handler = async (m, { conn, args}) => {
 
   const titulo = textos[Math.floor(Math.random() * textos.length)]
   const imagen = imagenes[Math.floor(Math.random() * imagenes.length)]
+
   const thumbBuffer = Buffer.from(
     (await axios.get(imagen, { responseType: 'arraybuffer'})).data
 )
@@ -71,6 +71,13 @@ let handler = async (m, { conn, args}) => {
 }
 }
 
+  // Enviar la imagen adicional como introducción visual
+  await conn.sendMessage(m.chat, {
+    image: { url: 'https://files.catbox.moe/1j784p.jpg'},
+    caption: '*⚡ INVOCACIÓN DE RONDA 12VS12*\nSasuke Bot MD ha iniciado la batalla 🎮'
+}, { quoted: izumi})
+
+  // Enviar imagen principal con texto estructurado
   await conn.sendMessage(m.chat, {
     image: { url: 'https://cdn.russellxz.click/16b3faeb.jpeg'},
     caption: `╭─❍ *⚔️ 12 VS 12 | SASUKE BOT MD*\n│\n│⏳ *Horario:*\n│🇲🇽 MÉXICO: ${args[0]}\n│🇨🇴 COLOMBIA: ${args[0]}\n│\n│🎮 *Modalidad:*\n│👥 *Jugadores:*\n│\n│🥷 *Escuadra 1:*\n│   👑 • \n│   🥷🏻 • \n│   🥷🏻 • \n│   🥷🏻 • \n│\n│🥷 *Escuadra 2:*\n│   👑 • \n│   🥷🏻 • \n│   🥷🏻 • \n│   🥷🏻 • \n│\n│🥷 *Escuadra 3:*\n│   👑 • \n│   🥷🏻 • \n│   🥷🏻 • \n│   🥷🏻 • \n│\n│🔁 *Suplentes:*\n│   🥷🏻 • \n│   🥷🏻 • \n╰────────────────────❍`,
