@@ -1,20 +1,24 @@
 let handler = async (m, { conn, participants, groupMetadata}) => {
-  const pp = await conn.profilePictureUrl(m.chat, 'image').catch(_ => null) || './storage/img/siskedurl.jpg'
+  const pp = 'https://cdn.russellxz.click/16b3faeb.jpeg' // Imagen de portada visual directa
   const groupAdmins = participants.filter(p => p.admin)
   const owner = groupMetadata.owner || groupAdmins.find(p => p.admin === 'superadmin')?.id || m.chat.split`-`[0] + '@s.whatsapp.net'
 
   const text = `
-╭─❍ *💢 GUERRA DE CLANES ACTIVADA*
-│
-│📛 *Grupo:* ${groupMetadata.subject}
-│
-│⏳ *Horario:*
-│➥ MÉXICO 🇲🇽
-│➥ COLOMBIA 🇨🇴
+╭──────>⋆☽⋆ ⋆☾⋆<──────╮
+   ㅤ   *GUERRA DE CLANES*
+        ${groupMetadata.subject}
+╰──────>⋆☽⋆ ⋆☾⋆<──────╯
+
+╭──── ❍ *INFORMACIÓN* ❍ ────╮
+│⏱ *Horario:*
+│🇲🇽 MÉXICO: [Horario]
+│🇨🇴 COLOMBIA: [Horario]
 │
 │👥 *Jugadores:*
-│➥ Confirmación vía comando
-│
+│➤ Confirmación vía comando
+╰───────────────────────────╯
+
+╭──── ❍ *ESCUADRAS* ❍ ────╮
 │🥷 *Escuadra ➹1*
 │   👑 •
 │   ⚜️ •
@@ -50,15 +54,16 @@ let handler = async (m, { conn, participants, groupMetadata}) => {
 │   ⚜️ •
 │   ⚜️ •
 │   ⚜️ •
-│
-│🔁 *Suplentes:*
+╰─────────────────────────╯
+
+╭──── ❍ *SUPLENTES* ❍ ────╮
 │   ⚜️ •
 │   ⚜️ •
 │   ⚜️ •
 │   ⚜️ •
 │   ⚜️ •
 │   ⚜️ •
-╰────────────────────❍
+╰─────────────────────────╯
 `.trim()
 
   await conn.sendFile(
@@ -76,4 +81,4 @@ handler.help = ['guerradeclanes']
 handler.command = /^(guerra|guerradeclanes)$/i
 handler.group = true
 
-export default handler
+export default handler;
