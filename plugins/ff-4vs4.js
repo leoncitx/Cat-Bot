@@ -1,8 +1,9 @@
-import fg from 'api-dylux';
-import fetch from 'node-fetch';
-import axios from 'axios';
 
-let handler = async (m, { conn, args, command, usedPrefix }) => {
+import fg from 'api-dylux'
+import fetch from 'node-fetch'
+import axios from 'axios'
+
+let handler = async (m, { conn, args, command, usedPrefix}) => {
   if (!args[0]) throw `
 𝟒 𝐕𝐄𝐑𝐒𝐔𝐒 𝟒
 
@@ -23,18 +24,20 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     ʚ 𝐒𝐔𝐏𝐋𝐄𝐍𝐓𝐄𝐒:
     🥷🏻 ┇
     🥷🏻 ┇
-`;
+`
 
+  // Sasuke fkontak como intro visual
   const fkontak = {
     key: {
-      participant: "0@s.whatsapp.net", // Use participant instead of participants
+      participant: "0@s.whatsapp.net",
       remoteJid: "status@broadcast",
       fromMe: false,
       id: "AlienMenu"
-    },
+},
     message: {
-      contactMessage: { // Use contactMessage for a vcard (contact)
-        displayName: "Sasuke Bot", // Display name for the contact
+      locationMessage: {
+        name: "INVOCACIÓN MASIVA 👽",
+        jpegThumbnail: await (await fetch('https://files.catbox.moe/1j784p.jpg')).buffer(),
         vcard:
           "BEGIN:VCARD\n" +
           "VERSION:3.0\n" +
@@ -47,22 +50,25 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
           "X-WA-BIZ-DESCRIPTION:🛸 Llamado grupal universal con estilo.\n" +
           "X-WA-BIZ-NAME:Sasuke\n" +
           "END:VCARD"
-      }
-    },
-    // No need for a separate 'participant' field outside of 'key' for a quoted message.
-    // The 'key.participant' already defines who the message appears to be from.
-  };
+}
+}
+}
 
+  // Enviar intro visual primero
   await conn.sendMessage(m.chat, {
-    image: { url: 'https://cdn.russellxz.click/16b3faeb.jpeg' },
-    caption: `𝟒 𝐕𝐒 𝟒\n\n⏱ 𝐇𝐎𝐑𝐀𝐑𝐈𝐎\n🇲🇽 𝐌𝐄𝐗𝐈𝐂𝐎: ${args[0]}\n🇨🇴 𝐂𝐎𝐋𝐎𝐌𝐁𝐈𝐀: ${args[0]}\n\n➥ 𝐌𝐎𝐃𝐀𝐋𝐈𝐃𝐀𝐃:\n➥ 𝐉𝐔𝐆𝐀𝐃𝐎𝐑𝐄𝐒:\n\n👑 ┇ \n🥷🏻 ┇\n🥷🏻 ┇\n🥷🏻 ┇\n\nʚ 𝐒𝐔𝐏𝐋𝐄𝐍𝐓𝐄𝐒:\n🥷🏻 ┇\n🥷🏻 ┇`,
-    mentions: []
-  }, { quoted: fkontak });
-};
+    text: '⚡ 𝘌𝘴𝘤𝘶𝘢𝘥𝘳𝘢 𝘢𝘤𝘵𝘪𝘷𝘢 | 𝘚𝘢𝘴𝘶𝘬𝘦 𝘉𝘰𝘵 MD 👑'
+}, { quoted: fkontak})
 
-handler.help = ['4vs4'];
-handler.tags = ['freefire'];
-handler.command = /^(vs4|4vs4|masc4)$/i;
-handler.group = true;
+  // Enviar imagen con listado principal
+  await conn.sendMessage(m.chat, {
+    image: { url: 'https://cdn.russellxz.click/16b3faeb.jpeg'},
+    caption: `𝟒 𝐕𝐒 𝟒\n\n⏱ 𝐇𝐎𝐑𝐀𝐑𝐈𝐎\n🇲🇽 𝐌𝐄𝐗𝐈𝐂𝐎: ${args[0]}\n🇨🇴 𝐂𝐎𝐋𝐎𝐌𝐁𝐈𝐀: ${args[0]}\n\n➥ 𝐌𝐎𝐃𝐀𝐋𝐈𝐃𝐀𝐃:\n➥ 𝐉𝐔𝐆𝐀𝐃𝐎𝐑𝐄𝐒:\n\n👑 ┇ \n🥷🏻 ┇\n🥷🏻 ┇\n🥷🏻 ┇\n\nʚ 𝐒𝐔𝐏𝐋𝐄𝐍𝐓𝐄𝐒:\n🥷🏻 ┇\n🥷🏻 ┇`
+}, { quoted: m})
+}
 
-export default handler;
+handler.help = ['4vs4']
+handler.tags = ['freefire']
+handler.command = /^(vs4|4vs4|masc4)$/i
+handler.group = true
+
+export default handler
