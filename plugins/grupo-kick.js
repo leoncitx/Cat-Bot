@@ -1,49 +1,31 @@
-let handler = async (m, { conn, participants, isBotAdmin, isAdmin, args }) => {
-  if (!m.isGroup) return m.reply('❗ *Este comando solo funciona en grupos.*');
-  if (!isAdmin) return m.reply('🚫 *Solo los admins pueden usar este comando, fiera.*');
-  if (!isBotAdmin) return m.reply('😥 *No puedo eliminar a nadie si no soy admin.*');
 
-  let users = [];
+import axios from 'axios';
 
-  if (m.mentionedJid?.length) {
-    users = m.mentionedJid;
-  } else if (m.quoted?.sender) {
-    users = [m.quoted.sender];
-  } else if (args[0]) {
-    let jid = args[0].replace(/[^0-9]/g, '') + '@s.whatsapp.net';
-    users = [jid];
-  }
+const handler = async (m, { conn, isAdmin, isOwner, participants, args}) => {
+  if (!(isAdmin || isOwner)) {
+    throw '⚠️ Solo admins pueden usar este comando.';
+}
 
-  if (!users.length) {
-    return m.reply('👀 *Etiqueta o responde al mensaje de quien quieras eliminar, no adivino...*');
-  }
+  const userToKick = m.mentionedJid?.[0] || args[0]?.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
+  if (!userToKick ||!participants.map(p => p.id).includes(userToKick)) {
+    return m.reply('🚫 Menciona al usuario que deseas eliminar o proporciona su número válido.');
+}
 
-  for (let user of users) {
-    if (user === conn.user.jid) {
-      m.reply(`😅 *¿Quieres que me elimine a mí mismo? Eso no se puede.*`);
-      continue;
-    }
-    if (!participants.some(p => p.id === user)) {
-      m.reply(`🤔 *No encontré a @${user.split('@')[0]} en este grupo...*`, null, {
-        mentions: [user],
-      });
-      continue;
-    }
+  // Descarga el sticker para usar como ícono de notificación
+  const stickerUrl = 'https://n.uguu.se/OTTBjcpJ.webp';
+  const stickerRes = await axios.get(stickerUrl, { responseType: 'arraybuffer'});
 
-    await conn.groupParticipantsUpdate(m.chat, [user], 'remove');
-    await m.reply(`👢 *@${user.split('@')[0]} fue enviado a volar del grupo...*\n\n✨ _Desarrollado por Barboza🌀_`, null, {
-      mentions: [user],
-    });
-  }
+  await conn.sendMessage(m.chat, {
+    sticker: stickerRes.data
+}, { quoted: m});
 
-  m.react('✅');
+  await conn.groupParticipantsUpdate(m.chat, [userToKick], 'remove');
 };
 
-handler.help = ['kick', 'ban'];
+handler.help = ['kick @usuario'];
 handler.tags = ['group'];
-handler.command = /^(kick|ban|echar|sacar)$/i;
-handler.group = true;
+handler.command = /^kick$/i;
 handler.admin = true;
-handler.botAdmin = true;
+handler.group = true;
 
 export default handler;
