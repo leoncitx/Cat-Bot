@@ -1,14 +1,14 @@
 import fetch from "node-fetch";
 import axios from "axios";
 
-const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) => {
+const handler = async (m, { isOwner, isAdmin, conn, text, participants, args }) => {
   const chat = global.db.data.chats[m.chat] || {};
   const emoji = chat.emojiTag || '🤖';
 
   if (!(isAdmin || isOwner)) {
     global.dfail('admin', m, conn);
     throw new Error('No tienes permisos para usar este comando.');
-}
+  }
 
   const customMessage = args.join(' ');
   const groupMetadata = await conn.groupMetadata(m.chat);
@@ -24,7 +24,7 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
     '90': '🇹🇷', '63': '🇵🇭', '62': '🇮🇩', '60': '🇲🇾', '65': '🇸🇬', '66': '🇹🇭',
     '31': '🇳🇱', '32': '🇧🇪', '30': '🇬🇷', '36': '🇭🇺', '46': '🇸🇪', '47': '🇳🇴',
     '48': '🇵🇱', '421': '🇸🇰', '420': '🇨🇿', '40': '🇷🇴', '43': '🇦🇹', '373': '🇲🇩'
-};
+  };
 
   const getCountryFlag = (id) => {
     const phoneNumber = id.split('@')[0];
@@ -32,14 +32,14 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
     let prefix = phoneNumber.substring(0, 3);
     if (!countryFlags[prefix]) {
       prefix = phoneNumber.substring(0, 2);
-}
+    }
     return countryFlags[prefix] || '🏳️‍🌈';
-};
+  };
 
   let messageText = `*${groupName}*\n\n*Integrantes: ${participants.length}*\n${customMessage}\n┌──⭓ *Despierten*\n`;
   for (const mem of participants) {
     messageText += `${emoji} ${getCountryFlag(mem.id)} @${mem.id.split('@')[0]}\n`;
-}
+  }
   messageText += `└───────⭓\n\n𝘚𝘶𝘱𝘦𝘳 𝘉𝘰𝘵 𝘞𝘩𝘢𝘵𝘴𝘈𝘱𝘱 🚩`;
 
   const textArray = [
@@ -52,12 +52,13 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
     "https://iili.io/FKVbUrJ.jpg"
   ];
 
-  const text = textArray[Math.floor(Math.random() * textArray.length)];
+  
+  const randomTitle = textArray[Math.floor(Math.random() * textArray.length)];
   const img = imgArray[Math.floor(Math.random() * imgArray.length)];
 
   const thumbnailBuffer = Buffer.from(
-    (await axios.get(img, { responseType: 'arraybuffer'})).data
-);
+    (await axios.get(img, { responseType: 'arraybuffer' })).data
+  );
 
   const izumi = {
     key: {
@@ -65,10 +66,10 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
       remoteJid: "status@broadcast",
       fromMe: false,
       id: "AlienMenu"
-},
+    },
     message: {
       locationMessage: {
-        name: text,
+        name: randomTitle, 
         jpegThumbnail: thumbnailBuffer,
         vcard:
           "BEGIN:VCARD\n" +
@@ -82,22 +83,22 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
           "X-WA-BIZ-DESCRIPTION:🛸 Llamado grupal universal con estilo.\n" +
           "X-WA-BIZ-NAME:Sasuke\n" +
           "END:VCARD"
-}
-},
+      }
+    },
     participant: "0@s.whatsapp.net"
-};
+  };
 
   await conn.sendMessage(m.chat, {
-    image: { url: img},
+    image: { url: img },
     caption: messageText,
     mentions: participants.map(a => a.id)
-}, { quoted: izumi});
+  }, { quoted: izumi });
 
   await conn.sendMessage(m.chat, {
-    audio: { url: 'https://cdn.russellxz.click/a8f5df5a.mp3'},
+    audio: { url: 'https://cdn.russellxz.click/a8f5df5a.mp3' },
     mimetype: 'audio/mp4',
     ptt: true
-}, { quoted: izumi});
+  }, { quoted: izumi });
 };
 
 handler.help = ['todos'];
