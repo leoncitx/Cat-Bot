@@ -7,7 +7,7 @@ import PhoneNumber from 'awesome-phonenumber'
 const { generateWAMessageFromContent, prepareWAMessageMedia, proto } = pkg
 
 var handler = async function (m, conn, db) {
-    // Función para obtener buffer de una URL
+    // FunciÃ³n para obtener buffer de una URL
     async function getBuffer(url, options = {}) {
         try {
             let res = await axios({
@@ -28,7 +28,7 @@ var handler = async function (m, conn, db) {
         }
     }
 
-    // Obtener información del usuario
+    // Obtener informaciÃ³n del usuario
     let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
     let fotoperfil = await conn.profilePictureUrl(who, 'image').catch(() => 'https://qu.ax/QGAVS.jpg')
 
@@ -47,19 +47,23 @@ var handler = async function (m, conn, db) {
 
     // Lista de canales
     let canalIdM = ["120363414007802886@newsletter", "120363414007802886@newsletter"]
-    let canalNombreM = ["sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀", "✧┊┋◟🚀sᥲsᥙkᥱ ᑲ᥆𝗍🚀◞┊┋✧"]
-    
+    let canalNombreM = ["sá¥²sá¥™ká¥± á‘²á¥†ð— máƒ« ðŸŒ€", "âœ§â”Šâ”‹â—ŸðŸš€sá¥²sá¥™ká¥± á‘²á¥†ð—ðŸš€â—žâ”Šâ”‹âœ§"]
+
     async function getRandomChannel() {
         let randomIndex = Math.floor(Math.random() * canalIdM.length)
         return { id: canalIdM[randomIndex], name: canalNombreM[randomIndex] }
     }
-    
+
     let channelRD = await getRandomChannel()
 
     // Reacciones
-    let rwait = '🕒'
-    let done = '✅'
-    let error = '✖️'
+    let rwait = 'ðŸ•’'
+    let done = 'âœ…'
+    let error = 'âœ–ï¸'
+
+const bot = global.db.data.settings[this.user.jid]
+global.banner = bot.banner || 'https://raw.githubusercontent.com/WillZek/CrowBot-ST/main/media/catalogo.jpg'
+
 
     // Imagen de respuesta
     let category = "imagen"
@@ -71,7 +75,7 @@ var handler = async function (m, conn, db) {
     const rimg = await response.buffer()
 
     // Mensajes de espera
-    let wait = '🕒 *𝗘𝘀𝗽𝗲𝗿𝗮 𝗨𝗻 𝗠𝗼𝗺𝗲𝗻𝘁𝗼, 𝗦𝗼𝘆 𝗟𝗲𝗻𝘁𝗮 ...*'
+    let wait = 'ðŸ•’ *ð—˜ð˜€ð—½ð—²ð—¿ð—® ð—¨ð—» ð— ð—¼ð—ºð—²ð—»ð˜ð—¼, ð—¦ð—¼ð˜† ð—Ÿð—²ð—»ð˜ð—® ...*'
 
     // Tags
     let taguser = '@' + m.sender.split("@s.whatsapp.net")
@@ -92,7 +96,7 @@ var handler = async function (m, conn, db) {
         participant: "0@s.whatsapp.net" 
     }
 
-    // Selección de canal aleatorio
+    // SelecciÃ³n de canal aleatorio
     let rcanal = { 
         contextInfo: { 
             isForwarded: true, 
@@ -104,7 +108,7 @@ var handler = async function (m, conn, db) {
             externalAdReply: { 
                 showAdAttribution: true, 
                 title: "Texto del bot", 
-                body: '🚀 ♡⃝Barboza𝒕ᚐ҉ᚐ', 
+                body: 'ðŸš€ â™¡âƒBarbozað’•ášÒ‰áš', 
                 previewType: "PHOTO", 
                 thumbnailUrl: "https://qu.ax/QGAVS.jpg", 
                 sourceUrl: "https://whatsapp.com/channel/0029Vaua0ZD3gvWjQaIpSy18", 
