@@ -3,22 +3,27 @@ import axios from 'axios';
 
 const handler = async (m, { conn, isAdmin, isOwner, participants, args}) => {
   if (!(isAdmin || isOwner)) {
-    throw '⚠️ Solo admins pueden usar este comando.';
+    throw '⚠️ Este comando solo puede ser usado por administradores.';
 }
 
-  const userToKick = m.mentionedJid?.[0] || args[0]?.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
+  const mentionedUser = m.mentionedJid?.[0];
+  const repliedUser = m.quoted?.sender;
+  const numberInput = args[0]?.replace(/[^0-9]/g, '');
+  const userToKick = mentionedUser || repliedUser || (numberInput? numberInput + '@s.whatsapp.net': null);
+
   if (!userToKick ||!participants.map(p => p.id).includes(userToKick)) {
-    return m.reply('🚫 Menciona al usuario que deseas eliminar o proporciona su número válido.');
+    return m.reply('❌ Debes mencionar, responder o escribir el número del usuario que deseas eliminar.');
 }
 
-  // Descarga el sticker para usar como ícono de notificación
+  // Enviar sticker como advertencia visual
   const stickerUrl = 'https://n.uguu.se/OTTBjcpJ.webp';
-  const stickerRes = await axios.get(stickerUrl, { responseType: 'arraybuffer'});
+  const stickerData = (await axios.get(stickerUrl, { responseType: 'arraybuffer'})).data;
 
   await conn.sendMessage(m.chat, {
-    sticker: stickerRes.data
+    sticker: stickerData
 }, { quoted: m});
 
+  // Ejecutar expulsión
   await conn.groupParticipantsUpdate(m.chat, [userToKick], 'remove');
 };
 
