@@ -45,8 +45,8 @@ const handler = async (m, { conn, usedPrefix}) => {
       "𝙀𝙩𝙞𝙦𝙪𝙚𝙩𝙖𝙣𝙙𝙤 𝙖 𝙡𝙤𝙨 𝙉𝙋𝘾"
     ].getRandom();
     const imgRandom = [
-      "https://files.catbox.moe/1j784p.jpg",
-      "https://files.catbox.moe/1j784p.jpg"
+      "https://iili.io/FKVDVAN.jpg",
+      "https://iili.io/FKVbUrJ.jpg"
     ].getRandom();
 
     const thumbnailBuffer = Buffer.from(
