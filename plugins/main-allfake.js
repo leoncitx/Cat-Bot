@@ -62,7 +62,10 @@ var handler = async function (m, conn, db) {
     let error = 'âœ–ï¸'
 
 const bot = global.db.data.settings[this.user.jid]
-global.banner = bot.banner || 'https://raw.githubusercontent.com/WillZek/CrowBot-ST/main/media/catalogo.jpg'
+global.icono = bot.icono || 'https://raw.githubusercontent.com/WillZek/CrowBot-ST/main/media/catalogo.jpg'
+
+const bot = global.db.data.settings[this.user.jid]
+global.icono = bot.icono || 'https://raw.githubusercontent.com/WillZek/CrowBot-ST/main/media/catalogo.jpg'
 
 
     // Imagen de respuesta
