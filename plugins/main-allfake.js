@@ -7,7 +7,7 @@ import PhoneNumber from 'awesome-phonenumber'
 const { generateWAMessageFromContent, prepareWAMessageMedia, proto } = pkg
 
 var handler = async function (m, conn, db) {
-    // FunciÃ³n para obtener buffer de una URL
+    // Función para obtener buffer de una URL
     async function getBuffer(url, options = {}) {
         try {
             let res = await axios({
@@ -28,7 +28,7 @@ var handler = async function (m, conn, db) {
         }
     }
 
-    // Obtener informaciÃ³n del usuario
+    // Obtener información del usuario
     let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
     let fotoperfil = await conn.profilePictureUrl(who, 'image').catch(() => 'https://qu.ax/QGAVS.jpg')
 
@@ -46,29 +46,35 @@ var handler = async function (m, conn, db) {
     let asistencia = 'Wa.me/5804146277368'
 
     // Lista de canales
-    let canalIdM = ["120363414007802886@newsletter", "120363414007802886@newsletter"]
-    let canalNombreM = ["sá¥²sá¥™ká¥± á‘²á¥†ð— máƒ« ðŸŒ€", "âœ§â”Šâ”‹â—ŸðŸš€sá¥²sá¥™ká¥± á‘²á¥†ð—ðŸš€â—žâ”Šâ”‹âœ§"]
+    let canalIdM = [
+        "120363414007802886@newsletter",
+        "120363414007802886@newsletter"
+    ]
+    let canalNombreM = [
+        "sá¥²sá¥™ká¥± á‘²á¥†ð— máƒ« ðŸŒ€",
+        "âœ§â”Šâ”‹â—ŸðŸš€sá¥²sá¥™ká¥± á‘²á¥†ð—ðŸš€â—žâ”Šâ”‹âœ§"
+    ]
 
     async function getRandomChannel() {
         let randomIndex = Math.floor(Math.random() * canalIdM.length)
-        return { id: canalIdM[randomIndex], name: canalNombreM[randomIndex] }
+        return {
+            id: canalIdM[randomIndex],
+            name: canalNombreM[randomIndex]
+        }
     }
 
     let channelRD = await getRandomChannel()
 
     // Reacciones
-    let rwait = 'ðŸ•’'
-    let done = 'âœ…'
-    let error = 'âœ–ï¸'
+    let rwait = '🕐'
+    let done = '✅'
+    let error = '❌'
 
-const bot = global.db.data.settings[this.user.jid]
-global.icono = bot.icono || 'https://raw.githubusercontent.com/WillZek/CrowBot-ST/main/media/catalogo.jpg'
+    
+    const bot = global.db.data.settings[this.user.jid]
+    global.icono = bot.icono || 'https://raw.githubusercontent.com/WillZek/CrowBot-ST/main/media/catalogo.jpg'
 
-const bot = global.db.data.settings[this.user.jid]
-global.icono = bot.icono || 'https://raw.githubusercontent.com/WillZek/CrowBot-ST/main/media/catalogo.jpg'
-
-
-    // Imagen de respuesta
+    
     let category = "imagen"
     const dbPath = './src/database/db.json'
     const dbData = JSON.parse(fs.readFileSync(dbPath))
@@ -77,48 +83,48 @@ global.icono = bot.icono || 'https://raw.githubusercontent.com/WillZek/CrowBot-S
     const response = await fetch(randomlink)
     const rimg = await response.buffer()
 
-    // Mensajes de espera
-    let wait = 'ðŸ•’ *ð—˜ð˜€ð—½ð—²ð—¿ð—® ð—¨ð—» ð— ð—¼ð—ºð—²ð—»ð˜ð—¼, ð—¦ð—¼ð˜† ð—Ÿð—²ð—»ð˜ð—® ...*'
+    
+    let wait = '🕐 *𝙲𝚊𝚛𝚐𝚊𝚗𝚍𝚘 𝚍𝚊𝚝𝚘𝚜, 𝚙𝚘𝚛 𝚏𝚊𝚟𝚘𝚛 𝚎𝚜𝚙𝚎𝚛𝚊...*'
 
-    // Tags
+    
     let taguser = '@' + m.sender.split("@s.whatsapp.net")
 
-    // Fakes
-    let fkontak = { 
-        key: { 
-            participants: "0@s.whatsapp.net", 
-            remoteJid: "status@broadcast", 
-            fromMe: false, 
-            id: "Halo" 
-        }, 
-        message: { 
-            contactMessage: { 
-                vcard: `BEGIN:VCARD\nVERSION:3.0\nN:Sy;Bot;;;\nFN:y\nitem1.TEL;waid=${m.sender.split('@')[0]}:${m.sender.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD` 
+
+    let fkontak = {
+        key: {
+            participants: "0@s.whatsapp.net",
+            remoteJid: "status@broadcast",
+            fromMe: false,
+            id: "Halo"
+        },
+        message: {
+            contactMessage: {
+                vcard: `BEGIN:VCARD\nVERSION:3.0\nN:Sy;Bot;;;\nFN:y\nitem1.TEL;waid=${m.sender.split('@')[0]}:${m.sender.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD`
             }
-        }, 
-        participant: "0@s.whatsapp.net" 
+        },
+        participant: "0@s.whatsapp.net"
     }
 
-    // SelecciÃ³n de canal aleatorio
-    let rcanal = { 
-        contextInfo: { 
-            isForwarded: true, 
-            forwardedNewsletterMessageInfo: { 
-                newsletterJid: channelRD.id, 
-                serverMessageId: 100, 
-                newsletterName: channelRD.name 
-            }, 
-            externalAdReply: { 
-                showAdAttribution: true, 
-                title: "Texto del bot", 
-                body: 'ðŸš€ â™¡âƒBarbozað’•ášÒ‰áš', 
-                previewType: "PHOTO", 
-                thumbnailUrl: "https://qu.ax/QGAVS.jpg", 
-                sourceUrl: "https://whatsapp.com/channel/0029Vaua0ZD3gvWjQaIpSy18", 
-                mediaType: 1, 
-                renderLargerThumbnail: false 
+    
+    let rcanal = {
+        contextInfo: {
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+                newsletterJid: channelRD.id,
+                serverMessageId: 100,
+                newsletterName: channelRD.name
+            },
+            externalAdReply: {
+                showAdAttribution: true,
+                title: "Texto del bot",
+                body: '🚀 ♡↝Barboza𝐐𐑂𐐲',
+                previewType: "PHOTO",
+                thumbnailUrl: "https://qu.ax/QGAVS.jpg",
+                sourceUrl: "https://whatsapp.com/channel/0029Vaua0ZD3gvWjQaIpSy18",
+                mediaType: 1,
+                renderLargerThumbnail: false
             }
-        } 
+        }
     }
 
     return { fotoperfil, userNationality, pushname, taguser, rimg, wait, fkontak, rcanal }
