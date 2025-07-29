@@ -27,11 +27,8 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
 
   const getCountryFlag = (id) => {
     const phoneNumber = id.split('@')[0];
-    if (phoneNumber.startsWith('1')) return '🇺🇸';
     let prefix = phoneNumber.substring(0, 3);
-    if (!countryFlags[prefix]) {
-      prefix = phoneNumber.substring(0, 2);
-}
+    if (!countryFlags[prefix]) prefix = phoneNumber.substring(0, 2);
     return countryFlags[prefix] || '🏳️‍🌈';
 };
 
@@ -39,9 +36,9 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
   for (const mem of participants) {
     messageText += `${emoji} ${getCountryFlag(mem.id)} @${mem.id.split('@')[0]}\n`;
 }
-  messageText += `└───────⭓\n\n𝘚𝘶𝘱𝘦𝘳 𝘉𝘰𝘵 𝘞𝘩𝘢𝘵𝘴𝘈𝘱𝘱 🚩`;
+  messageText += `└───────⭓\n\n👁️ *Sasuke Bot MD* ha ejecutado la invocación grupal.`;
 
-  const imageUrl = 'https://files.catbox.moe/1j784p.jpg';
+  const imageUrl = 'https://files.catbox.moe/1j784p.jpg'; // Imagen estilo oscuro
   const audioUrl = 'https://cdn.russellxz.click/a8f5df5a.mp3';
 
   const fkontak = {
@@ -49,35 +46,43 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
       participants: "0@s.whatsapp.net",
       remoteJid: "status@broadcast",
       fromMe: false,
-      id: "AlienMenu"
+      id: "SasukeSummon"
 },
     message: {
       locationMessage: {
-        name: "*Sasuke Bot MD 🌀*",
-        jpegThumbnail: await (await fetch('https://files.catbox.moe/1j784p.jpg')).buffer(),
+        name: "⛩️ *Sasuke Bot MD | Invocación Masiva* 🌀",
+        jpegThumbnail: await (await fetch(imageUrl)).buffer(),
         vcard:
           "BEGIN:VCARD\n" +
           "VERSION:3.0\n" +
           "N:;Sasuke;;;\n" +
-          "FN:Sasuke Bot\n" +
+          "FN:Sasuke Summoner\n" +
           "ORG:Barboza Developers\n" +
-          "TITLE:\n" +
+          "TITLE:Comandante Dimensional\n" +
           "item1.TEL;waid=19709001746:+1 (970) 900-1746\n" +
-          "item1.X-ABLabel:Alien\n" +
-          "X-WA-BIZ-DESCRIPTION:🛸 Llamado grupal universal con estilo.\n" +
-          "X-WA-BIZ-NAME:Sasuke\n" +
+          "item1.X-ABLabel:⚡ Sasuke\n" +
+          "X-WA-BIZ-DESCRIPTION:🛸 Ejecutando etiquetas a nivel global. Poder y elegancia al servicio del grupo.\n" +
+          "X-WA-BIZ-NAME:Sasuke Bot MD\n" +
           "END:VCARD"
 }
 },
     participant: "0@s.whatsapp.net"
 };
 
+  // Imagen de encabezado visual
   await conn.sendMessage(m.chat, {
     image: { url: imageUrl},
-    caption: messageText,
+    caption: "🔮 *Invocación grupal ejecutada por Sasuke Bot MD* 🛸",
     mentions: participants.map(a => a.id)
 }, { quoted: fkontak});
 
+  // Mensaje con menciones
+  await conn.sendMessage(m.chat, {
+    text: messageText,
+    mentions: participants.map(a => a.id)
+}, { quoted: fkontak});
+
+  // Audio tipo PTT de ambientación
   await conn.sendMessage(m.chat, {
     audio: { url: audioUrl},
     mimetype: 'audio/mp4',
