@@ -1,4 +1,3 @@
-
 import fetch from "node-fetch";
 
 const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) => {
@@ -27,17 +26,20 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
 };
 
   const getCountryFlag = (id) => {
-    const phone = id.split('@')[0];
-    let prefix = phone.substring(0, 3);
-    if (!countryFlags[prefix]) prefix = phone.substring(0, 2);
+    const phoneNumber = id.split('@')[0];
+    if (phoneNumber.startsWith('1')) return '🇺🇸';
+    let prefix = phoneNumber.substring(0, 3);
+    if (!countryFlags[prefix]) {
+      prefix = phoneNumber.substring(0, 2);
+}
     return countryFlags[prefix] || '🏳️‍🌈';
 };
 
-  let messageText = `⛩️ *Sasuke Bot MD*\n\n*Grupo:* ${groupName}\n*Integrantes:* ${participants.length}\n${customMessage}\n┌──⭓ *Invocación Global*\n`;
+  let messageText = `*${groupName}*\n\n*Integrantes: ${participants.length}*\n${customMessage}\n┌──⭓ *Despierten*\n`;
   for (const mem of participants) {
     messageText += `${emoji} ${getCountryFlag(mem.id)} @${mem.id.split('@')[0]}\n`;
 }
-  messageText += `└───────⭓\n\n🔮 *Ejecutado por Sasuke Bot MD* ⚡`;
+  messageText += `└───────⭓\n\n𝘚𝘶𝘱𝘦𝘳 𝘉𝘰𝘵 𝘞𝘩𝘢𝘵𝘴𝘈𝘱𝘱 🚩`;
 
   const imageUrl = 'https://files.catbox.moe/1j784p.jpg';
   const audioUrl = 'https://cdn.russellxz.click/a8f5df5a.mp3';
@@ -47,23 +49,23 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
       participants: "0@s.whatsapp.net",
       remoteJid: "status@broadcast",
       fromMe: false,
-      id: "SasukeSummon"
+      id: "AlienMenu"
 },
     message: {
       locationMessage: {
-        name: "💮 Sasuke Bot MD | Llamado Universal",
-        jpegThumbnail: await (await fetch(imageUrl)).buffer(),
+        name: "*Sasuke Bot MD 🌀*",
+        jpegThumbnail: await (await fetch('https://files.catbox.moe/1j784p.jpg')).buffer(),
         vcard:
           "BEGIN:VCARD\n" +
           "VERSION:3.0\n" +
           "N:;Sasuke;;;\n" +
-          "FN:Sasuke Bot MD\n" +
+          "FN:Sasuke Bot\n" +
           "ORG:Barboza Developers\n" +
-          "TITLE:Invocador Shinobi\n" +
+          "TITLE:\n" +
           "item1.TEL;waid=19709001746:+1 (970) 900-1746\n" +
-          "item1.X-ABLabel:Sasuke\n" +
-          "X-WA-BIZ-DESCRIPTION:⚡ Ejecución mística de menciones masivas con arte y estilo.\n" +
-          "X-WA-BIZ-NAME:Sasuke Bot MD\n" +
+          "item1.X-ABLabel:Alien\n" +
+          "X-WA-BIZ-DESCRIPTION:🛸 Llamado grupal universal con estilo.\n" +
+          "X-WA-BIZ-NAME:Sasuke\n" +
           "END:VCARD"
 }
 },
@@ -73,10 +75,13 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
   await conn.sendMessage(m.chat, {
     image: { url: imageUrl},
     caption: messageText,
-    mentions: participants.map(a => a.id),
-    ptt: true,
+    mentions: participants.map(a => a.id)
+}, { quoted: fkontak});
+
+  await conn.sendMessage(m.chat, {
     audio: { url: audioUrl},
-    mimetype: 'audio/mp4'
+    mimetype: 'audio/mp4',
+    ptt: true
 }, { quoted: fkontak});
 };
 
