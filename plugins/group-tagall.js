@@ -1,3 +1,4 @@
+
 import fetch from "node-fetch";
 
 const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) => {
@@ -27,7 +28,6 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
 
   const getCountryFlag = (id) => {
     const phoneNumber = id.split('@')[0];
-    if (phoneNumber.startsWith('1')) return '🇺🇸';
     let prefix = phoneNumber.substring(0, 3);
     if (!countryFlags[prefix]) prefix = phoneNumber.substring(0, 2);
     return countryFlags[prefix] || '🏳️‍🌈';
@@ -50,40 +50,35 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
       id: "AlienMenu"
 },
     message: {
-      locationMessage: {
-        name: "INVOCACIÓN MASIVA 👽",
-        jpegThumbnail: await (await fetch(imageUrl)).buffer(),
+      contactMessage: {
+        displayName: "INVOCACIÓN MASIVA 👽",
         vcard:
           "BEGIN:VCARD\n" +
           "VERSION:3.0\n" +
           "N:;Sasuke;;;\n" +
           "FN:Sasuke Bot\n" +
           "ORG:Kaneki Developers\n" +
-          "TITLE:\n" +
-          "item1.TEL;waid=19709001746:+1 (970) 900-1746\n" +
-          "item1.X-ABLabel:Alien\n" +
-          "X-WA-BIZ-DESCRIPTION:🛸 Llamado grupal universal con estilo.\n" +
-          "X-WA-BIZ-NAME:Sasuke\n" +
+          "TEL;waid=19709001746:+1 (970) 900-1746\n" +
           "END:VCARD"
 }
 },
     participant: "0@s.whatsapp.net"
 };
 
-  // Envía imagen decorativa con menciones
+  // Imagen visible al principio
   await conn.sendMessage(m.chat, {
     image: { url: imageUrl},
-    caption: 'INVOCACIÓN MASIVA 👽',
+    caption: "INVOCACIÓN MASIVA 👽",
     mentions: participants.map(a => a.id)
 }, { quoted: fkontak});
 
-  // Envía mensaje completo con listado de miembros
+  // Texto de invocación
   await conn.sendMessage(m.chat, {
     text: messageText,
     mentions: participants.map(a => a.id)
 }, { quoted: fkontak});
 
-  // Envía audio PTT
+  // Audio de ambientación
   await conn.sendMessage(m.chat, {
     audio: { url: audioUrl},
     mimetype: 'audio/mp4',
