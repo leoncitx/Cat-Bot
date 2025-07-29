@@ -1,4 +1,3 @@
-
 import { sticker} from '../lib/sticker.js'
 import uploadFile from '../lib/uploadFile.js'
 import uploadImage from '../lib/uploadImage.js'
@@ -18,9 +17,8 @@ let handler = async (m, { conn, args, usedPrefix, command}) => {
       id: 'SasukeSticker'
 },
     message: {
-      locationMessage: {
-        name: '✨ Sasuke Bot MD | Generador de Stickers',
-        jpegThumbnail: await (await fetch('https://files.catbox.moe/1j784p.jpg')).buffer(),
+      contactMessage: {
+        displayName: '✨ Sasuke Bot MD | Generador de Stickers',
         vcard:
           'BEGIN:VCARD\n' +
           'VERSION:3.0\n' +
@@ -81,6 +79,7 @@ let handler = async (m, { conn, args, usedPrefix, command}) => {
           stiker = await sticker(false, out, global.packsticker, global.packsticker2)
 }
 }
+
 } else if (args[0]) {
       if (isUrl(args[0])) {
         stiker = await sticker(false, args[0], global.packsticker, global.packsticker2)
@@ -88,6 +87,7 @@ let handler = async (m, { conn, args, usedPrefix, command}) => {
         return m.reply(`⚠️ *URL no válida.* Por favor, verifica el enlace e intenta nuevamente.`, m, fkontak)
 }
 }
+
 } finally {
     if (stiker) {
       conn.sendFile(m.chat, stiker, 'sticker.webp', '', m, fkontak)
