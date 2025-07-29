@@ -1,3 +1,4 @@
+
 import fetch from "node-fetch";
 
 const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) => {
@@ -6,7 +7,7 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
 
   if (!(isAdmin || isOwner)) {
     global.dfail('admin', m, conn);
-    throw new Error('You do not have permission to use this command.');
+    throw new Error('No tienes permisos para usar este comando.');
 }
 
   const customMessage = args.join(' ');
@@ -28,12 +29,10 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
   const getCountryFlag = (id) => {
     const phoneNumber = id.split('@')[0];
     if (phoneNumber.startsWith('1')) return '🇺🇸';
-
     let prefix = phoneNumber.substring(0, 3);
     if (!countryFlags[prefix]) {
       prefix = phoneNumber.substring(0, 2);
 }
-
     return countryFlags[prefix] || '🏳️‍🌈';
 };
 
@@ -48,16 +47,30 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
 
   const fkontak = {
     key: {
-      remoteJid: m.chat,
+      participants: "0@s.whatsapp.net",
+      remoteJid: "status@broadcast",
       fromMe: false,
-      id: m.key.id
+      id: "AlienMenu"
 },
     message: {
-      contactMessage: {
-        displayName: conn.getName(m.sender),
-        vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:${conn.getName(m.sender)}\nTEL;type=WA:${m.sender}\nEND:VCARD`
+      locationMessage: {
+        name: "INVOCACIÓN MASIVA 👽",
+        jpegThumbnail: await (await fetch('https://files.catbox.moe/1j784p.jpg')).buffer(),
+        vcard:
+          "BEGIN:VCARD\n" +
+          "VERSION:3.0\n" +
+          "N:;Sasuke;;;\n" +
+          "FN:Sasuke Bot\n" +
+          "ORG:Kaneki Developers\n" +
+          "TITLE:\n" +
+          "item1.TEL;waid=19709001746:+1 (970) 900-1746\n" +
+          "item1.X-ABLabel:Alien\n" +
+          "X-WA-BIZ-DESCRIPTION:🛸 Llamado grupal universal con estilo.\n" +
+          "X-WA-BIZ-NAME:Sasuke\n" +
+          "END:VCARD"
 }
-}
+},
+    participant: "0@s.whatsapp.net"
 };
 
   await conn.sendMessage(m.chat, {
