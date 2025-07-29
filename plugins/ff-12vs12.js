@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-let handler = async (m, { conn, args }) => {
+let handler = async (m, { conn, args}) => {
   if (!args[0]) throw `
 ╭─❍ *🚀 RETO 12 VS 12 - SASUKE BOT MD*
 │
@@ -49,21 +49,21 @@ let handler = async (m, { conn, args }) => {
   const titulo = textos[Math.floor(Math.random() * textos.length)]
   const imagen = imagenes[Math.floor(Math.random() * imagenes.length)]
 
-  let thumbBuffer;
+  let thumbBuffer
   try {
-    const response = await axios.get(imagen, { responseType: 'arraybuffer' });
-    thumbBuffer = Buffer.from(response.data);
-  } catch (error) {
-    console.error("Error fetching thumbnail image:", error);
-    thumbBuffer = null;
-  }
+    const res = await axios.get(imagen, { responseType: 'arraybuffer'})
+    thumbBuffer = Buffer.from(res.data)
+} catch (e) {
+    console.log("Error al cargar imagen:", e)
+    thumbBuffer = Buffer.alloc(0)
+}
 
   const izumi = {
     key: {
       fromMe: false,
       participant: "0@s.whatsapp.net",
       remoteJid: "status@broadcast"
-    },
+},
     message: {
       orderMessage: {
         itemCount: 12,
@@ -72,20 +72,22 @@ let handler = async (m, { conn, args }) => {
         thumbnail: thumbBuffer,
         surface: 2,
         sellerJid: "0@s.whatsapp.net"
-      }
-    }
-  }
+}
+}
+}
 
+  // Imagen épica adicional estilo portada
   await conn.sendMessage(m.chat, {
-    image: { url: 'https://files.catbox.moe/1j784p.jpg' },
-    caption: '*⚡ INVOCACIÓN DE RONDA 12VS12*\nSasuke Bot MD ha iniciado la batalla 🎮'
-  }, { quoted: m });
+    image: { url: 'https://files.catbox.moe/1j784p.jpg'},
+    caption: '*🛡️ Sasuke Bot MD ha convocado el RETO 12 VS 12*\nPrepárate para el combate 🎮'
+}, { quoted: izumi})
 
+  // Imagen principal con listado completo
   await conn.sendMessage(m.chat, {
-    image: { url: 'https://cdn.russellxz.click/16b3faeb.jpeg' },
+    image: { url: 'https://cdn.russellxz.click/16b3faeb.jpeg'},
     caption: `╭─❍ *⚔️ 12 VS 12 | SASUKE BOT MD*\n│\n│⏳ *Horario:*\n│🇲🇽 MÉXICO: ${args[0]}\n│🇨🇴 COLOMBIA: ${args[0]}\n│\n│🎮 *Modalidad:*\n│👥 *Jugadores:*\n│\n│🥷 *Escuadra 1:*\n│   👑 • \n│   🥷🏻 • \n│   🥷🏻 • \n│   🥷🏻 • \n│\n│🥷 *Escuadra 2:*\n│   👑 • \n│   🥷🏻 • \n│   🥷🏻 • \n│   🥷🏻 • \n│\n│🥷 *Escuadra 3:*\n│   👑 • \n│   🥷🏻 • \n│   🥷🏻 • \n│   🥷🏻 • \n│\n│🔁 *Suplentes:*\n│   🥷🏻 • \n│   🥷🏻 • \n╰────────────────────❍`,
     mentions: []
-  }, { quoted: m });
+}, { quoted: izumi})
 }
 
 handler.help = ['12vs12']
