@@ -1,56 +1,49 @@
+let handler = async (m, { conn, participants, isBotAdmin, isAdmin, args }) => {
+  if (!m.isGroup) return m.reply('❗ *Este comando solo funciona en grupos.*');
+  if (!isAdmin) return m.reply('🚫 *Solo los admins pueden usar este comando, fiera.*');
+  if (!isBotAdmin) return m.reply('😥 *No puedo eliminar a nadie si no soy admin.*');
 
-const handler = async (msg, { conn}) => {
-  if (!msg.key.remoteJid.includes("@g.us")) {
-    return await conn.sendMessage(msg.key.remoteJid, {
-      text: "❌ *Este comando solo funciona en grupos.*"
-}, { quoted: msg});
-}
+  let users = [];
 
-  const metadata = await conn.groupMetadata(msg.key.remoteJid);
-  const admins = metadata.participants.filter(p => p.admin);
-  const isSenderAdmin = admins.some(a => a.id === msg.key.participant);
+  if (m.mentionedJid?.length) {
+    users = m.mentionedJid;
+  } else if (m.quoted?.sender) {
+    users = [m.quoted.sender];
+  } else if (args[0]) {
+    let jid = args[0].replace(/[^0-9]/g, '') + '@s.whatsapp.net';
+    users = [jid];
+  }
 
-  if (!isSenderAdmin) {
-    return await conn.sendMessage(msg.key.remoteJid, {
-      text: "🚫 *No tienes permisos para expulsar usuarios.*"
-}, { quoted: msg});
-}
+  if (!users.length) {
+    return m.reply('👀 *Etiqueta o responde al mensaje de quien quieras eliminar, no adivino...*');
+  }
 
-  // Detectar a quién expulsar: menciones o respuesta directa
-  let target = null;
-  const mention = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid;
-  if (mention?.length) target = mention[0];
-  else if (msg.message?.extendedTextMessage?.contextInfo?.participant)
-    target = msg.message.extendedTextMessage.contextInfo.participant;
+  for (let user of users) {
+    if (user === conn.user.jid) {
+      m.reply(`😅 *¿Quieres que me elimine a mí mismo? Eso no se puede.*`);
+      continue;
+    }
+    if (!participants.some(p => p.id === user)) {
+      m.reply(`🤔 *No encontré a @${user.split('@')[0]} en este grupo...*`, null, {
+        mentions: [user],
+      });
+      continue;
+    }
 
-  if (!target) {
-    return await conn.sendMessage(msg.key.remoteJid, {
-      text: "⚠️ *Debes mencionar o responder a alguien para expulsarlo.*"
-}, { quoted: msg});
-}
+    await conn.groupParticipantsUpdate(m.chat, [user], 'remove');
+    await m.reply(`👢 *@${user.split('@')[0]} fue enviado a volar del grupo...*\n\n✨ _Desarrollado por Barboza🌀_`, null, {
+      mentions: [user],
+    });
+  }
 
-  const isTargetAdmin = admins.some(a => a.id === target);
-  if (isTargetAdmin) {
-    return await conn.sendMessage(msg.key.remoteJid, {
-      text: "❌ *No puedes expulsar a otro administrador.*"
-}, { quoted: msg});
-}
-
-  // Enviar sticker antes de expulsar
-  const sticker = await conn.getFile('https://n.uguu.se/OTTBjcpJ.webp');
-  await conn.sendMessage(msg.key.remoteJid, {
-    sticker: { url: sticker.url}
-}, { quoted: msg});
-
-  // Expulsar al usuario
-  await conn.groupParticipantsUpdate(msg.key.remoteJid, [target], "remove");
-
-  await conn.sendMessage(msg.key.remoteJid, {
-    text: `🚷 *@${target.split("@")[0]} fue expulsado del grupo.*`,
-    mentions: [target]
-}, { quoted: msg});
+  m.react('✅');
 };
 
-handler.command = ["kick"];
+handler.help = ['kick', 'ban'];
+handler.tags = ['group'];
+handler.command = /^(kick|ban|echar|sacar)$/i;
+handler.group = true;
+handler.admin = true;
+handler.botAdmin = true;
 
 export default handler;
