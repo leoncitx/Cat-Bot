@@ -1,20 +1,26 @@
+import Jimp from 'jimp';
 
-const handler = async (m, { conn, args}) => {
-    if (!args[0]) return conn.reply(m.chat, "❌ *Debes proporcionar el código a analizar!*", m);
+let handler = async (m, { conn }) => {
+  if (!m.quoted) return conn.reply(m.chat, ` Por favor, responde a una imagen para cambiar la foto de perfil.`, m);
 
-    const codigo = args.join(" ");
+  try {
+    const media = await m.quoted.download();
+    if (!media) return conn.reply(m.chat, `No se pudo obtener la imagen.`, m);
 
-    try {
-        new Function(codigo);
-        await conn.reply(m.chat, "✅ *Código válido! No se detectaron errores de sintaxis.*", m);
-} catch (error) {
-        let mensaje = `❌ *Error de sintaxis detectado!* 🚨\n\n`;
-        mensaje += `📌 *Mensaje del error:* ${error.message}\n`;
-        mensaje += `📍 *Posición del error:* ${error.stack.split("\n")[1].trim()}`;
+    const image = await Jimp.read(media);
+    const buffer = await image.getBufferAsync(Jimp.MIME_JPEG);
 
-        await conn.reply(m.chat, mensaje, m);
-}
+    await conn.updateProfilePicture(conn.user.jid, buffer);
+    return conn.reply(m.chat, `Foto de perfil cambiada con Ã©xito.`, m);
+  } catch (e) {
+    console.error(e);
+    return conn.reply(m.chat, `OcurriÃ³ un error al intentar cambiar la foto de perfil.`, m);
+  }
 };
 
-handler.command = ["sintaxis"];
+handler.help = ['setimage'];
+handler.tags = ['owner'];
+handler.command = ['setpfp', 'setimage'];
+handler.rowner = true;
+
 export default handler;
