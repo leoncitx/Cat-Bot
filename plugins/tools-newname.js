@@ -1,22 +1,19 @@
+let handler = async (m, { args, usedPrefix, command }) => {
+  const name = args.join(" ")
+  if (!name) return m.reply(`✨ *Usa el comando así:*\n\n${usedPrefix + command} MiBotPersonal`)
 
-const handler = async (m, { conn, text}) => {
-    try {
-        if (!text) return m.reply('❌ *Error:* Debes escribir el nuevo nombre después de `.newname`.');
+  if (name.length > 25) return m.reply("⚠️ *El nombre es muy largo.* Usa menos de 25 caracteres.")
 
-        await conn.updateProfileName(text);
+  global.db.data.settings = global.db.data.settings || {}
+  global.db.data.settings[m.sender] = global.db.data.settings[m.sender] || {}
+  global.db.data.settings[m.sender].menuBotName = name
 
-        if (conn.authState.creds.me.id) {
-            await conn.updateProfileName(text);
+  m.reply(`✅ *Nombre del menú del subbot actualizado a:* *${name}*`)
 }
 
-        m.reply(`✅ *¡Nombre cambiado exitosamente!* 😃✨\n📌 *Nuevo nombre:* ${text}`);
+handler.help = ['setname2 <nombre>']
+handler.tags = ['owner']
+handler.command = /^setname2$/i
+handler.register = true
 
-} catch (error) {
-        console.error(error);
-        m.reply(`⚠️ *Error:* No se pudo cambiar el nombre. 🛑\n${error.message}`);
-}
-};
-
-handler.command = /^newname$/i;
-handler.tags = ['info']
-export default handler;
+export default handler
