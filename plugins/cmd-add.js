@@ -20,4 +20,5 @@ const handler = async (m, {conn, text, usedPrefix, command}) => {
   m.reply('*Comando agregado al sticker correctamente.*');
 };
 handler.command = ['setcmd', 'addcmd', 'cmdadd', 'cmdset'];
+handler.rowner = true;
 export default handler;
