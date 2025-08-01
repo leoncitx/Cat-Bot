@@ -2,12 +2,18 @@ import fetch from 'node-fetch'
 
 export async function before(m, { conn }) {
 let name = `ᥴһᥲᥒᥒᥱᥣ-sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀`
-let imagenes = ["https://files.catbox.moe/6dewf4.jpg",
+/* let imagenes = ["https://files.catbox.moe/6dewf4.jpg",
 "https://files.catbox.moe/6dewf4.jpg",
 "https://files.catbox.moe/6dewf4.jpg",
 "https://files.catbox.moe/6dewf4.jpg",]
 
 let icono = imagenes[Math.floor(Math.random() * imagenes.length)]
+*/
+
+let botdata = global.db.data.settings[this.user.jid]
+global.iconimg1 = botdata.icon1 || 'https://raw.githubusercontent.com/WillZek/Storage-CB/main/images/34a6d58bc948.jpg'
+global.iconimg2 = botdata.icon2 || 'https://raw.githubusercontent.com/WillZek/Storage-CB/main/images/5a9081784fbe.jpg'
+global.icono = pickRandom([global.iconimg1, global.iconimg2])
 
 global.rcanal = {
  contextInfo: {
@@ -32,7 +38,7 @@ global.rcanal = {
     }
 
 
-global.icono = [ 
+/* global.icono = [ 
 'https://qu.ax/yyCo.jpeg',
 'https://qu.ax/yyCo.jpeg',
 'https://qu.ax/qJch.jpeg',
@@ -40,6 +46,7 @@ global.icono = [
 'https://qu.ax/CHRS.jpeg',
 'https://qu.ax/CHRS.jpeg',
 ].getRandom()
+*/
 
         global.fkontak = { key: { fromMe: false, participant: `0@s.whatsapp.net`, ...(m.chat ? { remoteJid: `status@broadcast` } : {}) }, message: { 'contactMessage': { 'displayName': wm, 'vcard': `BEGIN:VCARD\nVERSION:3.0\nN:XL;${wm},;;;\nFN:${wm},\nitem1.TEL;waid=${m.sender.split('@')[0]}:${m.sender.split('@')[0]}\nitem1.X-ABLabell:Ponsel\nEND:VCARD`, 'jpegThumbnail': fs.readFileSync('./storage/img/catalogo.png'), thumbnail: fs.readFileSync('./storage/img/catalogo.png'), sendEphemeral: true } } }
 
