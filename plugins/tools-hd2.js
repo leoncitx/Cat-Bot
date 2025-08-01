@@ -1,57 +1,68 @@
-import axios from 'axios'
+import fs from 'fs'
+import path from 'path'
+import fetch from 'node-fetch'
+import Jimp from 'jimp'
 import FormData from 'form-data'
+import { fileURLToPath } from 'url'
 
-let handler = async (m, { conn}) => {
-  m.reply('⏳ Procesando imagen...')
-  try {
-    let q = m.quoted || m
-    let mime = (q.msg || q).mimetype || q.mimetype || q.mediaType || ''
-    if (!mime) throw 'Responde a una imagen con el texto:.hd'
-    if (!/image\/(jpe?g|png)/.test(mime)) throw `Formato ${mime} no soportado`
-    let img = await q.download?.()
-    if (!img) throw 'Error al descargar la imagen'
-    let buffer = await upscale(img)
-    await conn.sendMessage(m.chat, {
-      image: buffer,
-      caption: '*✅ Imagen mejorada con éxito*'
-}, { quoted: m})
-} catch (e) {
-    m.reply(`❌ Error: ${e.message}`)
-}
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+const handler = async (m, { conn }) => {
+
+try {
+    const q = m.quoted || m
+    const mime = (q.msg || q).mimetype || q.mediaType || ""
+
+if (!/^image\/(jpe?g|png)$/.test(mime)) {
+      return m.reply('🪐 Responde a una imagen.')
+    }
+
+    await conn.sendMessage(m.chat, { text: `⏳ Mejorando su imagen, por favor espere.`, quoted: m })
+
+    const buffer = await q.download()
+    const image = await Jimp.read(buffer)
+    image.resize(800, Jimp.AUTO)
+
+    const tempPath = path.join(__dirname, `tmp_${Date.now()}.jpg`)
+    await image.writeAsync(tempPath)
+
+    const uguuUrl = await uploadToUguu(tempPath)
+    if (!uguuUrl) throw new Error('No se pudo subir la imagen para mejorarla.')
+
+    const downloaded = await fetch(uguuUrl).then(r => r.buffer())
+
+    const result = await imgLarger(downloaded)
+    if (!result.status) throw new Error(result.message)
+
+    await conn.sendFile(m.chat, result.url, 'hd.jpg', '✅ Imagen mejorada.', m)
+
+  } catch (err) {
+    console.error(err)
+    conn.reply(m.chat, `❌ *Error:* ${err.message}`, m)
+  }
 }
 
-handler.help = ['hd2 <responde a una imagen>']
-handler.tags = ['ai']
-handler.command = ['hd']
+handler.command = ['hd2']
 
 export default handler
 
-// Función para mejorar la imagen con IA
-async function upscale(imageBuffer) {
+async function uploadToUguu(filePath) {
+  const form = new FormData()
+  form.append('files[]', fs.createReadStream(filePath))
+
   try {
-    const form = new FormData()
-    form.append('image', imageBuffer, {
-      filename: 'upload.jpg',
-      contentType: 'image/jpeg'
-})
-    form.append('user_id', 'undefined')
-    form.append('is_public', 'true')
+    const res = await fetch('https://uguu.se/upload.php', {
+      method: 'POST',
+      headers: form.getHeaders(),
+      body: form
+    })
 
-    const headers = {
-...form.getHeaders(),
-      'Accept': '*/*',
-      'Origin': 'https://picupscaler.com',
-      'Referer': 'https://picupscaler.com/',
-      'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, como Gecko) Chrome/139.0.0.0 Mobile Safari/537.36'
-}
-
-    const { data} = await axios.post('https://picupscaler.com/api/generate/handle', form, { headers})
-    const resultUrl = data?.image_url || data?.url
-    if (!resultUrl) throw 'Error al generar la imagen mejorada'
-    const imgRes = await axios.get(resultUrl, { responseType: 'arraybuffer'})
-    return Buffer.from(imgRes.data)
-
-} catch (err) {
-    throw `Error en la mejora: ${typeof err === 'string'? err: err.message}`
-}
+    const json = await res.json()
+    await fs.promises.unlink(filePath)
+    return json.files?.[0]?.url || null
+  } catch (err) {
+    await fs.promises.unlink(filePath)
+    return null
+  }
 }
