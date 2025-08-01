@@ -10,7 +10,7 @@ let name = `ᥴһᥲᥒᥒᥱᥣ-sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀`
 let icono = imagenes[Math.floor(Math.random() * imagenes.length)]
 */
 
-let botdata = global.db.data.settings[conn.user.jid]
+let botdata = global.db.data.settings[conn.user.jid] || {}
 global.iconimg1 = botdata.icon1 || 'https://raw.githubusercontent.com/WillZek/Storage-CB/main/images/34a6d58bc948.jpg'
 global.iconimg2 = botdata.icon2 || 'https://raw.githubusercontent.com/WillZek/Storage-CB/main/images/5a9081784fbe.jpg'
 global.icono = pickRandom([global.iconimg1, global.iconimg2])
