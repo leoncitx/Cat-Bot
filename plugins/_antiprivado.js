@@ -1,4 +1,3 @@
-
 export async function before(m, { conn, isOwner, isROwner, command}) {
   if (m.isBaileys && m.fromMe) return true;
   if (!m.message) return true;
@@ -27,6 +26,7 @@ export async function before(m, { conn, isOwner, isROwner, command}) {
   const comandosPermitidos = ['code', 'serbot'];
   const textoCmd = typeof command === 'string'? command.toLowerCase(): '';
 
+  // La condición ahora bloquea si el comando NO está en la lista
   if (!comandosPermitidos.includes(textoCmd) &&!isOwner &&!isROwner) {
     await conn.updateBlockStatus(senderJID, 'block');
     console.log(`🛑 Usuario ${senderJID} bloqueado por intentar usar comando "${command}" en privado.`);
