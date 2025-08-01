@@ -1,65 +1,58 @@
-import fetch from 'node-fetch';
+// 🌿 Plugin: Play Audio por texto (YouTube).
+// 🌿 Función: Descarga y reproduce música.
+// 🌱 Autor: Izumi.xyz.
+// ⚠️ No eliminar ni modificar créditos, respeta al creador del código.
+import fetch from 'node-fetch'
+import yts from 'yt-search'
 
-let handler = async (m, { conn, args, command, usedPrefix}) => {
-  const text = args.join(" ");
+let handler = async (m, { conn, text, args }) => {
   if (!text) {
-    return m.reply(
-      `╭─⬣「 *Barboza AI* 」⬣
-│ ≡◦ 🎧 *Uso correcto del comando:*
-│ ≡◦ ${usedPrefix + command} shakira soltera
-╰─⬣\n> © Barboza AI`
-);
-}
-  await m.react('⌛');
+    return m.reply("🍃 Ingresa el texto de lo que quieres buscar")
+  }
+
+  let ytres = await search(args.join(" "))
+  if (!ytres.length) {
+    return m.reply("🍃 No se encontraron resultados para tu búsqueda.")
+  }
+
+  let izumi = ytres[0]
+  let txt = `🎬 *Título*: ${izumi.title}
+⏱️ *Duración*: ${izumi.timestamp}
+📅 *Publicado*: ${izumi.ago}
+📺 *Canal*: ${izumi.author.name || 'Desconocido'}
+🔗 *Url*: ${izumi.url}`
+  await conn.sendFile(m.chat, izumi.image, 'thumbnail.jpg', txt, m)
 
   try {
-    const res = await fetch(`https://api.nekorinn.my.id/downloader/spotifyplay?q=${encodeURIComponent(text)}`);
-    const json = await res.json();
+    const apiUrl = `https://orbit-oficial.vercel.app/api/download/YTMP3?key=OrbitPlus&url=${encodeURIComponent(izumi.url)}`
+    const response = await fetch(apiUrl)
+    const data = await response.json()
 
-    if (!json.status ||!json.result?.downloadUrl) {
-      return m.reply(
-        `╭─⬣「 *Barboza AI* 」⬣
-│ ≡◦ ❌ *No se encontró resultado para:* ${text}
-╰─⬣`
-);
+    if (data.status !== true || !data.download) {
+      throw new Error('Fallo al obtener el audio. JSON inesperado')
+    }
+
+    const { title, download } = data
+
+    await conn.sendMessage(
+      m.chat,
+      {
+        audio: { url: download },
+        mimetype: 'audio/mpeg',
+        fileName: `${title}.mp3`
+      },
+      { quoted: m }
+    )
+  } catch (error) {
+    console.error(error)
+    m.reply(`❌ Lo siento, no pude descargar el audio.\n${error.message}`)
+  }
 }
 
-    const { title, artist, duration, cover, url} = json.result.metadata;
-    const audio = json.result.downloadUrl;
+handler.command = /^(play)$/i
+export default handler
 
-    await conn.sendMessage(m.chat, {
-      image: { url: cover},
-      caption: `╭─⬣「 *MÚSICA SPOTIFY* 」⬣
-│ ≡◦ 🎵 *Título:* ${title}
-│ ≡◦ 👤 *Artista:* ${artist}
-│ ≡◦ ⏱️ *Duración:* ${duration}
-│ ≡◦ 🌐 *Spotify:* ${url}
-╰─⬣`
-}, { quoted: m});
-
-    await conn.sendMessage(m.chat, {
-      audio: { url: audio},
-      mimetype: 'audio/mp4',
-      ptt: false,
-      fileName: `${title}.mp3`
-}, { quoted: m});
-
-    await m.react('✅');
-
-} catch (e) {
-    console.error(e);
-    return m.reply(
-      `╭─⬣「 *Barboza AI* 」⬣
-│ ≡◦ ⚠️ *Error al procesar la solicitud.*
-│ ≡◦ Intenta nuevamente más tarde.
-╰─⬣`
-);
+async function search(query, options = {}) {
+  let result = await yts.search({ query, hl: "es", gl: "ES", ...options })
+  return result.videos || []
 }
-};
-
-handler.help = ['play <nombre>'];
-handler.tags = ['descargas'];
-handler.command = /^play$/i;
-handler.register =false;
-
-export default handler;
