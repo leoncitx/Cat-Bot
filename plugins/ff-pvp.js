@@ -57,13 +57,16 @@ const handler = async (m, { conn, command, args, usedPrefix }) => {
     creador,
     mensajeID: mensaje.key.id,
     total,
+    chatId: chatId
   };
 };
 
-handler.reaction = async (reaction, { conn }) => {
+// **Nuevo listener para las reacciones**
+export const reactionListener = async (reaction, { conn }) => {
   const chatId = reaction.chat;
-  const sala = salas[chatId];
-  if (!sala || reaction.key.id !== sala.mensajeID || reaction.reaction !== '👍') return;
+  const sala = Object.values(salas).find(s => s.mensajeID === reaction.key.id);
+
+  if (!sala || reaction.reaction !== '👍' || sala.chatId !== chatId) return;
 
   const jugador = reaction.sender;
   if (sala.jugadores.includes(jugador)) return;
@@ -95,8 +98,8 @@ handler.reaction = async (reaction, { conn }) => {
     const nombresRojo = await Promise.all(rojo.map(u => conn.getName(u).catch(() => '@' + u.split('@')[0])));
     const nombresAzul = await Promise.all(azul.map(u => conn.getName(u).catch(() => '@' + u.split('@')[0])));
 
-    const listaRojo = nombresRojo.map(n => `${n} -`).join('\n');
-    const listaAzul = nombresAzul.map(n => `${n} -`).join('\n');
+    const listaRojo = nombresRojo.map(n => `@${n.split('@')[0]}`).join('\n');
+    const listaAzul = nombresAzul.map(n => `@${n.split('@')[0]}`).join('\n');
 
     await conn.sendMessage(chatId, {
       text: `✅ *${sala.id} COMPLETA*\n\n🔴 *Equipo Rojo:*\n${listaRojo}\n\n════════════════════\n\n🔵 *Equipo Azul:*\n${listaAzul}`,
