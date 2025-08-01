@@ -69,11 +69,6 @@ var handler = async function (m, conn, db) {
     let rwait = '🕐'
     let done = '✅'
     let error = '❌'
-
-    
-    const bot = global.db.data.settings[this.user.jid]
-    global.icono = bot.icono || 'https://raw.githubusercontent.com/WillZek/CrowBot-ST/main/media/catalogo.jpg'
-
     
     let category = "imagen"
     const dbPath = './src/database/db.json'
