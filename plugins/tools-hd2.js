@@ -4,6 +4,7 @@ import fetch from 'node-fetch'
 import Jimp from 'jimp'
 import FormData from 'form-data'
 import { fileURLToPath } from 'url'
+import imgLarger from '../lib/upscale.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
