@@ -1,116 +1,96 @@
-import { proto } from '@whiskeysockets/baileys';
+import { proto} from '@whiskeysockets/baileys';
 
-const salas = {};
-let contadorSalas = 1;
+const salas = new Map();
+let contador = 1;
 
-const reglasPvP = `📋 *REGLAS GENERALES PVP*
-1. Sin doble vector ❌
-2. Sin lanzapapas 🧨
-3. Sin curas ⚕️
-4. No granadas ni minas 💣
-5. No emulador ni hacks 💻
-6. Solo M10/MP40 y Desert 🧨
-7. Respeto obligatorio 🤝
+const reglas = `
+📋 *REGLAS GENERALES PVP*
+1️⃣ Sin doble vector
+2️⃣ Sin lanzapapas
+3️⃣ Sin curas
+4️⃣ Sin granadas/minas
+5️⃣ Sin emulador/hacks
+6️⃣ Solo M10/MP40 y Desert
+7️⃣ Respeto obligatorio
 `;
 
-const handler = async (m, { conn, command, args, usedPrefix }) => {
+async function crearSala(m, { conn, args, command}) {
+  const input = args[0]?.toLowerCase();
+  const match = /^(\d+)vs(\d+)$/.exec(input);
   const chatId = m.chat;
 
-  if (command === 'cancelarsala') {
-    const sala = salas[chatId];
-    if (!sala) return m.reply('❌ No hay ninguna sala activa en este chat.');
-    if (m.sender !== sala.creador) return m.reply('❌ Solo el creador de la sala puede cancelarla.');
-    delete salas[chatId];
-    return await conn.sendMessage(chatId, {
-      text: `❌ *${sala.id} fue cancelada por el creador*\n\nGracias por participar.`,
-      mentions: [m.sender],
-    });
-  }
-
-  const input = args[0];
-  const match = input?.toLowerCase().match(/^(\d+)vs(\d+)$/);
-
   if (!match) {
-    return m.reply(`❌ Formato incorrecto.\nUsa: *${usedPrefix + command} 4vs4* o *${usedPrefix + command} 10vs10*`);
-  }
+    return m.reply('❌ Formato inválido. Ej: *pvp 4vs4*');
+}
 
-  const num1 = parseInt(match[1]);
-  const num2 = parseInt(match[2]);
-  const total = num1 + num2;
+  if (salas.has(chatId)) {
+    return m.reply('⚠️ Ya existe una sala activa.');
+}
 
-  if (total < 2) return m.reply(`❌ Número total muy bajo. Mínimo deben ser 2 jugadores.`);
-
-  if (salas[chatId]) return m.reply('⚠️ Ya hay una sala activa en este chat.');
-
-  const nombreSala = `Sala #${contadorSalas++} - ${input.toUpperCase()}`;
+  const total = parseInt(match[1]) + parseInt(match[2]);
+  const salaId = `Sala #${contador++} - ${input.toUpperCase()}`;
   const creador = m.sender;
 
-  const mensaje = await conn.sendMessage(chatId, {
-    text: `🎮 *${nombreSala}*\n👤 *Creada por:* @${creador.split('@')[0]}\n\n${reglasPvP}\n👥 *Jugadores (0/${total})*\n_Reacciona con 👍 para unirte_`,
+  const msg = await conn.sendMessage(chatId, {
+    text: `🎮 *${salaId}*\n👤 Creador: @${creador.split('@')[0]}\n${reglas}\n👥 Jugadores (0/${total})\n_Reacciona con 👍 para unirte_`,
     mentions: [creador],
-  });
+});
 
-  salas[chatId] = {
-    id: nombreSala,
-    tipo: input,
+  salas.set(chatId, {
+    id: salaId,
     jugadores: [],
     creador,
-    mensajeID: mensaje.key.id,
     total,
-    chatId: chatId
-  };
-};
+    msgId: msg.key.id,
+});
+}
 
-// **Nuevo listener para las reacciones**
-export const reactionListener = async (reaction, { conn }) => {
-  const chatId = reaction.chat;
-  const sala = Object.values(salas).find(s => s.mensajeID === reaction.key.id);
+async function cancelarSala(m, { conn}) {
+  const sala = salas.get(m.chat);
+  if (!sala) return m.reply('❌ No hay ninguna sala activa.');
+  if (m.sender!== sala.creador) return m.reply('❌ Solo el creador puede cancelarla.');
 
-  if (!sala || reaction.reaction !== '👍' || sala.chatId !== chatId) return;
+  salas.delete(m.chat);
+  return conn.sendMessage(m.chat, {
+    text: `❌ *${sala.id} ha sido cancelada.*`,
+    mentions: [m.sender],
+});
+}
 
-  const jugador = reaction.sender;
-  if (sala.jugadores.includes(jugador)) return;
+export const reactionListener = async (reaction, { conn}) => {
+  const sala = [...salas.values()].find(s => s.msgId === reaction.key.id);
+  if (!sala || reaction.reaction!== '👍') return;
 
-  sala.jugadores.push(jugador);
+  if (!sala.jugadores.includes(reaction.sender)) {
+    sala.jugadores.push(reaction.sender);
+}
 
   const nombres = await Promise.all(
     sala.jugadores.map(u => conn.getName(u).catch(() => '@' + u.split('@')[0]))
-  );
+);
 
   const lista = nombres.map((n, i) => `*${i + 1}.* ${n}`).join('\n');
-  const texto = `🎮 *${sala.id}*\n👤 *Creada por:* @${sala.creador.split('@')[0]}\n\n${reglasPvP}\n👥 *Jugadores (${sala.jugadores.length}/${sala.total})*\n${lista}\n\n_Reacciona con 👍 para unirte_`;
+  const texto = `🎮 *${sala.id}*\n👤 Creador: @${sala.creador.split('@')[0]}\n${reglas}\n👥 Jugadores (${sala.jugadores.length}/${sala.total})\n${lista}\n\n_Reacciona con 👍 para unirte_`;
 
-  await conn.sendMessage(chatId, {
-    edit: {
-      remoteJid: chatId,
-      id: sala.mensajeID,
-    },
+  await conn.sendMessage(reaction.chat, {
+    edit: { remoteJid: reaction.chat, id: sala.msgId},
     text: texto,
     mentions: sala.jugadores,
-  });
+});
 
-  if (sala.jugadores.length >= sala.total) {
-    const mitad = Math.floor(sala.total / 2);
-    const mezclado = sala.jugadores.sort(() => Math.random() - 0.5);
-    const rojo = mezclado.slice(0, mitad);
-    const azul = mezclado.slice(mitad);
-
-    const nombresRojo = await Promise.all(rojo.map(u => conn.getName(u).catch(() => '@' + u.split('@')[0])));
-    const nombresAzul = await Promise.all(azul.map(u => conn.getName(u).catch(() => '@' + u.split('@')[0])));
-
-    const listaRojo = nombresRojo.map(n => `@${n.split('@')[0]}`).join('\n');
-    const listaAzul = nombresAzul.map(n => `@${n.split('@')[0]}`).join('\n');
-
-    await conn.sendMessage(chatId, {
-      text: `✅ *${sala.id} COMPLETA*\n\n🔴 *Equipo Rojo:*\n${listaRojo}\n\n════════════════════\n\n🔵 *Equipo Azul:*\n${listaAzul}`,
-      mentions: [...rojo, ...azul],
-    });
-
-    delete salas[chatId];
-  }
+  if (sala.jugadores.length>= sala.total) {
+    // repartir equipos y cerrar sala
+    salas.delete(reaction.chat);
+}
 };
 
-handler.help = ['pvp <4vs4|10vs10|100vs100>', 'cancelarsala'];
+const handler = async (m, ctx) => {
+  const cmd = ctx.command.toLowerCase();
+  if (cmd === 'pvp') await crearSala(m, ctx);
+  else if (cmd === 'cancelarsala') await cancelarSala(m, ctx);
+};
+
+handler.help = ['pvp <4vs4>', 'cancelarsala'];
 handler.tags = ['ff'];
 handler.command = /^pvp$|^cancelarsala$/i;
 
