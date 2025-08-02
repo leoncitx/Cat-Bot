@@ -54,7 +54,7 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
     message: {
       locationMessage: {
         name: "*Sasuke Bot MD 🌀*",
-        jpegThumbnail: await (await fetch('https://files.catbox.moe/1j784p.jpg')).buffer(),
+        jpegThumbnail: await (await fetch('https://cdn-sunflareteam.vercel.app/images/fa68a035ca.jpg')).buffer(),
         vcard:
           "BEGIN:VCARD\n" +
           "VERSION:3.0\n" +
