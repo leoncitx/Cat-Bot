@@ -273,8 +273,8 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
               forwardingScore: 999,
               isForwarded: true,
               forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363418774581077@newsletter',
-                newsletterName: 'Sticker,Memes y frases',
+                newsletterJid: '120363419364337473@newsletter',
+                newsletterName: 'Canal principal sigan gente',
                 serverMessageId: -1
               }
             }
@@ -288,8 +288,8 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
               forwardingScore: 999,
               isForwarded: true,
               forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363418774581077@newsletter',
-                newsletterName: 'Sticker,Memes y frases',
+                newsletterJid: '120363419364337473@newsletter',
+                newsletterName: 'canal principal sigan gente',
                serverMessageId: -1
               }
             }
@@ -304,8 +304,8 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
               forwardingScore: 999,
               isForwarded: true,
               forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363418774581077@newsletter',
-                newsletterName: 'Sticker,Memes y frases',
+                newsletterJid: '120363419364337473@newsletter',
+                newsletterName: 'canal principal sigan gente',
                 serverMessageId: -1
               }
             }
