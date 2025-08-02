@@ -15,7 +15,7 @@ const saludarSegunHora = () => {
   return '🌙 Buenas noches';
 };
 
-const img = 'https://files.catbox.moe/6dewf4.jpg';
+const img = 'https://cdn-sunflareteam.vercel.app/images/fe2072569a.jpg';
 
 const sectionDivider = '╰━━━━━━━━━━━━━━━━━━⭓';
 
