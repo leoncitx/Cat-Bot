@@ -2,7 +2,7 @@ let handler = async (m, { conn, isRowner }) => {
     let _muptime;
     let totalreg = Object.keys(global.db.data.users).length;
     let totalchats = Object.keys(global.db.data.chats).length;
-    let pp = 'https://files.catbox.moe/6dewf4.jpg'; // Usamos la URL de la imagen aquí
+    let pp = 'https://cdn-sunflareteam.vercel.app/images/fe2072569a.jpg'; // Usamos la URL de la imagen aquí
 
     if (process.send) {
         process.send('uptime');
