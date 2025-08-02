@@ -1,46 +1,72 @@
+import axios from 'axios'
+import FormData from 'form-data'
 
-const subbotConfig = {};
+const aiTextDetector = {
+    analyze: async (aiText) => {
+        if (aiText.length === 20000) {
+            throw new Error("Teks lu terlalu panjang bree 😂, minimal 20000")
+        }
 
-const handler = async (m, { conn, args, command}) => {
-    const subbotId = m.sender;
+        const news = new FormData()
+        news.append("content", aiText)
 
-    if (!subbotConfig[subbotId]) {
-        subbotConfig[subbotId] = {
-            name: 'Subbot',
-            color: 'blue',
-            style: 'normal',
-            description: 'Soy un subbot listo para ayudarte.'
-};
+        const headers = {
+            headers: {
+                ...news.getHeaders(),
+                "Product-Serial": "808e957638180b858ca40d9c3b9d5bd3"
+            }
+        }
+
+        const headersObject = {
+            headers: {
+                "Product-Serial": "808e957638180b858ca40d9c3b9d5bd3"
+            }
+        }
+
+        const { data: getJob } = await axios.post(
+            "https://api.decopy.ai/api/decopy/ai-detector/create-job",
+            news,
+            headers
+        )
+
+        const jobId = getJob.result.job_id
+
+        const { data: processResult } = await axios.get(
+            `https://api.decopy.ai/api/decopy/ai-detector/get-job/${jobId}`,
+            headersObject
+        )
+
+        const output = processResult.result.output
+
+        const formatted = output.sentences.map((sentence, index) => {
+            return {
+                no: index + 1,
+                kalimat: sentence.content.trim(),
+                score: Number(sentence.score.toFixed(3)),
+                status: sentence.status === 1 ? "AI_GENERATED" : "HUMAN_GENERATED"
+            }
+        })
+
+        return formatted
+    }
 }
 
-    if (command === 'newname') {
-        if (!args[0]) return m.reply('❌ *Error:* Debes escribir el nuevo nombre después de `.newname`.');
-        subbotConfig[subbotId].name = args.join(' ');
-        return m.reply(`✅ *¡Nombre cambiado con éxito!* 📌 Nuevo nombre: *${subbotConfig[subbotId].name}*`);
+let handler = async (m, { conn, text, usedPrefix, command }) => {
+    if (!text) throw `Contoh : .aidetector Hai Saya Chat GPT`
+    m.reply('wett')
+    try {
+        const result = await aiTextDetector.analyze(text)
+        let output = result.map(r => 
+            `no : ${r.no}\nkalimat : ${r.kalimat}\nscore : ${r.score}\nstatus : ${r.status}`
+        ).join('\n\n')
+        m.reply(output)
+    } catch (e) {
+        m.reply(`Eror kak : ${err.message}`)
+    }
 }
 
-    if (command === 'setcolor') {
-        if (!args[0]) return m.reply('❌ *Error:* Especifica un color después de `.setcolor`.');
-        subbotConfig[subbotId].color = args[0].toLowerCase();
-        return m.reply(`✅ *¡Color del texto actualizado!* 🎨 Nuevo color: *${subbotConfig[subbotId].color}*`);
-}
+handler.help = ['aidetector <teks>']
+handler.tags = ['ai']
+handler.command = ['aidetector']
 
-    if (command === 'setstyle') {
-        if (!args[0]) return m.reply('❌ *Error:* Especifica un estilo después de `.setstyle`.');
-        subbotConfig[subbotId].style = args[0].toLowerCase();
-        return m.reply(`✅ *¡Estilo del texto actualizado!* ✍️ Nuevo estilo: *${subbotConfig[subbotId].style}*`);
-}
-
-    if (command === 'setdescription') {
-        if (!args[0]) return m.reply('❌ *Error:* Escribe una descripción después de `.setdescription`.');
-        subbotConfig[subbotId].description = args.join(' ');
-        return m.reply(`✅ *¡Descripción personalizada guardada!* 📜 Nueva descripción: *${subbotConfig[subbotId].description}*`);
-}
-
-    if (command === 'profileinfo') {
-        return m.reply(`📌 *Perfil de tu subbot:*\n📢 *Nombre:* ${subbotConfig[subbotId].name}\n🎨 *Color:* ${subbotConfig[subbotId].color}\n✍️ *Estilo:* ${subbotConfig[subbotId].style}\n📜 *Descripción:* ${subbotConfig[subbotId].description}`);
-}
-};
-
-handler.command = /^(|setcolor|setstyle|setdescription|profileinfo)$/i;
-export default handler;
+export default handler
