@@ -1,5 +1,5 @@
 let handler = async (m, { isPrems, conn }) => {
-let img = 'https://files.catbox.moe/6dewf4.jpg' 
+let img = 'https://cdn-sunflareteam.vercel.app/images/fe2072569a.jpg' 
 let texto = `*☁️ _M E N U - A U D I O S_ ☁️*
 
 ° _Tunometecabrasaramambiche_.
