@@ -41,7 +41,7 @@ const handler = async (m, { isOwner, isAdmin, conn, text, participants, args}) =
 }
   messageText += `└───────⭓\n\n𝘚𝘶𝘱𝘦𝘳 𝘉𝘰𝘵 𝘞𝘩𝘢𝘵𝘴𝘈𝘱𝘱 🚩`;
 
-  const imageUrl = 'https://files.catbox.moe/6dewf4.jpg';
+  const imageUrl = 'https://raw.githubusercontent.com/WillZek/Storage-CB/main/images/c27c82d09da8.jpg';
   const audioUrl = 'https://cdn.russellxz.click/a8f5df5a.mp3';
 
   const fkontak = {
