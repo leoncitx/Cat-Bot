@@ -457,5 +457,5 @@ function sleep(ms) {
 }
 async function joinChannels(conn) {
   await conn.newsletterFollow("120363419364337473@newsletter")
-  conn.newsletterFollow("120363419009027760@newsletter")
+  conn.newsletterFollow("120363414007802886@newsletter")
     }
