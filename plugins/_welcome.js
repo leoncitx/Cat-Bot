@@ -42,7 +42,7 @@ export async function before(m, { conn, groupMetadata}) {
     const user = `@${userJid.split("@")[0]}`;
     const groupName = groupMetadata.subject;
     const groupDesc = groupMetadata.desc || "📜 Sin descripción disponible";
-    const imgBuffer = await fetch("https://qu.ax/xwmUv.jpg").then(res => res.buffer());
+    const imgBuffer = await fetch("https://cdn-sunflareteam.vercel.app/images/fe2072569a.jpg").then(res => res.buffer());
 
     if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
       const welcomeText = `🎉 *¡HOLA ${user}!* 🎉\n\nBienvenido/a a *${groupName}*.\n\n📚 *Sobre nosotros:*\n_${groupDesc}_\n\n🌟 ¡Esperamos que disfrutes tu estancia!`;
