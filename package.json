@@ -80,7 +80,7 @@
     "pdfkit": "^0.13.0",
     "performance-now": "^2.1.0",
     "pino": "^8.6.1",
-    "javascript-obfuscator": "^4.2.0",
+    "javascript-obfuscator": "^4.1.1",
     "pino-pretty": "^9.1.1",
     "qrcode": "^1.5.1",
     "qrcode-terminal": "^0.12.0",
