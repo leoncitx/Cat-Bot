@@ -1,120 +1,80 @@
-import * as cheerio from "cheerio";
-import { lookup } from "mime-types";
+import axios from 'axios'
+import cheerio from 'cheerio'
+import mime from 'mime-types'
 
-let handler = async (m, { conn, text }) => {
-    if (!text) return m.reply(`➤ \`ACCION MAL USADA\` ❗\n\n> 𝖠𝗀𝗋𝖾𝗀𝖺 𝖾𝗅 𝗅𝗂𝗇𝗄 𝗏𝖺𝗅𝗂𝖽𝗈 𝗉𝖺𝗋𝖺 𝖽𝖾𝗌𝖼𝖺𝗋𝗀𝖺𝗋 𝗎𝗇 𝖺𝗋𝖼𝗁𝗂𝗏𝗈 𝗈 𝖽𝗈𝖼𝗎𝗆𝖾𝗓𝗇𝗍𝗈 𝖽𝖾 𝗆𝖾𝖽𝗂𝖺𝖿𝗂𝗋𝖾.\n\n» 𝖥𝗈𝗋𝗆𝖺𝗍𝗈 𝖼𝗈𝗋𝗋𝖾𝖼𝗍𝗈:\n#mediafire Link\n\n» 𝖤𝗃𝖾𝗆𝗉𝗅𝗈 𝖽𝖾 𝗎𝗌𝗈:\n#mediafire https://www.mediafire.com/file/`);
+let handler = async (m, { conn, text}) => {
+  if (!text) return m.reply(`📌 Ejemplo:\n.mediafire https://www.mediafire.com/file/xfk1u8yl4uqbizx/nulis.zip/file`)
+  if (!/mediafire\.com/.test(text)) return m.reply(`❌ El enlace no es válido. Solo se aceptan links de *mediafire.com*`)
 
-    await m.react('🕒');
-    return new Promise(async (resolve, reject) => {
-        await mediafire(text).then(async (mf) => {
-            let caption = `*DESCARGA MEDIAFIRE*  
-━━━━━━━━━━━━━━━━━━    
-*🌳 Nombre:* ${mf.filename}  
-*🌳 Tipo:* ${mf.ext.toUpperCase()}  
-*🌳 Tamaño:* ${mf.size}  
-*🌳 MIME:* ${mf.mimetype}  
-━━━━━━━━━━━━━━━━━━`;
-
-            conn.sendMessage(m.chat, {
-                document: { url: mf.download },
-                fileName: mf.filename,
-                mimetype: mf.mimetype,
-                caption
-            }, { quoted: m });
-            await m.react('✅');
-            resolve();
-        }).catch(async (error) => {
-            await m.react('❌');
-            console.error(error);
-            reject({ msg: '❌ Lo siento, error al procesar tu solicitud. Quizá has hecho demasiadas peticiones.' });
-        });
-    });
-};
-
-handler.help = ['mediafire *`url`*'];
-handler.tags = ['dl'];
-handler.command = ['mf', 'mediafire', 'mfdl'];
-
-export default handler;
-
-async function mediafire(url) {
-    return new Promise(async (resolve, reject) => {
-        if (!url || typeof url !== "string" || !url.startsWith("https://www.mediafire.com/")) {
-            throw new Error("URL de Mediafire inválida o faltante");
-        }
-
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
-        }
-
-        const html = await response.text();
-        const $ = cheerio.load(html);
-
-        const filename = $(".dl-btn-label").attr("title");
-        if (!filename) {
-            throw new Error("No se pudo extraer el nombre del archivo");
-        }
-
-        const extMatch = filename.match(/\.([^\.]+)$/);
-        const ext = extMatch ? extMatch[1].toLowerCase() : "desconocida";
-        const mimetype = lookup(ext) || `application/${ext}`;
-
-        const iconClass = $(".dl-btn-cont .icon").attr("class") || "";
-        const typeMatch = iconClass.match(/archive\s*(\w+)/);
-        const type = typeMatch ? typeMatch[1].trim() : "desconocido";
-
-        const sizeText = $(".download_link .input").text().trim();
-        const sizeMatch = sizeText.match(/\((.*?)\)/);
-        const size = sizeMatch ? sizeMatch[1] : "desconocido";
-
-        const download = $(".input").attr("href");
-        if (!download) {
-            throw new Error("No se pudo extraer el enlace de descarga");
-        }
-
-        let uploadDate = "Fecha no encontrada";
-        let creationTimestamp = null;
-        const dataCreation = $("[data-creation]").attr("data-creation");
-        if (dataCreation && !isNaN(dataCreation)) {
-            creationTimestamp = parseInt(dataCreation, 10);
-        } else {
-            const scripts = $("script").text();
-            const timestampMatch = scripts.match(/"creation":\s*(\d+)/);
-            if (timestampMatch) {
-                creationTimestamp = parseInt(timestampMatch[1], 10);
-            }
-        }
-
-        if (creationTimestamp) {
-            const date = new Date(creationTimestamp * 1000);
-            if (!isNaN(date.getTime())) {
-                uploadDate = date.toLocaleString("es-ES", { month: "long", day: "numeric", year: "numeric" });
-            }
-        } else {
-            const selectors = [".file-info", ".details", ".info", ".file-details", ".upload-info"];
-            let dateText = null;
-            for (const selector of selectors) {
-                dateText = $(selector).text().trim();
-                if (dateText && /Uploaded/i.test(dateText)) break;
-            }
-            if (dateText) {
-                const datePatterns = [/(?:Uploaded:?\s*)(\w+)\s+(\d{1,2}),?\s+(\d{4})/i,/(?:Uploaded:?\s*)(\d{1,2})\s+(\w+),?\s+(\d{4})/i];
-                for (const pattern of datePatterns) {
-                    const match = dateText.match(pattern);
-                    if (match) {
-                        let month = match[1];
-                        let day = match[2];
-                        let year = match[3];
-                        uploadDate = `${month} ${day}, ${year}`;
-                        break;
-                    }
-                }
-            }
-        }
-
-        resolve({ filename, type, size, ext, mimetype, download, uploadDate, url });
-    }).catch((error) => {
-        reject({ msg: `Error al procesar el enlace de Mediafire: ${error.message}` });
-    });
+  try {
+    const { data} = await axios.get('https://api.nekorinn.my.id/tools/rynn-stuff-v2', {
+      params: {
+        method: 'GET',
+        url: text,
+        accessKey: '3ebcf782818cfa0b7265086f112ae25c0954afec762aa05a2eac66580c7cb353'
 }
+})
+
+    const $ = cheerio.load(data.result.response)
+    const raw = $('div.dl-info')
+
+    const filename = $('.dl-btn-label').attr('title') || raw.find('div.intro div.filename').text().trim()
+    const extension = filename.split('.').pop()
+    const mimetype = mime.lookup(extension.toLowerCase()) || 'application/octet-stream'
+
+    const filesize = raw.find('ul.details li:nth-child(1) span').text().trim()
+    const fecha = raw.find('ul.details li:nth-child(2) span').text().trim()
+    const urlCodificada = $('a#downloadButton').attr('data-scrambled-url')
+
+    if (!urlCodificada) return m.reply('❌ No se pudo obtener el enlace de descarga.')
+
+    const urlDescarga = Buffer.from(urlCodificada, 'base64').toString()
+    const pesoMB = parseFloat(filesize) * (filesize.toLowerCase().includes('gb')? 1024: 1)
+
+    const mensaje = `
+📦 *Archivo MediaFire*
+📁 *Nombre:* ${filename}
+📄 *Tipo:* ${mimetype}
+📦 *Tamaño:* ${filesize}
+🗓️ *Subido:* ${fecha}
+`.trim()
+
+    const contextInfo = {
+      externalAdReply: {
+        showAdAttribution: true,
+        mediaUrl: urlDescarga,
+        mediaType: 1,
+        renderLargerThumbnail: true,
+        thumbnailUrl: global.thumb || 'https://telegra.ph/file/7e6802b6c40fcf8fc4aa5.jpg',
+        title: filename,
+        body: `${filesize} | Subido: ${fecha}`,
+        sourceUrl: urlDescarga
+}
+}
+
+    if (pesoMB <= 100) {
+      await conn.sendMessage(m.chat, {
+        document: { url: urlDescarga},
+        fileName: filename,
+        mimetype,
+        caption: mensaje,
+        contextInfo
+}, { quoted: m})
+} else {
+      await conn.sendMessage(m.chat, {
+        text: mensaje,
+        contextInfo
+}, { quoted: m})
+}
+
+} catch (error) {
+    console.error(error)
+    m.reply(`❌ Error al procesar el enlace: ${error.message}`)
+}
+}
+
+handler.command = ['mediafire', 'mf', 'mfdl']
+handler.help = ['mediafire <enlace>']
+handler.tags = ['descargas']
+
+export default handler
