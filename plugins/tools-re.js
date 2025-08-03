@@ -1,54 +1,56 @@
-import fs from 'fs';
-import path from 'path';
+import axios from 'axios'
+import cheerio from 'cheerio'
 
-let handler = async (m, { conn, args, command }) => {
-  const chatId = m.chat;
-  const sender = m.sender.replace(/[^0-9]/g, "");
-  const isOwner = global.owner.some(([id]) => id === sender);
-  const isFromMe = m.fromMe;
-  const filePath = './re.json';
-
-  if (m.isGroup && fs.existsSync(filePath)) {
-    const data = JSON.parse(fs.readFileSync(filePath));
-    const cmd = command.toLowerCase();
-    if (data[chatId] && data[chatId].includes(cmd)) {
-      await conn.sendMessage(chatId, { react: { text: '🔴', key: m.key }});
-      return m.reply(`╭─⬣「 𓆩🚫𓆪 • 𝗖𝗼𝗺𝗮𝗻𝗱𝗼 𝗥𝗲𝘀𝘁𝗿𝗶𝗻𝗴𝗶𝗱𝗼 」
-│ El comando *${cmd}* ha sido desactivado en este grupo.
-╰────────────⬣`);
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[arr[i], arr[j]] = [arr[j], arr[i]]
     }
-  }
+    return arr
+}
 
-  if (!['re', 'unre'].includes(command)) return;
+async function mfsearch(query) {
+    if (!query) throw new Error('Query is required')
+    const { data: html } = await axios.get(`https://mediafiretrend.com/?q=${encodeURIComponent(query)}&search=Search`)
+    const $ = cheerio.load(html)
+    const links = shuffle(
+        $('tbody tr a[href*="/f/"]').map((_, el) => $(el).attr('href')).get()
+    ).slice(0, 5)
+    const result = await Promise.all(links.map(async link => {
+        const { data } = await axios.get(`https://mediafiretrend.com${link}`)
+        const $ = cheerio.load(data)
+        const raw = $('div.info tbody tr:nth-child(4) td:nth-child(2) script').text()
+        const match = raw.match(/unescape\(['"`]([^'"`]+)['"`]\)/)
+        const decoded = cheerio.load(decodeURIComponent(match[1]))
+        return {
+            filename: $('tr:nth-child(2) td:nth-child(2) b').text().trim(),
+            filesize: $('tr:nth-child(3) td:nth-child(2)').text().trim(),
+            url: decoded('a').attr('href'),
+            source_url: $('tr:nth-child(5) td:nth-child(2)').text().trim(),
+            source_title: $('tr:nth-child(6) td:nth-child(2)').text().trim()
+        }
+    }))
+    return result
+}
 
-  if (!isOwner && !isFromMe) return conn.sendMessage(chatId, { text: "❌ Solo el owner o el mismo bot puede usar este comando." }, { quoted: m });
-  if (!args[0]) return conn.sendMessage(chatId, { text: "⚠️ Usa: *.re comando* o *.unre comando*" }, { quoted: m });
+let handler = async (m, { text }) => {
+    if (!text) return m.reply('Contoh : .mfsearch epep config')
+    
+    m.reply('wett')
+    try {
+        let res = await mfsearch(text)
+        if (!res.length) return m.reply('Gaada nih coba yang lain')
+        let tekss = res.map((v, i) => 
+            `${i + 1}. ${v.filename}\nUkuran : ${v.filesize}\nLink : ${v.url}\nSource : ${v.source_title} (${v.source_url})`
+        ).join('\n\n')
+        await m.reply(tekss)
+    } catch (e) {
+        m.reply(`Eror kak : ${e.message}`)
+    }
+}
 
-  if (!fs.existsSync(filePath)) fs.writeFileSync(filePath, JSON.stringify({}, null, 2));
-  const data = JSON.parse(fs.readFileSync(filePath));
-  const cmd = args[0].toLowerCase();
+handler.help = ['mediafiresearch <query>']
+handler.tags = ['search']
+handler.command = ['mfsearch', 'mediafiresearch']
 
-  if (!data[chatId]) data[chatId] = [];
-
-  if (command === 're') {
-    if (data[chatId].includes(cmd)) return conn.sendMessage(chatId, { text: `⚠️ El comando *${cmd}* ya está restringido.` }, { quoted: m });
-    data[chatId].push(cmd);
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-    await conn.sendMessage(chatId, { react: { text: "🔒", key: m.key }});
-    return conn.sendMessage(chatId, { text: `✅ El comando *${cmd}* ha sido restringido.` }, { quoted: m });
-  }
-
-  if (command === 'unre') {
-    if (!data[chatId].includes(cmd)) return conn.sendMessage(chatId, { text: `⚠️ El comando *${cmd}* no está restringido.` }, { quoted: m });
-    data[chatId] = data[chatId].filter(c => c !== cmd);
-    if (data[chatId].length === 0) delete data[chatId];
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-    await conn.sendMessage(chatId, { react: { text: "🔓", key: m.key }});
-    return conn.sendMessage(chatId, { text: `✅ El comando *${cmd}* ha sido liberado.` }, { quoted: m });
-  }
-};
-
-handler.before = true;
-handler.command = ['re', 'unre'];
-handler.group = true;
-export default handler;
+export default handler
