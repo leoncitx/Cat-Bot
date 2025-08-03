@@ -1,28 +1,22 @@
+let handler = async (m, { conn, text}) => {
+  if (!text) return m.reply('📌 Ejemplo de uso:\n.iqc Pollo frito con papas')
 
-const handler = async (m, { conn}) => {
-    let comandos = [
-        { nombre: ".noticias", activo: true},
-        { nombre: ".trivia", activo: true},
-        { nombre: ".ruleta", activo: false, motivo: "🔴 *Error en la API*"},
-        { nombre: ".alienigena", activo: false, motivo: "❌ *Respuesta vacía*"},
-        { nombre: ".pelear", activo: true},
-        { nombre: ".postres", activo: false, motivo: "⚠️ *Fallo al cargar ingredientes*"},
-        { nombre: ".escape", activo: false, motivo: "🔄 *Problema con conexión a base de datos*"},
-        { nombre: ".gladiador", activo: false, motivo: "⛔ *Fallo en parámetros de ejecución*"},
-        { nombre: ".multiverso", activo: false, motivo: "🛑 *Tiempo de espera agotado*"},
-        { nombre: ".chefextremo", activo: false, motivo: "🛠️ *Error de configuración en script*"},
-        { nombre: ".topgamer", activo: false, motivo: "💀 *Ranking no disponible*"}
-    ];
+  let hora = new Intl.DateTimeFormat('es-ES', {
+    timeZone: 'America/Caracas', // Puedes ajustarlo a tu zona
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+}).format(new Date())
 
-    let mensaje = "*🔍 Revisión de Comandos!* ⚙️🚀\n\n";
-    comandos.forEach(cmd => {
-        mensaje += cmd.activo
-? `✅ *${cmd.nombre}* - Funciona correctamente.\n`
-: `❌ *${cmd.nombre}* - Fallo detectado. *Motivo:* ${cmd.motivo}\n`;
-});
+  await conn.sendMessage(m.chat, {
+    image: {
+      url: `https://brat.siputzx.my.id/iphone-quoted?time=${encodeURIComponent(hora)}&batteryPercentage=${Math.floor(Math.random() * 100) + 1}&carrierName=CLARO&messageText=${encodeURIComponent(text.trim())}&emojiStyle=apple`
+}
+}, { quoted: m})
+}
 
-    await conn.sendMessage(m.chat, { text: mensaje});
-};
+handler.help = ['iqc <mensaje>']
+handler.tags = ['creador']
+handler.command = ['iqc']
 
-handler.command = ["revision"];
-export default handler;
+export default handler
