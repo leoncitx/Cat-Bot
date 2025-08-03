@@ -203,7 +203,7 @@ const cleanJid = jid => jid?.split(':')[0] || ''
 const senderNum = normalizeJid(m.sender)
 const botNums = [this.user?.jid, this.user?.lid].map(j => normalizeJid(cleanJid(j)))
 const user = m.isGroup 
-  ? participants.find(u => normalizeJid(u.id) === senderNum) 
+  ? participants.find(u => normalizeJid(u.jid) === senderNum) 
   : {}
 const bot = m.isGroup 
   ? participants.find(u => botNums.includes(normalizeJid(u.id))) 
