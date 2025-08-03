@@ -22,7 +22,7 @@ let handler = async (m, { conn }) => {
 
 handler.help = ['hd2 <reply img>']
 handler.tags = ['ai']
-handler.command = ['hd']
+handler.command = ['hd2']
 
 export default handler
 
