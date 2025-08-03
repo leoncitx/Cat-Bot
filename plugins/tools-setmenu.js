@@ -1,167 +1,133 @@
-// Plugin adaptado para Waguri Ai ✦ Canal y privacidad ✦ By KenisawaDev import fs from 'fs'
+import axios from 'axios'
+import { v4 as uuidv4 } from 'uuid'
+import readline from 'readline'
 
-let handler = async (m, { conn, text, args, command }) => { 
-const valores = ['none', 'contacts', 'everyone', 'mycontacts', 'mycontactsexcept'] 
-const isChannelLink = (url) => url.includes('whatsapp.com/channel/') 
-const getID = (url) => url.split('whatsapp.com/channel/')[1] 
-const img = { url: "https://files.catbox.moe/hale3u.jpg" }
+let handler = async (m, { conn, text, usedPrefix, command }) => {
+  try {
+    if (!text.includes('|')) return m.reply(`Gunakan : .sonu judul | lirik lagu | mood | genre | gender`)
+    let [title, lyrics, mood, genre, gender] = text.split('|').map(v => v.trim())
 
-switch (command) {
+    if (!title) return m.reply('Judul lagunya kagak boleh kosong bree 😂')
+    if (!lyrics) return m.reply('Lirik lagunya mana? Mau generate lagu kan? Yaa mana liriknya 😂')
+    if (lyrics.length > 1500) return m.reply('Lirik lagu kagak boleh lebih dari 1500 karakter yak bree 🗿')
 
-case 'setcallprivacy': {
-  if (!valores.includes(text)) throw m.reply(`✎ Uso: #${command} <valor>\n⤿ Valores: ${valores.join(', ')}`)
-  await conn.updateCallPrivacy(text)
-  m.reply(`❀ Privacidad de llamadas actualizada a: *${text}* ✨`)
-  break
-}
+    m.reply('waitt')
 
-case 'setlastprivacy': {
-  if (!valores.includes(text)) throw m.reply(`✎ Uso: #${command} <valor>\n⤿ Valores: ${valores.join(', ')}`)
-  await conn.updateLastSeenPrivacy(text)
-  m.reply(`❀ Privacidad de última conexión actualizada a: *${text}* ✨`)
-  break
-}
+    const deviceId = uuidv4()
+    const userHeaders = {
+      'user-agent': 'NB Android/1.0.0',
+      'content-type': 'application/json',
+      'accept': 'application/json',
+      'x-platform': 'android',
+      'x-app-version': '1.0.0',
+      'x-country': 'ID',
+      'accept-language': 'id-ID',
+      'x-client-timezone': 'Asia/Jakarta',
+    }
 
-case 'setonlineprivacy': {
-  if (!valores.includes(text)) throw m.reply(`✎ Uso: #${command} <valor>\n⤿ Valores: ${valores.join(', ')}`)
-  await conn.updateOnlinePrivacy(text)
-  m.reply(`❀ Estado en línea ahora es visible para: *${text}* ✨`)
-  break
-}
+    const msgId = uuidv4()
+    const time = Date.now().toString()
 
-case 'setprofileprivacy': {
-  if (!valores.includes(text)) throw m.reply(`✎ Uso: #${command} <valor>\n⤿ Valores: ${valores.join(', ')}`)
-  await conn.updateProfilePicturePrivacy(text)
-  m.reply(`❀ Privacidad de foto de perfil configurada a: *${text}* ✨`)
-  break
-}
+    const registerHeaders = {
+      ...userHeaders,
+      'x-device-id': deviceId,
+      'x-request-id': msgId,
+      'x-message-id': msgId,
+      'x-request-time': time
+    }
 
-case 'setstatusprivacy': {
-  if (!valores.includes(text)) throw m.reply(`✎ Uso: #${command} <valor>\n⤿ Valores: ${valores.join(', ')}`)
-  await conn.updateStatusPrivacy(text)
-  m.reply(`❀ Privacidad de estados configurada a: *${text}* ✨`)
-  break
-}
+    const fcmToken = 'eqnTqlxMTSKQL5NQz6r5aP:APA91bHa3CvL5Nlcqx2yzqTDAeqxm_L_vIYxXqehkgmTsCXrV29eAak6_jqXv5v1mQrdw4BGMLXl_BFNrJ67Em0vmdr3hQPVAYF8kR7RDtTRHQ08F3jLRRI'
 
-case 'setreadreceiptsprivacy': {
-  if (!valores.includes(text)) throw m.reply(`✎ Uso: #${command} <valor>\n⤿ Valores: ${valores.join(', ')}`)
-  await conn.updateReadReceiptsPrivacy(text)
-  m.reply(`❀ Confirmación de lectura configurada a: *${text}* ✨`)
-  break
-}
+    const reg = await axios.put('https://musicai.apihub.today/api/v1/users', {
+      deviceId,
+      fcmToken
+    }, { headers: registerHeaders })
 
-case 'createnewsletter': {
-  if (!text.includes('|')) throw m.reply('✎ Usa: #createnewsletter <nombre> | <descripción>')
-  let [name, desc] = text.split('|').map(v => v.trim())
-  const res = await conn.newsletterCreate(name, desc)
-  conn.sendMessage(m.chat, {
-    image: img,
-    caption: `☁︎ *Canal creado con éxito:*
+    const userId = reg.data.id
 
-⤿ Nombre: ${res.name} 
-⤿ Descripción: ${res.description}` }, { quoted: m }) 
-break 
-}
+    const createHeaders = {
+      ...registerHeaders,
+      'x-client-id': userId
+    }
 
-case 'setnewsletterdesc': {
-  const des = text.trim()
-  await conn.newsletterUpdateDescription(global.saluran, des)
-  m.reply('❀ Descripción del canal actualizada correctamente ✨')
-  break
-}
+    const body = {
+      type: 'lyrics',
+      name: title,
+      lyrics
+    }
+    if (mood) body.mood = mood
+    if (genre) body.genre = genre
+    if (gender) body.gender = gender
 
-case 'setnewslettername': {
-  const name = text.trim()
-  await conn.newsletterUpdateName(global.saluran, name)
-  m.reply('❀ Nombre del canal actualizado con éxito ✨')
-  break
-}
+    const create = await axios.post('https://musicai.apihub.today/api/v1/song/create', body, { headers: createHeaders })
+    const songId = create.data.id
 
-case 'setnewsletterpic': {
-  if (!m.quoted || !m.quoted.isMedia) throw m.reply('✎ Responde a una imagen para actualizar la foto del canal.')
-  const media = await m.quoted.download()
-  await conn.newsletterUpdatePicture(global.saluran, media)
-  m.reply('❀ Imagen del canal actualizada con éxito ✨')
-  break
-}
+    const checkHeaders = {
+      ...userHeaders,
+      'x-client-id': userId
+    }
 
-case 'removenewsletterpic': {
-  await conn.newsletterRemovePicture(global.saluran)
-  m.reply('☁︎ Foto del canal eliminada correctamente ✨')
-  break
-}
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
+    let attempt = 0
+    let found = null
 
-case 'follownewsletter': {
-  if (!isChannelLink(text)) throw m.reply('✎ Debes incluir un link válido del canal')
-  const id = getID(text)
-  const data = await conn.newsletterMetadata('invite', id)
-  await conn.newsletterFollow(data.id)
-  m.reply('☁︎ Seguiste el canal correctamente ✨')
-  break
-}
+    while (true) {
+      const check = await axios.get('https://musicai.apihub.today/api/v1/song/user', {
+        params: {
+          userId,
+          isFavorite: false,
+          page: 1,
+          searchText: ''
+        },
+        headers: checkHeaders
+      })
 
-case 'unfollownewsletter': {
-  if (!isChannelLink(text)) throw m.reply('✎ Debes incluir un link válido del canal')
-  const id = getID(text)
-  const data = await conn.newsletterMetadata('invite', id)
-  await conn.newsletterUnfollow(data.id)
-  m.reply('☁︎ Dejaste de seguir el canal correctamente ✨')
-  break
-}
+      found = check.data.datas.find(song => song.id === songId)
 
-case 'mutenewsletter': {
-  if (!isChannelLink(text)) throw m.reply('✎ Debes incluir un link válido del canal')
-  const id = getID(text)
-  const data = await conn.newsletterMetadata('invite', id)
-  await conn.newsletterMute(data.id)
-  m.reply('☁︎ Notificaciones silenciadas correctamente ✨')
-  break
-}
+      if (!found) {
+        rl.close()
+        return m.reply("Lagunya belum jadi keknya bree, soalnya kagak ada 😂")
+      }
 
-case 'unmutenewsletter': {
-  if (!isChannelLink(text)) throw m.reply('✎ Debes incluir un link válido del canal')
-  const id = getID(text)
-  const data = await conn.newsletterMetadata('invite', id)
-  await conn.newsletterUnmute(data.id)
-  m.reply('☁︎ Notificaciones activadas correctamente ✨')
-  break
-}
+      readline.cursorTo(process.stdout, 0)
+      process.stdout.write(`🔄 [${++attempt}] Status: ${found.status} | Proses: ${found.url ? '✅ Done' : '⏳ Loading...'}`)
 
-case 'setreactionmode': {
-  if (!['enabled', 'disabled'].includes(text)) throw m.reply('✎ Usa: #setreactionmode enabled / disabled')
-  await conn.newsletterReactionMode(global.saluran, text)
-  m.reply(`☁︎ Modo de reacción actualizado a *${text}* ✨`)
-  break
-}
+      if (found.url) {
+        rl.close()
 
-case 'getnewsletterinfo': {
-  if (!isChannelLink(text)) throw m.reply('✎ Usa: #getnewsletterinfo <link>')
-  const id = getID(text)
-  const data = await conn.newsletterMetadata('invite', id)
-  const fecha = (unix) => {
-    let d = new Date(unix * 1000)
-    return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`
+        await conn.sendMessage(m.chat, {
+          audio: { url: found.url },
+          mimetype: 'audio/mpeg',
+          fileName: `${found.name}.mp3`,
+          ptt: false,
+          contextInfo: {
+            forwardingScore: 999999,
+            isForwarded: true,
+            externalAdReply: {
+              title: `Suno Music AI`,
+              body: `${found.name} | Status : ${found.status}`,
+              mediaType: 1,
+              previewType: 0,
+              renderLargerThumbnail: true,
+              thumbnailUrl: found.thumbnail_url,
+              sourceUrl: found.url
+            }
+          }
+        }, { quoted: m })
+
+        return
+      }
+
+      await delay(3000)
+    }
+
+  } catch (e) {
+    return m.reply(`Eror kak : ${e?.message || e}`)
   }
-  const caption = `☁︎ *Información del Canal*
-
-⤿ Nombre: ${data.name} 
-⤿ ID: ${data.id} 
-⤿ Estado: ${data.state} 
-⤿ Creado el: ${fecha(data.creation_time)} 
-⤿ Subscriptores: ${data.subscribers} 
-⤿ Verificado: ${data.verification} 
-⤿ Emoji: ${data.reaction_codes} 
-⤿ Descripción: ${data.description}`
-
-conn.sendMessage(m.chat, { image: img, caption }, { quoted: m })
-  break
 }
 
-} }
-
-handler.command = [ 'setcallprivacy', 'setlastprivacy', 'setonlineprivacy', 'setprofileprivacy', 'setstatusprivacy', 'setreadreceiptsprivacy', 'createnewsletter', 'setnewsletterdesc', 'setnewslettername', 'setnewsletterpic', 'removenewsletterpic', 'follownewsletter', 'unfollownewsletter', 'mutenewsletter', 'unmutenewsletter', 'setreactionmode', 'getnewsletterinfo' ] 
-handler.help = [ 'setcallprivacy', 'setlastprivacy', 'setonlineprivacy', 'setprofileprivacy', 'setstatusprivacy', 'setreadreceiptsprivacy', 'createnewsletter', 'setnewsletterdesc', 'setnewslettername', 'setnewsletterpic', 'removenewsletterpic', 'follownewsletter', 'unfollownewsletter', 'mutenewsletter', 'unmutenewsletter', 'setreactionmode', 'getnewsletterinfo' ] 
-handler.tags = ['canal']
-handler.owner = true
-
+handler.command = ['sonu']
+handler.tags = ['ai']
+handler.help = ['sonu <judul | lirik | mood | genre | gender>']
 export default handler
