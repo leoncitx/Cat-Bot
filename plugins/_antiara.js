@@ -1,5 +1,5 @@
 import axios from 'axios'
-import cheerio from 'cheerio'
+import * as cheerio from 'cheerio';
 import mime from 'mime-types'
 
 let handler = async (m, { conn, text}) => {
