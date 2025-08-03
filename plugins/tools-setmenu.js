@@ -128,3 +128,7 @@ let handler = async (m, { conn, text, usedPrefix, command}) => {
 }
 
 handler.command = ['sonu']
+handler.tags = ['inteligencia_artificial']
+handler.help = ['sonu <título | letra | estado | género | voz>']
+
+export default handler;
