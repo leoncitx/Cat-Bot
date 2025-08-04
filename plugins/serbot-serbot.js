@@ -38,8 +38,8 @@ if (global.conns instanceof Array) {
 
 const MAX_SUBBOTS = 9999;
 
-async function loadSubbots() {
-  const serbotFolders = fs.readdirSync('./' + global.jadi); // Changed to global.jadi assuming it's defined elsewhere
+export async function loadSubbots() {
+  const serbotFolders = fs.readdirSync('./' + global.jadi);
   let totalC = 0;
 
   for (const folder of serbotFolders) {
@@ -48,7 +48,7 @@ async function loadSubbots() {
       break;
     }
 
-    const folderPath = `./${global.jadi}/${folder}`; // Changed to global.jadi
+    const folderPath = `./${global.jadi}/${folder}`;
     if (!fs.statSync(folderPath).isDirectory()) continue;
 
     const { state, saveCreds } = await useMultiFileAuthState(folderPath);
@@ -65,9 +65,7 @@ async function loadSubbots() {
 
     let conn = makeWASocket(connectionOptions);
     conn.isInit = false;
-    let isInit = true;
     let recAtts = 0;
-
     let connected = false;
 
     async function connectionUpdate(update) {
@@ -77,16 +75,19 @@ async function loadSubbots() {
       if (isNewLogin) conn.isInit = true;
 
       if (connection === "open") {
-        conn.isInit = true;
-        global.conns.push(conn);
-        connected = true;
-        totalC++;
-        recAtts = 0;
+        if (!connected) {
+          global.conns.push(conn);
+          totalC++;
+          recAtts = 0;
+          connected = true;
+          console.log(`Subbot "${folder}" conectado correctamente.`);
+        }
       }
 
       if ((connection === 'close' || connection === 'error') && !connected) {
         recAtts++;
         const waitTime = Math.min(15000, 1000 * 2 ** recAtts);
+        console.warn(`⚠️ Subbot "${folder}" desconectado (Intento ${recAtts}/3). Reintentando en ${waitTime/1000}s...`);
 
         if (recAtts >= 3) {
           console.log(`🛑 Subbot "${folder}" falló tras 3 intentos. Eliminando carpeta.`);
@@ -98,21 +99,26 @@ async function loadSubbots() {
           return;
         }
 
-        console.warn(`⚠️ Subbot "${folder}" desconectado (Intento ${recAtts}/3). Reintentando en ${waitTime / 1000}s...`);
-
         setTimeout(async () => {
           try {
-            conn.ws.close();
+            const idx = global.conns.indexOf(conn);
+            if (idx > -1) global.conns.splice(idx, 1);
+
+            try { conn.ws.close() } catch {}
             conn.ev.removeAllListeners();
+
             conn = makeWASocket(connectionOptions);
-            let handler = await import("../handler.js"); // Import handler here
+
+            let handler = await import("../handler.js");
             conn.handler = handler.handler.bind(conn);
             conn.connectionUpdate = connectionUpdate.bind(conn);
             conn.credsUpdate = saveCreds.bind(conn, true);
+
             conn.ev.on('messages.upsert', conn.handler);
             conn.ev.on('connection.update', conn.connectionUpdate);
             conn.ev.on('creds.update', conn.credsUpdate);
-            await creloadHandler(false);
+
+            console.log(`✅ Subbot "${folder}" reconectado.`);
           } catch (err) {
             console.error(`❌ Error al reintentar conexión con "${folder}":`, err);
           }
@@ -121,51 +127,27 @@ async function loadSubbots() {
 
       if (code === DisconnectReason.loggedOut) {
         console.log(`📤 Subbot "${folder}" cerró sesión. Eliminando carpeta.`);
-        fs.rmSync(folderPath, { recursive: true, force: true });
+        try {
+          fs.rmSync(folderPath, { recursive: true, force: true });
+        } catch (err) {
+          console.error(`❌ Error al eliminar carpeta de "${folder}":`, err);
+        }
       }
     }
 
     let handler = await import("../handler.js");
+    conn.handler = handler.handler.bind(conn);
+    conn.connectionUpdate = connectionUpdate.bind(conn);
+    conn.credsUpdate = saveCreds.bind(conn, true);
 
-    let creloadHandler = async function (restatConn) {
-      try {
-        const Handler = await import(`../handler.js?update=${Date.now()}`).catch(console.error);
-        if (Object.keys(Handler || {}).length) handler = Handler;
-      } catch (e) {
-        console.error(e);
-      }
-
-      if (restatConn) {
-        try {
-          conn.ws.close();
-        } catch {}
-        conn.ev.removeAllListeners();
-        conn = makeWASocket(connectionOptions);
-        isInit = true;
-      }
-
-      if (!isInit) {
-        conn.ev.off("messages.upsert", conn.handler);
-        conn.ev.off("connection.update", conn.connectionUpdate);
-        conn.ev.off("creds.update", conn.credsUpdate);
-      }
-
-      conn.handler = handler.handler.bind(conn);
-      conn.connectionUpdate = connectionUpdate.bind(conn);
-      conn.credsUpdate = saveCreds.bind(conn, true);
-      conn.ev.on("messages.upsert", conn.handler);
-      conn.ev.on("connection.update", conn.connectionUpdate);
-      conn.ev.on("creds.update", conn.credsUpdate);
-
-      isInit = false;
-      return true;
-    }
-
-    await creloadHandler(false);
+    conn.ev.on('messages.upsert', conn.handler);
+    conn.ev.on('connection.update', conn.connectionUpdate);
+    conn.ev.on('creds.update', conn.credsUpdate);
   }
 
   console.log(`\n✅ Subbots conectados correctamente: ${totalC} / ${serbotFolders.length}`);
 }
+
 loadSubbots().catch(console.error);
 
 let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
