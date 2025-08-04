@@ -1,28 +1,39 @@
+import fetch from 'node-fetch'
+import { Sticker } from 'wa-sticker-formatter'
 
-import fetch from 'node-fetch';
-
-const handler = async (m, { conn, args}) => {
-  if (!args[0]) {
-    return m.reply('🚩 Por favor, proporciona un texto para generar el sticker animado.\n_Ejemplo:.bratsticker Hola mundo_');
-}
-
-  const text = args.join(' ');
-  const apiUrl = `https://api.nekorinn.my.id/maker/bratvid?text=${encodeURIComponent(text)}`;
-
+let handler = async (m, { conn, args }) => {
+  await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
+  
   try {
-    m.reply('⏳ Generando tu sticker animado, por favor espera un momento...');
-
-    const response = await fetch(apiUrl);
-    if (!response.ok) throw new Error(`Error al generar el sticker: ${response.statusText}`);
-
-    const buffer = await response.buffer();
-
-    await conn.sendFile(m.chat, buffer, 'bratsticker.webp', '', m, { asSticker: true});
-} catch (error) {
-    console.error('Error al generar el sticker:', error);
-    m.reply('🚩 Ocurrió un error al generar el sticker animado. Por favor, intenta nuevamente más tarde.');
+    const text = args.join(' ')
+    if (!text) throw new Error('Contoh: .bratv halo dunia')
+    
+    const apiUrl = `https://api.ypnk.dpdns.org/api/video/bratv?text=${encodeURIComponent(text)}`
+    const res = await fetch(apiUrl)
+    if (!res.ok) throw new Error('Gagal mengambil video')
+    
+    const videoBuffer = await res.buffer()
+    const sticker = new Sticker(videoBuffer, {
+      pack: 'BRAT Video',
+      author: 'Yupra AI',
+      type: 'crop',
+      quality: 50
+    })
+    
+    await conn.sendMessage(m.chat, { 
+      sticker: await sticker.toBuffer() 
+    }, { quoted: m })
+    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
+    
+  } catch (e) {
+    console.error(e)
+    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
+    m.reply('Gagal membuat sticker video')
+  }
 }
-};
 
-handler.command = ['bratv', 'stickerbrat'];
-export default handler;
+handler.help = ['bratv <teks>']
+handler.tags = ['sticker']
+handler.command = /^bratv$/i
+
+export default handler
