@@ -1,38 +1,38 @@
 import fetch from 'node-fetch'
-import { Sticker } from 'wa-sticker-formatter'
+import { Sticker} from 'wa-sticker-formatter'
 
-let handler = async (m, { conn, args }) => {
-  await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
-  
+let handler = async (m, { conn, args}) => {
+  await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key}})
+
   try {
-    const text = args.join(' ')
-    if (!text) throw new Error('Contoh: .bratv halo dunia')
-    
-    const apiUrl = `https://api.ypnk.dpdns.org/api/video/bratv?text=${encodeURIComponent(text)}`
-    const res = await fetch(apiUrl)
-    if (!res.ok) throw new Error('Gagal mengambil video')
-    
-    const videoBuffer = await res.buffer()
+    const texto = args.join(' ')
+    if (!texto) throw new Error('Ejemplo:.bratv hola mundo')
+
+    const urlApi = `https://api.ypnk.dpdns.org/api/video/bratv?text=${encodeURIComponent(texto)}`
+    const respuesta = await fetch(urlApi)
+    if (!respuesta.ok) throw new Error('Error al obtener el video')
+
+    const videoBuffer = await respuesta.buffer()
     const sticker = new Sticker(videoBuffer, {
-      pack: 'BRAT Video',
+      pack: 'Video BRAT',
       author: 'Yupra AI',
       type: 'crop',
       quality: 50
-    })
-    
-    await conn.sendMessage(m.chat, { 
-      sticker: await sticker.toBuffer() 
-    }, { quoted: m })
-    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
-    
-  } catch (e) {
+})
+
+    await conn.sendMessage(m.chat, {
+      sticker: await sticker.toBuffer()
+}, { quoted: m})
+    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key}})
+
+} catch (e) {
     console.error(e)
-    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-    m.reply('Gagal membuat sticker video')
-  }
+    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key}})
+    m.reply('Error al crear el sticker de video')
+}
 }
 
-handler.help = ['bratv <teks>']
+handler.help = ['bratv <texto>']
 handler.tags = ['sticker']
 handler.command = /^bratv$/i
 
