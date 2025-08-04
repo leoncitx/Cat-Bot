@@ -150,7 +150,6 @@ delete userRequests[m.sender];
 handler.help = ['play', 'play2', 'play3', 'play4', 'playdoc'];
 handler.tags = ['downloader'];
 handler.command = ['play', 'play2', 'play3', 'play4', 'audio', 'video', 'playdoc', 'playdoc2', 'musica'];
-handler.register = true;
 export default handler;
 
 async function search(query, options = {}) {
