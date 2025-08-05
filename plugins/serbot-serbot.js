@@ -181,8 +181,6 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
       }
     }
   }
-    const secret = Buffer.from(drm1 + drm2, "base64");
-
     async function initSubBot() {
       let userJid = msg.mentionedJid && msg.mentionedJid[0] ? msg.mentionedJid[0] : msg.fromMe ? user.user.jid : msg.sender;
       let userName = "" + userJid.split`@`[0];
