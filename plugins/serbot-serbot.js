@@ -9,33 +9,16 @@ import nodeCache from "node-cache";
 import fs from "fs";
 import path from "path";
 import pino from "pino";
-import util from "util";
 import * as ws from "ws";
 const { child, spawn, exec } = await import("child_process");
 const { CONNECTING } = ws;
 import { makeWASocket } from "../lib/simple.js";
-let check1 = "60adedfeb87c6";
-let check2 = "e8d2cd8ee01fd";
-let check3 = "S6A2514  in";
-let check4 = "m-Donar.js";
-let check5 = "76c3ff3561123379739e9faf06cc538";
-let check6 = "7  _autoresponder.js59c74f1c6a3";
-let check8 = "63fbbcc05babcc3de80de  info-bot.js";
-let crm1 = "cd plugins";
-let crm2 = "; md5sum";
-let crm3 = "Sinfo-Donar.js";
-let crm4 = " _autoresponder.js info-bot.js";
-let drm1 = "";
-let drm2 = "";
-let imgcode = 'https://cdn-sunflareteam.vercel.app/images/fe2072569a.jpg'; // Imagen desde link
-let rtx = "*¡Bienvenido a la conexión Sub Bot! ✨*\n\n*Para unirte, ¡escanea este código QR con otro dispositivo o PC! 📱💻*\n\n`1` » Toca los *tres puntos* en la esquina superior derecha.\n`2` » Selecciona *'Dispositivos vinculados'*.\n`3` » ¡Escanea este QR y listo para iniciar sesión! 🎉\n\n*⚠️ Este código QR caduca en 45 segundos. ¡Conéctate rápido!*";
-let rtx2 = "*¡Conexión Sub Bot por Código! ✨*\n\n*Usa este código único para convertirte en un Sub Bot. ¡Es rápido y seguro! 🚀*\n\n`1` » Toca los *tres puntos* en la esquina superior derecha.\n`2` » Selecciona *'Dispositivos vinculados'*.\n`3` » Elige *'Vincular con el número de teléfono'*.\n`4` » ¡Introduce el *código* que te proporcionaremos a continuación! 👇\n\n*🔒 Este código solo funciona para ti. ¡No lo compartas!*";
 
-if (global.conns instanceof Array) {
-} else {
-  global.conns = [];
-}
+const imgcode = 'https://cdn-sunflareteam.vercel.app/images/fe2072569a.jpg';
+const rtx = "*¡Bienvenido a la conexión Sub Bot! ✨*\n\n*Para unirte, ¡escanea este código QR con otro dispositivo o PC! 📱💻*\n\n`1` » Toca los *tres puntos* en la esquina superior derecha.\n`2` » Selecciona *'Dispositivos vinculados'*.\n`3` » ¡Escanea este QR y listo para iniciar sesión! 🎉\n\n*⚠️ Este código QR caduca en 45 segundos. ¡Conéctate rápido!*";
+const rtx2 = "*¡Conexión Sub Bot por Código! ✨*\n\n*Usa este código único para convertirte en un Sub Bot. ¡Es rápido y seguro! 🚀*\n\n`1` » Toca los *tres puntos* en la esquina superior derecha.\n`2` » Selecciona *'Dispositivos vinculados'*.\n`3` » Elige *'Vincular con el número de teléfono'*.\n`4` » ¡Introduce el *código* que te proporcionaremos a continuación! 👇\n\n*🔒 Este código solo funciona para ti. ¡No lo compartas!*";
 
+if (!(global.conns instanceof Array)) global.conns = [];
 const MAX_SUBBOTS = 9999;
 
 export async function loadSubbots() {
@@ -80,21 +63,21 @@ export async function loadSubbots() {
           totalC++;
           recAtts = 0;
           connected = true;
-          console.log(`Subbot "${folder}" conectado correctamente.`);
+          console.log(`Subbot \"${folder}\" conectado correctamente.`);
         }
       }
 
       if ((connection === 'close' || connection === 'error') && !connected) {
         recAtts++;
         const waitTime = Math.min(15000, 1000 * 2 ** recAtts);
-        console.warn(`⚠️ Subbot "${folder}" desconectado (Intento ${recAtts}/3). Reintentando en ${waitTime/1000}s...`);
+        console.warn(`⚠️ Subbot \"${folder}\" desconectado (Intento ${recAtts}/3). Reintentando en ${waitTime / 1000}s...`);
 
         if (recAtts >= 3) {
-          console.log(`🛑 Subbot "${folder}" falló tras 3 intentos. Eliminando carpeta.`);
+          console.log(`🛑 Subbot \"${folder}\" falló tras 3 intentos. Eliminando carpeta.`);
           try {
             fs.rmSync(folderPath, { recursive: true, force: true });
           } catch (err) {
-            console.error(`❌ Error al eliminar carpeta de "${folder}":`, err);
+            console.error(`❌ Error al eliminar carpeta de \"${folder}\":`, err);
           }
           return;
         }
@@ -104,7 +87,7 @@ export async function loadSubbots() {
             const idx = global.conns.indexOf(conn);
             if (idx > -1) global.conns.splice(idx, 1);
 
-            try { conn.ws.close() } catch {}
+            try { conn.ws.close() } catch { }
             conn.ev.removeAllListeners();
 
             conn = makeWASocket(connectionOptions);
@@ -118,19 +101,19 @@ export async function loadSubbots() {
             conn.ev.on('connection.update', conn.connectionUpdate);
             conn.ev.on('creds.update', conn.credsUpdate);
 
-            console.log(`✅ Subbot "${folder}" reconectado.`);
+            console.log(`✅ Subbot \"${folder}\" reconectado.`);
           } catch (err) {
-            console.error(`❌ Error al reintentar conexión con "${folder}":`, err);
+            console.error(`❌ Error al reintentar conexión con \"${folder}\":`, err);
           }
         }, waitTime);
       }
 
       if (code === DisconnectReason.loggedOut) {
-        console.log(`📤 Subbot "${folder}" cerró sesión. Eliminando carpeta.`);
+        console.log(`📤 Subbot \"${folder}\" cerró sesión. Eliminando carpeta.`);
         try {
           fs.rmSync(folderPath, { recursive: true, force: true });
         } catch (err) {
-          console.error(`❌ Error al eliminar carpeta de "${folder}":`, err);
+          console.error(`❌ Error al eliminar carpeta de \"${folder}\":`, err);
         }
       }
     }
@@ -149,6 +132,11 @@ export async function loadSubbots() {
 }
 
 loadSubbots().catch(console.error);
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
   if (!global.db.data.settings[conn.user.jid].jadibotmd) {
@@ -193,9 +181,6 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
       }
     }
   }
-
-  const execCommand = Buffer.from(crm1 + crm2 + crm3 + crm4, "base64");
-  exec(execCommand.toString("utf-8"), async (error, stdout, stderr) => {
     const secret = Buffer.from(drm1 + drm2, "base64");
 
     async function initSubBot() {
@@ -424,8 +409,7 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
     }
 
     initSubBot();
-  });
-};
+}
 
 handler.help = ["serbot", "serbot --code", "code"];
 handler.tags = ["serbot"];
@@ -433,12 +417,8 @@ handler.command = ["jadibot", "serbot", "code"];
 
 export default handler;
 
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 async function joinChannels(conn) {
-for (const channelId of Object.values(global.ch)) {
-await conn.newsletterFollow(channelId).catch(() => {})
-}}
+  for (const channelId of Object.values(global.ch || {})) {
+    await conn.newsletterFollow(channelId).catch(() => { });
+  }
+}
