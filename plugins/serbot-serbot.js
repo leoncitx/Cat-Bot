@@ -14,7 +14,6 @@ const { child, spawn, exec } = await import("child_process");
 const { CONNECTING } = ws;
 import { makeWASocket } from "../lib/simple.js";
 
-const imgcode = 'https://cdn-sunflareteam.vercel.app/images/fe2072569a.jpg';
 const rtx = "*¡Bienvenido a la conexión Sub Bot! ✨*\n\n*Para unirte, ¡escanea este código QR con otro dispositivo o PC! 📱💻*\n\n`1` » Toca los *tres puntos* en la esquina superior derecha.\n`2` » Selecciona *'Dispositivos vinculados'*.\n`3` » ¡Escanea este QR y listo para iniciar sesión! 🎉\n\n*⚠️ Este código QR caduca en 45 segundos. ¡Conéctate rápido!*";
 const rtx2 = "*¡Conexión Sub Bot por Código! ✨*\n\n*Usa este código único para convertirte en un Sub Bot. ¡Es rápido y seguro! 🚀*\n\n`1` » Toca los *tres puntos* en la esquina superior derecha.\n`2` » Selecciona *'Dispositivos vinculados'*.\n`3` » Elige *'Vincular con el número de teléfono'*.\n`4` » ¡Introduce el *código* que te proporcionaremos a continuación! 👇\n\n*🔒 Este código solo funciona para ti. ¡No lo compartas!*";
 
@@ -248,7 +247,8 @@ let handler = async (msg, { conn, args, usedPrefix, command, isOwner }) => {
         }
         if (qr && isCode) {
           code = await user.sendMessage(msg.chat, {
-            text: rtx2,
+            image: { url: "https://cdn-sunflareteam.vercel.app/images/fe2072569a.jpg" },
+            caption: rtx2,
             contextInfo: {
               forwardingScore: 999,
               isForwarded: true,
