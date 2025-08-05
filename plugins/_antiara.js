@@ -1,39 +1,32 @@
-let handler = async (m, { conn, usedPrefix, command, args}) => {
-  const mediafireUrl = args[0];
-  if (!mediafireUrl) {
-    return conn.reply(m.chat, `🌀 *Por favor proporciona un enlace de Mediafire.*\n📌 *Ejemplo:* ${usedPrefix}${command} https://www.mediafire.com/file/abc123/archivo.zip/file`, m);
-}
+let handler = async (m, { conn, usedPrefix, command, args, users, setting }) => {
+    try {
+        if (!args || !args[0]) {
+            return conn.reply(m.chat, `🪐 Ingresé El Link De Mediafire.\n*Ejemplo:* ${usedPrefix}${command} https://www.mediafire.com/file/c2fyjyrfckwgkum/ZETSv1%25282%2529.zip/file`, m);
+        }
 
-  if (!/^https:\/\/www\.mediafire\.com\//i.test(mediafireUrl)) {
-    return conn.reply(m.chat, `❌ *Enlace inválido.* Asegúrate de que sea un enlace directo de Mediafire.`, m);
-}
+        if (!args[0].match(/(https:\/\/www.mediafire.com\/)/gi)) {
+            return conn.reply(m.chat, `Enlace inválido.`, m);
+        }
 
-  try {
-    m.react('🔄');
-    const res = await fetch(`https://api.sylphy.xyz/download/mediafire?url=${mediafireUrl}&apikey-hola`);
-    const json = await res.json();
+        m.react('🕒');
+        const json = await (await fetch(`https://api.sylphy.xyz/download/mediafire?url=${args[0]}&apikey=tesis-te-amo`)).json()
 
-    const file = json?.data;
-    if (!file?.download) {
-      return conn.reply(m.chat, `⚠️ *No se pudo recuperar el archivo.*`, m);
-}
-
-    const infoMsg = `
-📥 **Archivo Descargado**
-╭───────────────
-│ 📄 *Nombre:* ${file.filename}
-│ 📦 *Tamaño:* ${file.size}
-│ 🔗 *Enlace:* ${mediafireUrl}
-│ 🧾 *Tipo:* ${file.mimetype}
-╰───────────────`;
-
-    m.reply(infoMsg);
-    await conn.sendFile(m.chat, file.download, file.filename, '', m);
-} catch (err) {
-    conn.reply(m.chat, `🚫 *Error al procesar el enlace:* ${err.message}`, m);
-}
+        if (!json.data.download) {
+            return conn.reply(m.chat, "No se pudo obtener la información del archivo.", m);
+        }
+        let info = `
+✦ \`Nombre :\` ${json.data.filename}
+✧ \`Peso :\` ${json.data.size}
+✦ \`Link :\` ${args[0]}
+✧ \`Mime :\` ${json.data.mimetype}
+`;
+m.reply(info)
+await conn.sendFile(m.chat, json.data.download, json.data.filename, "", m);
+    } catch (e) {
+        return conn.reply(m.chat, `Error: ${e.message}`, m);
+    }
 };
 
-handler.command = handler.help = ['mediafire2', 'mf2'];
-handler.tags = ['descargas'];
+handler.command = handler.help = ['mediafire', 'mf', 'mfdl'];
+handler.tags = ["descargas"];;
 export default handler;
