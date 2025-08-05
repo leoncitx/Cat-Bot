@@ -1,3 +1,4 @@
+// Módulos
 //import { youtubedl, youtubedlv2 } from '@bochilteam/scraper'
 import fetch from 'node-fetch';
 import yts from 'yt-search';
@@ -24,11 +25,21 @@ if (videoIdToFind) {
 const videoId = videoIdToFind[1];
 ytplay2 = ytplay2.all.find(item => item.videoId === videoId) || ytplay2.videos.find(item => item.videoId === videoId)}
 ytplay2 = ytplay2.all?.[0] || ytplay2.videos?.[0] || ytplay2;
-const PlayText = await conn.sendMessage(m.chat, { text: `${yt_play[0].title}
-*⇄ㅤ     ◁   ㅤ  ❚❚ㅤ     ▷ㅤ     ↻*
 
-*⏰ Duración:* ${secondString(yt_play[0].duration.seconds)}
-*👉🏻Aguarde un momento en lo que envío su ${tipoDescarga}*`,  
+// --- INICIO DEL NUEVO DISEÑO ---
+const newDesign = `
+🎧 🎶 🎧 🎶 🎧
+━━━━━━━━━━━━━━━━━━
+*🎶 Título:* ${yt_play[0].title}
+*🎙️ Autor:* ${yt_play[0].author.name}
+*⏱️ Duración:* ${secondString(yt_play[0].duration.seconds)}
+*👀 Vistas:* ${MilesNumber(yt_play[0].views)}
+*🔗 Enlace:* ${yt_play[0].url}
+━━━━━━━━━━━━━━━━━━
+*⏳ Preparando tu ${tipoDescarga}, por favor espera...*
+`;
+
+const PlayText = await conn.sendMessage(m.chat, { text: newDesign,  
 contextInfo:{  
 forwardedNewsletterMessageInfo: { 
 newsletterJid: '120363414007802886@newsletter', 
@@ -47,6 +58,8 @@ mediaType: 1,
 thumbnailUrl: yt_play[0].thumbnail, 
 sourceUrl: "https://whatsapp.com/channel/0029VaAN15BJP21BYCJ3tH04"
 }}}, { quoted: m })
+// --- FIN DEL NUEVO DISEÑO ---
+
 userCaptions.set(m.sender, PlayText);
 
 const [input, qualityInput = command === 'play' || command === 'musica' || command === 'play3' ? '320' : '720'] = text.split(' ');
@@ -149,7 +162,7 @@ delete userRequests[m.sender];
 }}
 handler.help = ['play', 'play2', 'play3', 'play4', 'playdoc'];
 handler.tags = ['downloader'];
-handler.command = ['play', 'play2', 'play3', 'play4', 'audio', 'video', 'playdoc', 'playdoc2', 'musica'];
+handler.command = ['play', 'play2doc', 'playdoc2'];
 export default handler;
 
 async function search(query, options = {}) {
