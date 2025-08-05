@@ -1,3 +1,11 @@
+/*
+* Nama fitur : Skiplink Sub4unlock
+* Type : Plugin Esm
+* Note : Jangan lupa ambil apikey nya, https://fgsi.koyeb.app/login
+* Sumber : https://whatsapp.com/channel/0029Vb6Zs8yEgGfRQWWWp639
+* Author : ZenzzXD
+*/ 
+
 import axios from 'axios'
 
 let handler = async (m, { conn, text, usedPrefix, command }) => {
@@ -19,6 +27,6 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
 handler.help = ['skiplinksub4unlock <url>'];
 handler.tags = ['tools'];
-handler.command = ['sklink', 'skiplinksub4unlock']
+handler.command = ['skiplink', 'skiplinksub4unlock']
 
 export default handler
