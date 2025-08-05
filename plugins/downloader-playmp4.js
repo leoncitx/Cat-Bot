@@ -181,7 +181,7 @@ const handler = async (m, { conn, command, args, text, usedPrefix }) => {
 
 handler.help = ['play', 'play2', 'play3', 'play4', 'playdoc'];
 handler.tags = ['downloader'];
-handler.command = ['play', 'play2doc', 'playdoc2'];
+handler.command = ['play', 'playdoc', 'playdoc2'];
 export default handler;
 
 async function search(query, options = {}) {
