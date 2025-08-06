@@ -36,6 +36,4 @@ handler.tags = ['grupo']
 handler.command = ['fijar', 'unpin', 'desfijar', 'destacar', 'desmarcar'] 
 handler.admin = true
 handler.group = true
-handler.botAdmin = true
-// handler.register = true 
 export default handler
