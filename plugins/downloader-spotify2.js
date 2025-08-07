@@ -1,3 +1,4 @@
+
 import fetch from 'node-fetch';
 
 let handler = async (m, { conn, text, usedPrefix, command}) => {
@@ -11,35 +12,42 @@ let handler = async (m, { conn, text, usedPrefix, command}) => {
 
   await m.react('🌀');
 
-  // Obtener datos de la canción
-  let response = await fetch(`https://api.nekorinn.my.id/downloader/spotifyplay?q=${encodeURIComponent(text)}`);
-  let data = await response.json();
+  try {
+    let res = await fetch(`https://api.nekorinn.my.id/downloader/spotifyplay?q=${encodeURIComponent(text)}`);
+    let json = await res.json();
 
-  if (!data.result ||!data.result.downloadUrl ||!data.result.thumbnail) {
-    throw m.reply('❌ No se pudo obtener la canción. Intenta con otro nombre.');
+    if (!json.result ||!json.result.downloadUrl) {
+      throw new Error('No se encontró la canción');
 }
 
-  // Enviar información y portada
-  await conn.sendMessage(m.chat, {
-    image: { url: data.result.thumbnail},
-    caption: `
+    // Enviar imagen si existe
+    if (json.result.thumbnail) {
+      await conn.sendMessage(m.chat, {
+        image: { url: json.result.thumbnail},
+        caption: `🎶 *${json.result.title || text}*\n🎤 *${json.result.artist || 'Artista desconocido'}*`
+}, { quoted: m});
+}
+
+    // Enviar audio
+    await conn.sendMessage(m.chat, {
+      audio: { url: json.result.downloadUrl},
+      mimetype: 'audio/mpeg'
+}, { quoted: m});
+
+    // Confirmación final
+    await m.reply(`
 ╭━〔 *🔊 SPOTIFY DOWNLOADER* 〕━⬣
 ┃ 🌀 *Petición:* ${text}
-┃ 🎶 *Título:* ${data.result.title}
-┃ 🎤 *Artista:* ${data.result.artist}
-┃ 💽 *Álbum:* ${data.result.album}
-┃ 📅 *Fecha:* ${data.result.release_date || 'Desconocida'}
+┃ 💣 *Estado:* Éxito, canción enviada.
 ╰━━━━━━━━━━━━━━━━━━━━⬣
-    `.trim()
-}, { quoted: m});
+    `.trim());
 
-  // Enviar audio
-  await conn.sendMessage(m.chat, {
-    audio: { url: data.result.downloadUrl},
-    mimetype: 'audio/mpeg'
-}, { quoted: m});
-
-  await m.react('🎵');
+    await m.react('🎵');
+} catch (e) {
+    console.error(e);
+    await m.reply('❌ Hubo un error al procesar tu solicitud. Intenta con otro nombre de canción.');
+    await m.react('❌');
+}
 };
 
 handler.help = ['music *<texto>*'];
