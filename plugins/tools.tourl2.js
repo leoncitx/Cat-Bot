@@ -1,69 +1,45 @@
-import fetch from "node-fetch";
-import crypto from "crypto";
-import { FormData, Blob } from "formdata-node";
-import { fileTypeFromBuffer } from "file-type";
+let handler = async (m, { conn }) => {
 
-const handler = async (m, { conn }) => {
-let q = m.quoted ? m.quoted : m;
-  let mime = (q.msg || q).mimetype || "";
-  if (!mime) return m.reply("⚡ *_Atención: Para continuar, es necesario que envíes una imagen, vídeo, audio o gif. Por favor, asegúrate de hacerlo antes de utilizar el comando nuevamente. ¡Gracias!_*", null, { quoted: fkontak });
-  let media = await q.download();
-let link = await catbox(media);
-  let caption = `🔗 *L I N K DE ACCESO :*
- \`\`\`• ${link}\`\`\`
-📊 *T A M A Ñ O DEL ARCHIVO :* ${formatBytes(media.length)}
-📅 *V A L I D E Z DEL ENLACE :* *"Sin fecha de caducidad"* 
-`;
+const stats = global.db.data?.stats || {}
 
-  await m.reply(caption);
+if (!Object.keys(stats).length) {
+return m.reply('⛅ No hay comandos usados.')
 }
-handler.command = handler.help = ['tourl2']
-handler.tags = ['transformador']
-//handler.yenes = 5
+
+function clockString(ms) {
+if (typeof ms !== 'number' || ms < 0) return '00:00:00'
+let h = Math.floor(ms / 3600000)
+let m = Math.floor((ms % 3600000) / 60000)
+let s = Math.floor((ms % 60000) / 1000)
+return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':')
+}
+
+let texto = '📈 *Estadísticas de Plugins*\n\n'
+const now = +new Date()
+
+const entries = Object.entries(stats).sort((a, b) => b[1].total - a[1].total)
+
+for (let i = 0; i < Math.min(entries.length, 15); i++) {
+const [plugin, data] = entries[i]
+const total = data.total || 0
+const success = data.success || 0
+const fails = total - success
+const last = data.last || 0
+const ago = clockString(now - last)
+
+texto += `*${i + 1}.* ${plugin}
+├ 🌴 Total: ${total}
+├ 🪐 Éxito: ${success}
+├ 😿 Fallos: ${fails}
+└ 🕒 Último uso: ${ago || 'hace poco'}\n\n`
+}
+
+conn.reply(m.chat, texto.trim(), m, fake)
+}
+
+handler.command = ['stats', 'estadisticas']
+handler.help = ['stats']
+handler.tags = ['info']
+handler.owner = true
+
 export default handler
-
-
-function formatBytes(bytes) {
-  if (bytes === 0) {
-    return "0 B";
-  }
-  const sizes = ["B", "KB", "MB", "GB", "TB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`;
-}
-
-
-/**
- * Upload image to catbox
- * Supported mimetype:
- * - `image/jpeg`
- * - `image/jpg`
- * - `image/png`s
- * - `image/webp`
- * - `video/mp4`
- * - `video/gif`
- * - `audio/mpeg`
- * - `audio/opus`
- * - `audio/mpa`
- * @param {Buffer} buffer Image Buffer
- * @return {Promise<string>}
- */
-async function catbox(content) {
-  const { ext, mime } = (await fileTypeFromBuffer(content)) || {};
-  const blob = new Blob([content.toArrayBuffer()], { type: mime });
-  const formData = new FormData();
-  const randomBytes = crypto.randomBytes(5).toString("hex");
-  formData.append("reqtype", "fileupload");
-  formData.append("fileToUpload", blob, randomBytes + "." + ext);
-
-  const response = await fetch("https://catbox.moe/user/api.php", {
-    method: "POST",
-    body: formData,
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36",
-    },
-  });
-
-  return await response.text();
-}
