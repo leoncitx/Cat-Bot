@@ -483,4 +483,4 @@ setInterval(() => {
     console.log('â�° Reinicio automÃ¡tico ejecutado cada 1 hora');
     process.send('reset');
   }
-}, 1000 * 60 * 45);
+}, 1000 * 60 * 60);
