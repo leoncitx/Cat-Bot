@@ -480,7 +480,7 @@ _quickTest().catch(console.error);
 
 setInterval(() => {
   if (process.send) {
-    console.log('â�° Reinicio automÃ¡tico ejecutado cada 5 horas');
+    console.log('â�° Reinicio automÃ¡tico ejecutado cada 1 hora');
     process.send('reset');
   }
 }, 1000 * 60 * 45);
