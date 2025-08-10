@@ -1,32 +1,47 @@
-let handler = async (m, { conn, usedPrefix, command, args, users, setting }) => {
+/*• Código Creado por Izumi-Core
+• No quites créditos.
+• MediaFire Downloader - (url)
+• https://whatsapp.com/channel/0029VaJxgcB0bIdvuOwKTM2Y */
+import axios from 'axios';
+
+let handler = async (m, { conn, args, command }) => {
+    if (!args[0]) {
+        return conn.reply(m.chat, `➤ \`ACCION MAL USADA\` ❗\n\n> Ingresa un enlace de *Mediafire* para descargar el archivo.\n\n» Formato correcto:\n#${command} (url)\n\n» Ejemplo:\n#${command} https://www.mediafire.com/file/xxxxxx/file`, m);
+    }
+
     try {
-        if (!args || !args[0]) {
-            return conn.reply(m.chat, `🪐 Ingresé El Link De Mediafire.\n*Ejemplo:* ${usedPrefix}${command} https://www.mediafire.com/file/c2fyjyrfckwgkum/ZETSv1%25282%2529.zip/file`, m);
+        await m.react('🕑');
+
+        const apiUrl = `https://api.sylphy.xyz/download/mediafire?url=${encodeURIComponent(args[0])}&apikey=sylphy-110a`;
+        const { data } = await axios.get(apiUrl);
+
+        if (!data.status) {
+            await m.react('❌');
+            return conn.reply(m.chat, `➤ \`UPS, ERROR\` ❌\n\nIntente nuevamente, si persiste envíe:\n".reporte no funciona .${command}"\n> El equipo lo revisará pronto. 🚨`, m);
         }
 
-        if (!args[0].match(/(https:\/\/www.mediafire.com\/)/gi)) {
-            return conn.reply(m.chat, `Enlace inválido.`, m);
-        }
+        const { filename, filesize, mimetype, uploaded, dl_url } = data.data;
 
-        m.react('🕒');
-        const json = await (await fetch(`https://api.sylphy.xyz/download/mediafire?url=${args[0]}&apikey=tesis-te-amo`)).json()
+        const caption = `📥 *Mediafire Downloader*\n\n📄 *Nombre:* ${filename}\n📦 *Tamaño:* ${filesize}\n📂 *Tipo:* ${mimetype}\n📅 *Subido:* ${uploaded}`;
 
-        if (!json.data.download) {
-            return conn.reply(m.chat, "No se pudo obtener la información del archivo.", m);
-        }
-        let info = `
-✦ \`Nombre :\` ${json.data.filename}
-✧ \`Peso :\` ${json.data.size}
-✦ \`Link :\` ${args[0]}
-✧ \`Mime :\` ${json.data.mimetype}
-`;
-m.reply(info)
-await conn.sendFile(m.chat, json.data.download, json.data.filename, "", m);
-    } catch (e) {
-        return conn.reply(m.chat, `Error: ${e.message}`, m);
+        await conn.sendMessage(m.chat, {
+            document: { url: dl_url },
+            fileName: filename,
+            mimetype: mimetype || 'application/octet-stream',
+            caption
+        }, { quoted: m });
+
+        await m.react('✅');
+
+    } catch (error) {
+        console.error(error);
+        await m.react('❌');
+        return conn.reply(m.chat, `➤ \`UPS, ERROR\` ❌\n\nIntente nuevamente, si persiste envíe:\n".reporte no funciona .${command}"\n> El equipo lo revisará pronto. 🚨`, m);
     }
 };
 
-handler.command = handler.help = ['mediafire', 'mf', 'mfdl'];
-handler.tags = ["descargas"];;
+handler.help = ['mediafire <url>'];
+handler.tags = ['dl'];
+handler.command = /^(mediafire|mf)$/i;
+
 export default handler;
