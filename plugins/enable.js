@@ -37,17 +37,9 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
   break;
 
     case 'antilag':
-      if (!m.isGroup) {
-        if (!isOwner) {
-          global.dfail('group', m, conn);
-          throw false;
-        }
-      } else if (!isAdmin) {
-        global.dfail('admin', m, conn);
-        throw false;
-      }
-      chat.antiLag = isEnable;
-      break;
+  chat.antiLag = isEnable;
+  m.reply(`✅ Modo Anti-Lag ${isEnable? 'activado': 'desactivado'} correctamente.`);
+  break;
 
     case 'autoread':
     case 'autoleer':
