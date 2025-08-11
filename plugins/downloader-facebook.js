@@ -1,42 +1,48 @@
-const descargarVideoFacebook = async (urlFacebook) => {
-    if (typeof urlFacebook!== "string") throw Error(`¿Dónde está la URL?`)
+import { igdl } from 'ruhend-scraper';
 
-    const respuesta = await fetch("https://fdown.net/download.php", {
-        method: "POST",
-        headers: { "content-type": "application/x-www-form-urlencoded"},
-        body: new URLSearchParams({ URLz: urlFacebook})
-})
+const handler = async (m, { text, conn, args, usedPrefix, command }) => {
+  if (!args[0]) {
+    return conn.reply(m.chat, '*\`Ingresa El link Del vídeo a descargar ❤️‍🔥\`*', m, fake);
+  }
 
-    if (!respuesta.ok) {
-        const texto = await respuesta.text()
-        throw Error(`${respuesta.status} ${respuesta.statusText} ${(texto || `(respuesta vacía)`).substring(0, 100)}`)
-}
+  await m.react('🕒');
+  let res;
+  try {
+    res = await igdl(args[0]);
+  } catch (error) {
+    return conn.reply(m.chat, '*`Error al obtener datos. Verifica el enlace.`*', m);
+  }
 
-    const html = await respuesta.text()
-    const hd = html.match(/id="hdlink" href="(.+?)" download/)?.[1]?.replaceAll("&amp;", "&")
-    const sd = html.match(/id="sdlink" href="(.+?)" download/)?.[1]?.replaceAll("&amp;", "&")
+  let result = res.data;
+  if (!result || result.length === 0) {
+    return conn.reply(m.chat, '*`No se encontraron resultados.`*', m);
+  }
 
-    if (!hd &&!sd) throw Error(`No se encontró ningún video disponible para descargar`)
+  let data;
+  try {
+    data = result.find(i => i.resolution === "720p (HD)") || result.find(i => i.resolution === "360p (SD)");
+  } catch (error) {
+    return conn.reply(m.chat, '*`Error al procesar los datos.`*', m);
+  }
 
-    return { hd, sd}
-}
+  if (!data) {
+    return conn.reply(m.chat, '*`No se encontró una resolución adecuada.`*', m);
+  }
 
-let handler = async (m, { conn, text}) => {
-    if (!text) return m.reply(`Ejemplo:.fbdl https://www.facebook.com/share/v/...`)
+  await m.react('✅');
+  let video = data.url;
 
-    m.reply('⏳ Procesando...')
+  try {
+    await conn.sendMessage(m.chat, { video: { url: video }, caption: dev, fileName: 'fb.mp4', mimetype: 'video/mp4' }, { quoted: m });
+  } catch (error) {
+    return conn.reply(m.chat, '*`Error al enviar el video.`*', m);
+  await m.react('❌');
+  }
+};
 
-    try {
-        const { hd, sd} = await descargarVideoFacebook(text)
-        const urlVideo = hd || sd
-        await conn.sendFile(m.chat, urlVideo, '_zenwik.mp4', '', m)
-} catch (error) {
-        m.reply(`Error: ${error.message}`)
-}
-}
+handler.help = ['fb *<link>*'];
+handler.estrellas = 2
+handler.tags = ['downloader']
+handler.command = /^(fb|facebook|fbdl)$/i;
 
-handler.help = ['fbdl <url>']
-handler.tags = ['descargas']
-handler.command = ['fbdl']
-
-export default handler
+export default handler;                                                                                                                                                                                                                                          
