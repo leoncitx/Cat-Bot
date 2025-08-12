@@ -1,71 +1,78 @@
 import fetch from 'node-fetch';
 
-let handler = async (m, { conn, args, usedPrefix, command}) => {
-  if (!args[0]) {
-    return m.reply(`📸 Ingresa un nombre de usuario de Instagram\n*Ejemplo:* ${usedPrefix + command} mycyll.7`);
+async function obtenerPerfilInstagram(usuario: string) {
+  const url = `https://media.mollygram.com/?url=${encodeURIComponent(usuario)}`;
+  const headers = {
+    'accept': '*/*',
+    'accept-encoding': 'gzip, deflate, br',
+    'accept-language': 'es-ES,es;q=0.9,en-US;q=0.8,en;q=0.7',
+    'origin': 'https://mollygram.com',
+    'referer': 'https://mollygram.com/',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/115.0.0.0 Safari/537.36'
+};
+
+  const respuesta = await fetch(url, { headers});
+  const datos = await respuesta.json();
+
+  if (datos.status!== 'ok') throw new Error('No se pudo obtener el perfil.');
+
+  const html = datos.html;
+
+  const extraer = (regex: RegExp): string | null => {
+    const coincidencia = html.match(regex);
+    return coincidencia? coincidencia[1].trim(): null;
+};
+
+  return {
+    usuario: extraer(/<h4 class="mb-0">([^<]+)<\/h4>/),
+    nombre: extraer(/<p class="text-muted">([^<]+)<\/p>/),
+    biografia: extraer(/<p class="text-dark"[^>]*>([^<]+)<\/p>/),
+    fotoPerfil: extraer(/<img[^>]*class="[^"]*rounded-circle[^"]*"[^>]*src="([^"]+)"/i)
+      || extraer(/<img[^>]*src="([^"]+)"[^>]*class="[^"]*rounded-circle[^"]*"/i),
+    publicaciones: extraer(/<div[^>]*>\s*<span class="d-block h5 mb-0">([^<]+)<\/span>\s*<div[^>]*>posts<\/div>/i),
+    seguidores: extraer(/<div[^>]*>\s*<span class="d-block h5 mb-0">([^<]+)<\/span>\s*<div[^>]*>followers<\/div>/i),
+    siguiendo: extraer(/<div[^>]*>\s*<span class="d-block h5 mb-0">([^<]+)<\/span>\s*<div[^>]*>following<\/div>/i)
+};
 }
 
-  const username = args[0].replace(/^@/, '');
+let handler = async (m, { conn, args}) => {
+  if (!args[0]) {
+    return m.reply('📸 Por favor, ingresa un nombre de usuario de Instagram.\n*Ejemplo:*.igstalk mycyll.7');
+}
 
   try {
-    m.react('🔍');
+    m.react('🔎');
 
-    const apiUrl = `https://media.mollygram.com/?url=${encodeURIComponent(username)}`;
-    const headers = {
-      'accept': '*/*',
-      'accept-encoding': 'gzip, deflate, br',
-      'accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
-      'origin': 'https://mollygram.com',
-      'referer': 'https://mollygram.com/',
-      'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
-};
+    const perfil = await obtenerPerfilInstagram(args[0]);
 
-    const res = await fetch(apiUrl, { headers});
-    const json = await res.json();
+    const mensaje = `👤 *Perfil de Instagram*\n`
+      + `• 🆔 Usuario: @${perfil.usuario || args[0]}\n`
+      + `• 📛 Nombre: ${perfil.nombre || 'No disponible'}\n`
+      + `• 📝 Biografía: ${perfil.biografia || 'Sin descripción'}\n`
+      + `• 📸 Publicaciones: ${perfil.publicaciones || '0'}\n`
+      + `• 👥 Seguidores: ${perfil.seguidores || '0'}\n`
+      + `• 🧑‍🤝‍🧑 Siguiendo: ${perfil.siguiendo || '0'}`;
 
-    if (json.status!== 'ok') {
-      return m.reply('❌ No se pudo obtener la información del perfil. Verifica el nombre de usuario.');
-}
-
-    const html = json.html;
-
-    const getMatch = (regex: RegExp): string | null => {
-      const match = html.match(regex);
-      return match? match[1].trim(): null;
-};
-
-    const profilePic = getMatch(/<img[^>]*class="[^"]*rounded-circle[^"]*"[^>]*src="([^"]+)"/i)
-      || getMatch(/<img[^>]*src="([^"]+)"[^>]*class="[^"]*rounded-circle[^"]*"/i);
-
-    const uname = getMatch(/<h4 class="mb-0">([^<]+)<\/h4>/);
-    const fullname = getMatch(/<p class="text-muted">([^<]+)<\/p>/);
-    const bio = getMatch(/<p class="text-dark"[^>]*>([^<]+)<\/p>/);
-    const posts = getMatch(/<div[^>]*>\s*<span class="d-block h5 mb-0">([^<]+)<\/span>\s*<div[^>]*>posts<\/div>/i);
-    const followers = getMatch(/<div[^>]*>\s*<span class="d-block h5 mb-0">([^<]+)<\/span>\s*<div[^>]*>followers<\/div>/i);
-    const following = getMatch(/<div[^>]*>\s*<span class="d-block h5 mb-0">([^<]+)<\/span>\s*<div[^>]*>following<\/div>/i);
-
-    let caption = `👤 *Perfil de Instagram*\n`;
-    caption += `• 🆔 Usuario: @${uname || username}\n`;
-    caption += `• 📛 Nombre: ${fullname || 'No disponible'}\n`;
-    caption += `• 📝 Bio: ${bio || 'Sin descripción'}\n`;
-    caption += `• 📸 Publicaciones: ${posts || '0'}\n`;
-    caption += `• 👥 Seguidores: ${followers || '0'}\n`;
-    caption += `• 🧑‍🤝‍🧑 Siguiendo: ${following || '0'}`;
-
-    if (profilePic) {
-      await conn.sendFile(m.chat, profilePic, 'profile.jpg', caption, m);
+    if (perfil.fotoPerfil) {
+      await conn.sendMessage(m.chat, {
+        image: { url: perfil.fotoPerfil},
+        caption: mensaje
+}, { quoted: m});
 } else {
-      m.reply(caption);
+      await m.reply(mensaje);
 }
 
     m.react('✅');
 
-} catch (e) {
-    console.error('Error al obtener perfil de Instagram:', e);
-    m.reply(`❌ Ocurrió un error al obtener el perfil: ${e.message}`);
-    m.react('✖️');
+} catch (error) {
+    console.error('Error al obtener perfil:', error);
+    m.reply(`❌ No se pudo obtener el perfil: ${error.message}`);
+    m.react('⚠️');
 }
 };
 
-handler.command = ['igstalk', 'instastalk'];
+handler.help = ['igstalk'];
+handler.command = ['igstalk'];
+handler.tags = ['herramientas'];
+
 export default handler;
