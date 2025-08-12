@@ -1,88 +1,76 @@
-import axios from 'axios'
-import crypto from 'crypto'
 
-async function suno(prompt, { style = '', title = '', instrumental = false} = {}) {
-    if (!prompt) throw new Error('Se requiere un prompt')
-    if (typeof instrumental!== 'boolean') throw new Error('Instrumental debe ser un valor booleano')
+import axios from 'axios';
 
-    const { data: cf} = await axios.get('https://api.nekorinn.my.id/tools/rynn-stuff', {
-        params: {
-            mode: 'turnstile-min',
-            siteKey: '0x4AAAAAAAgeJUEUvYlF2CzO',
-            url: 'https://songgenerator.io/features/s-45',
-            accessKey: '2c9247ce8044d5f87af608a244e10c94c5563b665e5f32a4bb2b2ad17613c1fc'
-}
-})
+async function scrapeMollygram(username) {
+  try {
+    const url = `https://media.mollygram.com/?url=${encodeURIComponent(username)}`;
+    const headers = {
+      'accept': '*/*',
+      'accept-encoding': 'gzip, deflate, br',
+      'accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+      'origin': 'https://mollygram.com',
+      'referer': 'https://mollygram.com/',
+      'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36'
+};
 
-    const uid = crypto.createHash('md5').update(Date.now().toString()).digest('hex')
-    const { data: task} = await axios.post('https://aiarticle.erweima.ai/api/v1/secondary-page/api/create', {
-        prompt,
-        channel: 'MUSIC',
-        id: 1631,
-        type: 'features',
-        source: 'songgenerator.io',
-        style,
-        title,
-        customMode: false,
-        instrumental
-}, {
-        headers: {
-            uniqueid: uid,
-            verify: cf.result.token
-}
-})
+    const { data} = await axios.get(url, { headers});
+    if (data.status!== 'ok') throw new Error('No se pudo obtener los datos');
 
-    while (true) {
-        const { data} = await axios.get(`https://aiarticle.erweima.ai/api/v1/secondary-page/api/${task.data.recordId}`, {
-            headers: {
-                uniqueid: uid,
-                verify: cf.result.token
-}
-})
+    const html = data.html;
+    const getMatch = (regex) => html.match(regex)?.[1]?.trim() || null;
 
-        if (data?.data?.state === 'success') {
-            try {
-                let parsed = JSON.parse(data.data.completeData)
-                return parsed
-} catch {
-                return data.data.completeData
-}
-}
+    const profilePic = getMatch(/<img[^>]*class="[^"]*rounded-circle[^"]*"[^>]*src="([^"]+)"/i)
+      || getMatch(/<img[^>]*src="([^"]+)"[^>]*class="[^"]*rounded-circle[^"]*"/i);
 
-        await new Promise(res => setTimeout(res, 1500))
+    return {
+      username: getMatch(/<h4 class="mb-0">([^<]+)<\/h4>/),
+      fullname: getMatch(/<p class="text-muted">([^<]+)<\/p>/),
+      bio: getMatch(/<p class="text-dark"[^>]*>([^<]+)<\/p>/),
+      posts: getMatch(/<div[^>]*>\s*<span class="d-block h5 mb-0">([^<]+)<\/span>\s*<div[^>]*>posts<\/div>/i),
+      followers: getMatch(/<div[^>]*>\s*<span class="d-block h5 mb-0">([^<]+)<\/span>\s*<div[^>]*>followers<\/div>/i),
+      following: getMatch(/<div[^>]*>\s*<span class="d-block h5 mb-0">([^<]+)<\/span>\s*<div[^>]*>following<\/div>/i),
+      profilePic
+};
+
+} catch (error) {
+    throw new Error(`Error al scrapear Mollygram: ${error.message}`);
 }
 }
 
 let handler = async (m, { conn, text}) => {
-    if (!text) return m.reply(`Ejemplo:.suno canción sobre lo que siento por ella, cantante masculino, estilo lofi relajado`)
-    m.reply('🔄 Generando...')
-    try {
-        let result = await suno(text)
+  if (!text) return m.reply('❌ Ingresa el nombre de usuario de Mollygram.\nEjemplo:.molly mycyll.7');
 
-        if (!result?.data?.length) return m.reply('❌ No se pudo obtener la canción')
+  try {
+    const result = await scrapeMollygram(text);
+    if (!result) return m.reply('No se encontró información del perfil.');
 
-        let audioUrl = result.data[0].audio_url
-        let songTitle = result.data[0].title || 'Suno Music'
-        let lyrics = result.data[0].prompt || ''
+    const caption = `👤 *Usuario:* ${result.username}\n`
+      + `📛 *Nombre completo:* ${result.fullname || 'No disponible'}\n`
+      + `📝 *Biografía:* ${result.bio || 'Sin descripción'}\n`
+      + `📸 *Publicaciones:* ${result.posts || '0'}\n`
+      + `👥 *Seguidores:* ${result.followers || '0'}\n`
+      + `➡️ *Siguiendo:* ${result.following || '0'}`;
 
-        await conn.sendMessage(m.chat, {
-            audio: { url: audioUrl},
-            mimetype: 'audio/mpeg',
-            fileName: `${songTitle}.mp3`,
-            ptt: false
-},
-        { quoted: m})
-
-        if (lyrics) {
-            m.reply(`*Letra de la canción: ${songTitle}*\n\n${lyrics}`)
-}
-} catch (e) {
-        m.reply(`⚠️ Error: ${e.message}`)
+    await conn.sendMessage(m.chat, {
+      text: caption,
+      contextInfo: {
+        externalAdReply: {
+          title: result.username,
+          body: 'Perfil de Mollygram',
+          mediaType: 1,
+          thumbnailUrl: result.profilePic,
+          sourceUrl: `https://mollygram.com/${text}`
 }
 }
+}, { quoted: m});
 
-handler.help = ['suno <prompt>']
-handler.tags = ['ai']
-handler.command = ['suno']
+} catch (err) {
+    m.reply(`⚠️ Error: ${err.message}`);
+}
+};
 
-export default handler
+handler.help = ['molly <usuario>'];
+handler.tags = ['scraper'];
+handler.command = ['molly', 'mollygram'];
+
+export default handler;
