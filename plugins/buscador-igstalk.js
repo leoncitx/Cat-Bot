@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // 📸 Función para obtener datos del perfil de Instagram usando Mollygram
-const obtenerPerfilMollygram = async (usuario: string) => {
+const obtenerPerfilMollygram = async (usuario) => {
   const { data} = await axios.get(`https://media.mollygram.com/?url=${encodeURIComponent(usuario)}`, {
     headers: {
       'accept': '*/*',
@@ -15,7 +15,7 @@ const obtenerPerfilMollygram = async (usuario: string) => {
 
   const html = data.html;
 
-  const extraerDato = (regex: RegExp): string | null =>
+  const extraerDato = (regex) =>
     html.match(regex)?.[1]?.trim() || null;
 
   const fotoPerfil = extraerDato(/<img[^>]*class="[^"]*rounded-circle[^"]*"[^>]*src="([^"]+)"/i)
