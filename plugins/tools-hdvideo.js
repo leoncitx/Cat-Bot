@@ -1,3 +1,4 @@
+
 import fs from "fs";
 import axios from "axios";
 import FormData from "form-data";
@@ -6,7 +7,9 @@ const handler = async (m, { mime, quoted, command, prefix, text, isPrem}) => {
   const idUser = m.sender.split("@")[0];
 
   if (command === "hdvideo") {
-    if (!quoted ||!/video/.test(mime)) return m.reply("❗ Responde a un video para convertirlo a HD");
+    if (!quoted ||!quoted.mimetype ||!quoted.mimetype.includes("video")) {
+      return m.reply("❗ Responde a un video para convertirlo a HD");
+}
 
     let [res, fpsText] = text?.trim().toLowerCase().split(" ");
     let fps = 60;
@@ -75,7 +78,9 @@ const handler = async (m, { mime, quoted, command, prefix, text, isPrem}) => {
 }
 
   if (command === "hd") {
-    if (!quoted ||!/image/.test(mime)) return m.reply("❗ Responde a una imagen para mejorar su calidad");
+    if (!quoted ||!quoted.mimetype ||!quoted.mimetype.includes("image")) {
+      return m.reply("❗ Responde a una imagen para mejorar su calidad");
+}
 
     m.reply("⏳ Procesando imagen, espera un momento...");
 
@@ -116,9 +121,9 @@ const handler = async (m, { mime, quoted, command, prefix, text, isPrem}) => {
 }
 };
 
-handler.command = ["hdvideo"];
-handler.help = ["hdvideo <resolución> [fps]"];
-handler.tags = ["tools"];
+handler.command = ["hdvideo", "hd"];
+handler.help = ["hdvideo <resolución> [fps]", "hd"];
+handler.tags = ["tools", "media"];
 handler.limit = true;
 
 export default handler;
