@@ -1,3 +1,4 @@
+
 import fs from 'fs';
 import path from 'path';
 
@@ -18,17 +19,18 @@ const handler = async (m, { conn}) => {
   for (const file of jsFiles) {
     try {
       const plugin = await import(`file://${file}`);
-      const handler = plugin.default;
 
-      // Verifica si el plugin tiene estructura válida
-      const isValid = handler &&
-                      typeof handler === 'object' &&
-                      Array.isArray(handler.command) &&
-                      handler.command.length> 0;
+      // Detecta si el plugin exporta un objeto con propiedad 'command'
+      const exported = plugin?.default?? plugin;
+      const isValid =
+        exported &&
+        typeof exported === 'object' &&
+        Array.isArray(exported.command) &&
+        exported.command.length> 0;
 
       if (!isValid) {
         hasIssues = true;
-        response += `❌ *Plugin inválido:* ${path.basename(file)}\nNo se encontró 'handler.command' válido.\n\n`;
+        response += `❌ *Plugin inválido:* ${path.basename(file)}\nNo se encontró 'command' válido.\n\n`;
 }
 } catch (error) {
       hasIssues = true;
