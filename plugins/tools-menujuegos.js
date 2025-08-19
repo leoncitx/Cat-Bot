@@ -12,13 +12,21 @@ const handler = async (m, { conn}) => {
   await m.react('🔍');
   conn.sendPresenceUpdate('composing', m.chat);
 
-  let response = `🧩 *Verificación de Plugins de Comando (${jsFiles.length} archivos):*\n\n`;
+  let response = `🧩 *Plugins con errores detectados:*\n\n`;
   let hasIssues = false;
 
   for (const file of jsFiles) {
     try {
       const plugin = await import(`file://${file}`);
-      if (!plugin.default ||!plugin.default.command ||!Array.isArray(plugin.default.command)) {
+      const handler = plugin.default;
+
+      // Verifica si el plugin tiene estructura válida
+      const isValid = handler &&
+                      typeof handler === 'object' &&
+                      Array.isArray(handler.command) &&
+                      handler.command.length> 0;
+
+      if (!isValid) {
         hasIssues = true;
         response += `❌ *Plugin inválido:* ${path.basename(file)}\nNo se encontró 'handler.command' válido.\n\n`;
 }
@@ -29,7 +37,7 @@ const handler = async (m, { conn}) => {
 }
 
   if (!hasIssues) {
-    response += '✅ ¡Todos los plugins de comando están correctamente definidos!';
+    response = '✅ ¡Todos los plugins están correctamente definidos!';
 }
 
   await conn.reply(m.chat, response, m);
