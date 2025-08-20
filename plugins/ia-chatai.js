@@ -8,7 +8,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
     return conn.reply(m.chat, `${emoji} Ingrese una petición para que Llama-IA lo responda.`, m)
   }
 
-  await m.react(rwait)
+  await m.react('😈');
   try {
     const { key } = await conn.sendMessage(m.chat, {
       text: `${emoji2} Llama-IA está procesando tu petición, espera unos segundos.`
