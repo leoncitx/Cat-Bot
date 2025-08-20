@@ -84,9 +84,9 @@ JBOptions.fromCommand = true
 JadiBot(JBOptions)
 global.db.data.users[m.sender].Subs = new Date * 1
 } 
-handler.help = ['qr', 'code']
+handler.help = ['serbot', 'code']
 handler.tags = ['serbot']
-handler.command = ['qr', 'code']
+handler.command = ['serbot', 'code']
 export default handler 
 
 export async function JadiBot(options) {
