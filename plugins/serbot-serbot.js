@@ -17,7 +17,7 @@ let crm3 = "SBpbmZvLWRvbmFyLmpz"
 let crm4 = "IF9hdXRvcmVzcG9uZGVyLmpzIGluZm8tYm90Lmpz"
 let drm1 = ""
 let drm2 = ""
-let sasukeQR = `
+let rtx = `
 ╔═══『 🌀 𝚂𝙰𝚂𝚄𝙺𝙴 - 𝚀𝚁 』═══╗
 
 🔗 *Conexión Sub-Bot Temporal (QR)*
@@ -33,7 +33,7 @@ para vincularte como *Sub-Bot Temporal* en esta sesión.
 ⏳ *Este código expira en 54 segundos*
 ¡Muévete como el viento, shinobi!
 `;
-let sasukeCodigo = `
+let rtx2 = `
 ╔═══『 🧿 𝚂𝙰𝚂𝚄𝙺𝙴 - 𝙲𝙾𝙳𝙸𝙶𝙾 𝟾 𝙳𝙸𝙶𝙸𝚃𝙾𝚂 』═══╗
 
 🔐 *Conexión Sub-Bot Temporal (Código)*
