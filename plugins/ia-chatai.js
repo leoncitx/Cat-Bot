@@ -5,10 +5,10 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
   const basePrompt = `Tu nombre es Llama-IA y fuiste creada por Ivan versión actual es 1.0.0 Usas el idioma Español. Llamarás a las personas por su nombre ${username}, te gusta ser divertida y te encanta aprender. Lo más importante es que debes ser amigable con la persona con la que estás hablando. ${username}`
 
   if (!text) {
-    return conn.reply(m.chat, `${emoji} Ingrese una petición para que Llama-IA lo responda.`, m)
+    return conn.reply(m.chat, `🌀 Ingrese una petición para que Llama-IA lo responda.`, m)
   }
 
-  await m.react('😈');
+  await m.react('⚡');
   try {
     const { key } = await conn.sendMessage(m.chat, {
       text: `${emoji2} Llama-IA está procesando tu petición, espera unos segundos.`
@@ -18,7 +18,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
     const response = await llamaIA(query, username)
 
     await conn.sendMessage(m.chat, { text: response, edit: key })
-    await m.react('🥵');
+    await m.react('🌀');
 
   } catch (err) {
     console.error(err)
@@ -28,7 +28,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 }
 
 handler.help = ['ia', 'chatgpt']
-handler.tags = ['ai']
+handler.tags = ['ia']
 handler.command = ['ia', 'chatgpt', 'iallama']
 
 export default handler
