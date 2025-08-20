@@ -51,6 +51,8 @@ se recomienda cerrarla para evitar errores o bloqueos.
 `;
 let imagenUrl = 'https://cdn-sunflareteam.vercel.app/images/fe2072569a.jpg';
 
+let emoji2 = '🍁';
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const JBOptions = {}
