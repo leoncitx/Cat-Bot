@@ -11,7 +11,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
   await m.react('⚡');
   try {
     const { key } = await conn.sendMessage(m.chat, {
-      text: `${emoji2} Llama-IA está procesando tu petición, espera unos segundos.`
+      text: `🌀 Llama-IA está procesando tu petición, espera unos segundos.`
     }, { quoted: m })
 
     const query = `${basePrompt}. Responde lo siguiente: ${text}`
