@@ -2,7 +2,7 @@ import axios from 'axios'
 
 let handler = async (m, { conn, usedPrefix, command, text }) => {
   const username = `${conn.getName(m.sender)}`
-  const basePrompt = `Tu nombre es Llama-IA y fuiste creada por Ivan versión actual es ${vs}. Usas el idioma Español. Llamarás a las personas por su nombre ${username}, te gusta ser divertida y te encanta aprender. Lo más importante es que debes ser amigable con la persona con la que estás hablando. ${username}`
+  const basePrompt = `Tu nombre es Llama-IA y fuiste creada por Ivan versión actual es 1.0.0 Usas el idioma Español. Llamarás a las personas por su nombre ${username}, te gusta ser divertida y te encanta aprender. Lo más importante es que debes ser amigable con la persona con la que estás hablando. ${username}`
 
   if (!text) {
     return conn.reply(m.chat, `${emoji} Ingrese una petición para que Llama-IA lo responda.`, m)
