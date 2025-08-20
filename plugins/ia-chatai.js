@@ -29,7 +29,6 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 
 handler.help = ['ia', 'chatgpt']
 handler.tags = ['ai']
-handler.register = true
 handler.command = ['ia', 'chatgpt', 'iallama']
 handler.group = true
 
