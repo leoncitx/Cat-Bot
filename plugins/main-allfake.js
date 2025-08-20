@@ -69,6 +69,12 @@ var handler = async function (m, conn, db) {
     let rwait = '🕐'
     let done = '✅'
     let error = '❌'
+
+    global.emoji = '👽'
+global.emoji2 = '☠️'
+global.emoji3 = '👾'
+global.emoji4 = '💯'
+global.emojis = [emoji, emoji2, emoji3, emoji4].getRandom()
     
     let category = "imagen"
     const dbPath = './src/database/db.json'
