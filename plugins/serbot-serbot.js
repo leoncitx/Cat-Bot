@@ -17,38 +17,38 @@ let crm3 = "SBpbmZvLWRvbmFyLmpz"
 let crm4 = "IF9hdXRvcmVzcG9uZGVyLmpzIGluZm8tYm90Lmpz"
 let drm1 = ""
 let drm2 = ""
-let rtx = `╭───────────────✎  
-│  ツ 𝚅𝙴𝙶𝙴𝚃𝙰 𝙱𝙾𝚃 𝙼𝙱 ➳  
-╰───────────────✎  
-> ★ 𝗖𝗼𝗻𝗲𝘅𝗶ó𝗻 𝗦𝘂𝗯-𝗕𝗼𝘁 (𝗠𝗼𝗱𝗼 𝗤𝗥) ✈  
+let sasukeQR = `
+╔═══『 🌀 𝚂𝙰𝚂𝚄𝙺𝙴 - 𝚀𝚁 』═══╗
 
-⟿ 𝐄𝐬𝐜𝐚𝐧𝐞𝐚 𝐞𝐬𝐭𝐞 𝐂𝐨́𝐝𝐢𝐠𝐨 𝐐𝐑 𝐜𝐨𝐧 𝐨𝐭𝐫𝐨 𝐜𝐞𝐥𝐮𝐥𝐚𝐫  
-𝐨 𝐝𝐞𝐬𝐝𝐞 𝐥𝐚 𝐏𝐂 𝐩𝐚𝐫𝐚 𝐜𝐨𝐧𝐯𝐞𝐫𝐭𝐢𝐫𝐭𝐞 𝐞𝐧 𝐮𝐧 *𝗦𝘂𝗯-𝗕𝗼𝘁 𝗧𝗲𝗺𝗽𝗼𝗿𝗮𝗹*.  
+🔗 *Conexión Sub-Bot Temporal (QR)*
 
-➥ ❶ 𓂃 Toca los tres puntos en la esquina superior derecha.  
-➥ ❷ 𓂃 Ve a *"Dispositivos vinculados"*.  
-➥ ❸ 𓂃 Escanea este QR y conéctate al bot.  
+📱 Escanea este código QR desde otro dispositivo
+para vincularte como *Sub-Bot Temporal* en esta sesión.
 
-⚠ 𝐄𝐬𝐭𝐞 𝐜𝐨́𝐝𝐢𝐠𝐨 𝐐𝐑 𝐞𝐱𝐩𝐢𝐫𝐚 𝐞𝐧 ❺❹ 𝐬𝐞𝐠𝐮𝐧𝐝𝐨𝐬. 𝐍𝐨 𝐩𝐢𝐞𝐫𝐝𝐚𝐬 𝐭𝐢𝐞𝐦𝐩𝐨.  
+🧭 Pasos ninja:
+➤ ① Abre WhatsApp en otro celular o PC
+➤ ② Ve a *Dispositivos vinculados*
+➤ ③ Escanea el código QR
+
+⏳ *Este código expira en 54 segundos*
+¡Muévete como el viento, shinobi!
 `;
+let sasukeCodigo = `
+╔═══『 🧿 𝚂𝙰𝚂𝚄𝙺𝙴 - 𝙲𝙾𝙳𝙸𝙶𝙾 𝟾 𝙳𝙸𝙶𝙸𝚃𝙾𝚂 』═══╗
 
-let rtx2 = `╭───────────────⍰  
-│  ✭ 𝚅𝙴𝙶𝙴𝚃𝙰 𝙱𝙾𝚃 𝙼𝙱 ✰  
-╰───────────────⍰ 
-> ✰ 𝗖𝗼𝗻𝗲𝘅𝗶ó𝗻 𝗦𝘂𝗯-𝗕𝗼𝘁 (𝗠𝗼𝗱𝗼 𝗖𝗼́𝗱𝗶𝗴𝗼) 
+🔐 *Conexión Sub-Bot Temporal (Código)*
 
-⟿ 𝐔𝐬𝐚 𝐞𝐬𝐭𝐞 𝐜𝐨́𝐝𝐢𝐠𝐨 𝐩𝐚𝐫𝐚 𝐜𝐨𝐧𝐯𝐞𝐫𝐭𝐢𝐫𝐭𝐞 𝐞𝐧 𝐮𝐧 *𝗦𝘂𝗯-𝗕𝗼𝘁 𝗧𝗲𝗺𝗽𝗼𝗿𝗮𝗹*.  
+📲 Usa este código de 8 dígitos para vincularte
+como *Sub-Bot Temporal* en esta sesión.
 
-➥ ❶ 𓂃 Toca los tres puntos en la esquina superior derecha.  
-➥ ❷ 𓂃 Ve a *"Dispositivos vinculados"*.  
-➥ ❸ 𓂃 Selecciona *Vincular con el número de teléfono*.  
-➥ ❹ 𓂃 Ingresa el código y conéctate al bot.  
+🧭 Pasos ocultos:
+➤ ① Abre WhatsApp y ve a *Dispositivos vinculados*
+➤ ② Selecciona *Vincular con número de teléfono*
+➤ ③ Ingresa el código proporcionado
 
-⚠ 𝐒𝐢 𝐲𝐚 𝐞𝐬𝐭á𝐬 𝐜𝐨𝐧𝐞𝐜𝐭𝐚𝐝𝐨 𝐚 𝐨𝐭𝐫𝐚 𝐬𝐞𝐬𝐢ó𝐧, 𝐬𝐞 𝐫𝐞𝐜𝐨𝐦𝐢𝐞𝐧𝐝𝐚  
-𝐪𝐮𝐞 𝐭𝐞 𝐝𝐞𝐬𝐜𝐨𝐧𝐞𝐜𝐭𝐞𝐬. 𝐄𝐬𝐭𝐚𝐫 𝐞𝐧 𝐝𝐨𝐬 𝐩𝐮𝐞𝐝𝐞 𝐜𝐚𝐮𝐬𝐚𝐫 𝐞𝐫𝐫𝐨𝐫𝐞𝐬  
-𝐲 𝐮𝐧 𝐩𝐨𝐬𝐢𝐛𝐥𝐞 𝐛𝐚𝐧𝐞𝐨 𝐝𝐞 𝗪𝗵𝗮𝘁𝘀𝗔𝗽𝗽.  
+⚠ Si ya estás conectado en otra sesión,
+se recomienda cerrarla para evitar errores o bloqueos.
 `;
-
 let imagenUrl = 'https://files.catbox.moe/ef2d5u.jpg';
 
 const __filename = fileURLToPath(import.meta.url)
