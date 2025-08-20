@@ -18,11 +18,11 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
     const response = await llamaIA(query, username)
 
     await conn.sendMessage(m.chat, { text: response, edit: key })
-    await m.react(done)
+    await m.react('🥵');
 
   } catch (err) {
     console.error(err)
-    await m.react(error)
+    await m.react('🛑');
     await conn.reply(m.chat, '✘ Llama-IA no puede responder a esa pregunta.', m)
   }
 }
