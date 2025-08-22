@@ -1,3 +1,6 @@
+const fs = import("fs");
+import path from 'path';
+
 const handler = async (msg, { conn, args }) => {
   const chatId = msg.key.remoteJid;
   const sender = msg.key.participant || msg.key.remoteJid;
