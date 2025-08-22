@@ -1,5 +1,5 @@
-const fs = import("fs");
-const path = import("path");
+const fs = requiere("fs");
+const path = requiere("path");
 
 const handler = async (msg, { conn, args }) => {
   const chatId = msg.key.remoteJid;
