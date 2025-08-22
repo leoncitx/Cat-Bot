@@ -41,5 +41,5 @@ const handler = async (msg, { conn, args }) => {
   }, { quoted: msg });
 };
 
-handler.command = ["re"];
-module.exports = handler;b
+handler.command = ["re2"];
+export default handler;
