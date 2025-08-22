@@ -1,4 +1,4 @@
-const fs = import("fs");
+import fs from "fs";
 import path from 'path';
 
 const handler = async (msg, { conn, args }) => {
