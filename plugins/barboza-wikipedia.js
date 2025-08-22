@@ -1,6 +1,3 @@
-const fs = requiere("fs");
-const path = requiere("path");
-
 const handler = async (msg, { conn, args }) => {
   const chatId = msg.key.remoteJid;
   const sender = msg.key.participant || msg.key.remoteJid;
