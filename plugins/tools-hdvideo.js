@@ -38,12 +38,16 @@ let handler = async (m, { conn, text, command, usedPrefix}) => {
   m.reply(`⏳ Procesando video a ${res.toUpperCase()} ${fps}FPS...`);
 
   try {
-    const downloaded = await conn.downloadAndSaveMediaMessage(m.quoted, inputFile);
+    const buffer = await conn.downloadMediaMessage(m.quoted);
+    fs.writeFileSync(inputFile, buffer);
 
     const form = new FormData();
-    form.append("video", fs.createReadStream(downloaded));
+    form.append("video", fs.createReadStream(inputFile));
     form.append("resolution", targetHeight);
     form.append("fps", fps);
+
+    if (!fs.existsSync('./temp')) fs.mkdirSync('./temp');
+    const filePath = `./temp/${outputFile}`;
 
     const response = await axios.post("http://api.drizznesiasite.biz.id:4167/hdvideo", form, {
       headers: form.getHeaders(),
@@ -52,18 +56,17 @@ let handler = async (m, { conn, text, command, usedPrefix}) => {
       maxContentLength: Infinity,
 });
 
-    const filePath = `./temp/${outputFile}`;
     const writer = fs.createWriteStream(filePath);
     response.data.pipe(writer);
 
     writer.on("finish", async () => {
-      const buffer = fs.readFileSync(filePath);
+      const finalBuffer = fs.readFileSync(filePath);
       await conn.sendMessage(m.chat, {
-        video: buffer,
+        video: finalBuffer,
         caption: `✅ Video convertido a ${res.toUpperCase()} ${fps}FPS`
 }, { quoted: m});
 
-      fs.unlinkSync(downloaded);
+      fs.unlinkSync(inputFile);
       fs.unlinkSync(filePath);
 });
 
