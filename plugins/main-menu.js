@@ -131,8 +131,8 @@ ${saludo} ${tagUsuario} 👋
 }, { quoted: izumi});
 
 } catch (e) {
-    console.error('❌ Error al generar el menú:', e);
-    await conn.reply(m.chat, '⚠️ Ocurrió un error al mostrar el menú.', m);
+    console.error('❌ Error al generar el menú: Barboza bug :', e);
+    await conn.reply(m.chat, `⚠️ Ocurrió un error al mostrar el menú.\n> ${e.message}`, m);
 }
 };
 
