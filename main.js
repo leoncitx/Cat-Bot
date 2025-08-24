@@ -476,11 +476,3 @@ function clockString(ms) {
   const s = isNaN(ms) ? '--' : Math.floor(ms / 1000) % 60;
   return [d, 'd ️', h, 'h ', m, 'm ', s, 's '].map((v) => v.toString().padStart(2, 0)).join('');
 }
-_quickTest().catch(console.error);
-
-setInterval(() => {
-  if (process.send) {
-    console.log('â�° Reinicio automÃ¡tico ejecutado cada 1 hora');
-    process.send('reset');
-  }
-}, 1000 * 60 * 60);
