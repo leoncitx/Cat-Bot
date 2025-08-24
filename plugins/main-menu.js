@@ -139,6 +139,3 @@ ${saludo} ${tagUsuario} 👋
 
 handler.command = ['menu', 'help', 'menú'];
 export default handler;
-```
-
-Este código está listo para integrarse en tu bot. Si el error persiste, compárteme el mensaje exacto que aparece en consola y te ayudo a resolverlo paso a paso. También puedo ayudarte a convertir este menú en uno interactivo con botones o listas si lo deseas.
