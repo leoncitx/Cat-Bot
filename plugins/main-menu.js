@@ -45,7 +45,7 @@ const handler = async (m, { conn, usedPrefix}) => {
     const mode = global.opts?.self? 'Privado 🔒': 'Público 🌐';
     const uptime = clockString(process.uptime() * 1000);
     const tagUsuario = `@${m.sender.split('@')[0]}`;
-    const userName = await conn.getName?.(m.sender) || tagUsuario;
+    const userName = (await conn.getName?.(m.sender)) || tagUsuario;
 
     const text = [
       "*Etiqueta General X Sasuke*",
@@ -101,8 +101,9 @@ const handler = async (m, { conn, usedPrefix}) => {
 };
 
     const menuBody = Object.entries(categorizedCommands).map(([title, cmds]) => {
-      const emoji = categoryEmojis[title.toLowerCase()] || '📁';
-const list = [...cmds].map(cmd => `│ ◦ ${cmd}`).join('\n');
+
+const emoji = categoryEmojis[title.toLowerCase()] || '📁';
+      const list = [...cmds].map(cmd => `│ ◦ ${cmd}`).join('\n');
       return `╭─「 ${emoji} ${title.toUpperCase()} 」\n${list}\n${sectionDivider}`;
 }).join('\n\n');
 
@@ -138,3 +139,6 @@ ${saludo} ${tagUsuario} 👋
 
 handler.command = ['menu', 'help', 'menú'];
 export default handler;
+```
+
+Este código está listo para integrarse en tu bot. Si el error persiste, compárteme el mensaje exacto que aparece en consola y te ayudo a resolverlo paso a paso. También puedo ayudarte a convertir este menú en uno interactivo con botones o listas si lo deseas.
