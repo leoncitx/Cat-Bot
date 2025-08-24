@@ -11,6 +11,13 @@ const { child, spawn, exec } = await import('child_process')
 const { CONNECTING } = ws
 import { makeWASocket } from '../lib/simple.js'
 import { fileURLToPath } from 'url'
+import { startSub, checkSubBots } from '../lib/resetsb.js';
+
+await startSub();
+
+setInterval(() => { console.log(`${chalk.bold.whiteBright.bgGreen('INFO :')} ${chalk.bold.cyanBright(`🌿 Verificando subbots y reconectandolos . . .`)}`);
+checkSubBots();
+}, 30000);
 let crm1 = "Y2QgcGx1Z2lucy"
 let crm2 = "A7IG1kNXN1b"
 let crm3 = "SBpbmZvLWRvbmFyLmpz"
