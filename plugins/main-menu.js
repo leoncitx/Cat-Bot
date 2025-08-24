@@ -122,7 +122,7 @@ ${saludo} ${tagUsuario} 👋
     const fullMenu = `${header}\n\n${menuBody}\n\n${menuFooter}`;
 
     const botSettings = global.db.data.settings?.[conn.user.jid] || {};
-    const bannerr = botSettings.banner || 'https://raw.githubusercontent.com/WillZek/CrowBot-ST/main/media/catalogo.jpg';
+    const bannerr = botSettings.banner || img;
 
     await conn.sendMessage(m.chat, {
       image: { url: bannerr},
