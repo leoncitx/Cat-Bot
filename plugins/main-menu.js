@@ -18,7 +18,7 @@ const saludarSegunHora = () => {
 };
 
 // Imagen de respaldo
-const img = 'https://cdn-sunflareteam.vercel.app/images/f123d13223.jpg';
+const img = 'https://n.uguu.se/cUjuHCuw.jpg';
 const sectionDivider = '╰━━━━━━━━━━━━━━━━━━⭓';
 
 // Pie de menú
