@@ -42,7 +42,7 @@ const handler = async (m, { conn, usedPrefix}) => {
     const { exp, level, limit} = user;
     const { min, xp} = xpRange(level, global.multiplier || 1);
     const totalUsers = Object.keys(global.db.data.users).length;
-    const mode = global.opts?.self? 'Privado 🔒': 'Público 🌐';
+    const mode = global.opts?.self? 'Privado ✎': 'Público ✎';
     const uptime = clockString(process.uptime() * 1000);
     const tagUsuario = `@${m.sender.split('@')[0]}`;
     const userName = (await conn.getName?.(m.sender)) || tagUsuario;
@@ -106,8 +106,7 @@ const menuBody = Object.entries(categorizedCommands).map(([title, cmds]) => {
       return `╭─「 ${emoji} ${title.toUpperCase()} 」\n${list}\n${sectionDivider}`;
 }).join('\n\n');
 
-    const header = `>
-${saludo} ${tagUsuario} 
+    const header = `> ${saludo} ${tagUsuario} 
 
 ╭┈ ↷
 │ ✦ Nombre: ${userName}
