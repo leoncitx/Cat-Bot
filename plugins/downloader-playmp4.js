@@ -31,24 +31,19 @@ const handler = async (m, { conn, command, args, text, usedPrefix }) => {
     ytplay2 = ytplay2.all?.[0] || ytplay2.videos?.[0] || ytplay2;
 
     // --- INICIO DEL NUEVO DISEÑO ---
-    const newDesign = `
-🎧 🎶 🎧 🎶 🎧
-━━━━━━━━━━━━━━━━━━
-*🎶 Título:* ${yt_play[0].title}
-*🎙️ Autor:* ${yt_play[0].author.name}
-*⏱️ Duración:* ${secondString(yt_play[0].duration.seconds)}
-*👀 Vistas:* ${MilesNumber(yt_play[0].views)}
-*🔗 Enlace:* ${yt_play[0].url}
-━━━━━━━━━━━━━━━━━━
-*⏳ Preparando tu ${tipoDescarga}, por favor espera...*
-`;
+    const newDesign = `*「✦」Título:* ${yt_play[0].title}
+
+> Autor:* ${yt_play[0].author.name}
+> ⴵ Duración:* ${secondString(yt_play[0].duration.seconds)}
+> ✰ *Vistas:* ${MilesNumber(yt_play[0].views)}
+> 🜸 *Enlace:* ${yt_play[0].url}`;
 
     const PlayText = await conn.sendMessage(m.chat, { text: newDesign,  
       contextInfo:{  
         forwardedNewsletterMessageInfo: { 
           newsletterJid: '120363414007802886@newsletter', 
           serverMessageId: '', 
-          newsletterName: 'Sasuke 🌀🔥' 
+          newsletterName: '' 
         },
         forwardingScore: 9999999,  
         isForwarded: true,   
