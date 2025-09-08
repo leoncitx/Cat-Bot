@@ -101,8 +101,8 @@ const handler = async (m, { conn, usedPrefix}) => {
 };
 
 const menuBody = Object.entries(categorizedCommands).map(([title, cmds]) => {
-      const emoji = categoryEmojis[title.toLowerCase()] || '📁';
-      const list = [...cmds].map(cmd => `│ ◦ ${cmd}`).join('\n');
+      const emoji = categoryEmojis[title.toLowerCase()] || '✦';
+      const list = [...cmds].map(cmd => `❀ ${cmd}`).join('\n');
       return `╭─「 ${emoji} ${title.toUpperCase()} 」\n${list}\n${sectionDivider}`;
 }).join('\n\n');
 
