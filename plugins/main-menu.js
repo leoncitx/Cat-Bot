@@ -54,8 +54,8 @@ const handler = async (m, { conn, usedPrefix}) => {
     ].getRandom();
 
     const imgRandom = [
-      "https://iili.io/FKVDVAN.jpg",
-      "https://iili.io/FKVbUrJ.jpg"
+      "https://h.uguu.se/nOTcXSMy.jpg",
+      "https://h.uguu.se/nOTcXSMy.jpg"
     ].getRandom();
 
     let thumbnailBuffer;
