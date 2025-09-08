@@ -106,17 +106,17 @@ const menuBody = Object.entries(categorizedCommands).map(([title, cmds]) => {
       return `╭─「 ${emoji} ${title.toUpperCase()} 」\n${list}\n${sectionDivider}`;
 }).join('\n\n');
 
-    const header = `
-${saludo} ${tagUsuario} 👋
+    const header = `>
+${saludo} ${tagUsuario} 
 
-╭─ 「 sᥲsᥙkᥱ ᑲ᥆𝗍 mძ 🌀 」
-│ 👤 Nombre: ${userName}
-│ 🎖 Nivel: ${level} | XP: ${exp - min}/${xp}
-│ 🔓 Límite: ${limit}
-│ 🧭 Modo: ${mode}
-│ ⏱️ Tiempo activo: ${uptime}
-│ 🌍 Usuarios registrados: ${totalUsers}
-╰─❒
+╭┈ ↷
+│ ✦ Nombre: ${userName}
+│ ❍ Nivel: ${level} | XP: ${exp - min}/${xp}
+│ ✎ Límite: ${limit}
+│ ☕︎︎ Modo: ${mode}
+│ ⴵ Tiempo activo: ${uptime}
+│ ❒ Usuarios registrados: ${totalUsers}
+╰──────────────────
 `.trim();
 
     const fullMenu = `${header}\n\n${menuBody}\n\n${menuFooter}`;
