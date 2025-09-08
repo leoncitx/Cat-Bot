@@ -19,7 +19,7 @@ const saludarSegunHora = () => {
 
 // Imagen de respaldo
 const img = 'https://h.uguu.se/nOTcXSMy.jpg';
-const sectionDivider = '';
+const sectionDivider = '︶︶︶︶︶︶︶︶︶︶︶︶︶︶︶︶︶︶';
 
 // Pie de menú
 const menuFooter = `
